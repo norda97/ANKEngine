@@ -4,14 +4,37 @@
     <Filter Include="Core">
       <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Rendering">
+      <UniqueIdentifier>{FB0E51AA-E7DC-44B0-D070-B5D6BCDD2015}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Rendering\DirectX">
+      <UniqueIdentifier>{BDBC453F-A9B6-6E91-9223-05A27EBCD4FD}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Rendering\DirectX\DXDeviceInstance.h">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Rendering\DirectX\DXShader.h">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\WinWrapper.h" />
+    <ClInclude Include="src\Core\Utils\Cameras\Camera.h" />
+    <ClInclude Include="src\Core\Rendering\DirectX\DXBuffer.h">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Core\Rendering\DirectX\DXDeviceInstance.cpp">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Rendering\DirectX\DXShader.cpp">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\WinWrapper.cpp" />
+    <ClCompile Include="src\Core\Utils\Cameras\Camera.cpp" />
+    <ClCompile Include="src\Core\Rendering\DirectX\DXBuffer.cpp">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
