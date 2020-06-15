@@ -36,8 +36,8 @@ bool DXShader::init(const std::string& vFilename, const std::string& pFilename, 
 
 	ID3DBlob *vsBlob, *psBlob;
 	
-	assert(compileShader(MINI_SHADER_PATH + vFilename, "VSMain", "vs_4_0_level_9_1", &vsBlob));
-	assert(compileShader(MINI_SHADER_PATH + pFilename, "PSMain", "ps_4_0_level_9_1", &psBlob));
+	assert(compileShader(ANK_SHADER_PATH + vFilename, "VSMain", "vs_4_0_level_9_1", &vsBlob));
+	assert(compileShader(ANK_SHADER_PATH + pFilename, "PSMain", "ps_4_0_level_9_1", &psBlob));
 
 	DXDeviceInstance::get().getDev()->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->vertexShader);
 	DXDeviceInstance::get().getDev()->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), NULL, &this->pixelShader);
@@ -78,7 +78,10 @@ bool DXShader::compileShader(const std::string& file, const std::string& entry, 
 		// Write error if blobeError has been filled
 		if (blobError)
 		{
-			OutputDebugStringA((char*)blobError->GetBufferPointer());
+			// Print error message and return
+			std::string errMsg((char*)blobError->GetBufferPointer());
+
+			ANK_ERROR(std::string(file + " - " + errMsg).c_str());
 			blobError->Release();
 			return false;
 		}

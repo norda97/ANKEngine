@@ -4,37 +4,93 @@
     <Filter Include="Core">
       <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Geometry">
+      <UniqueIdentifier>{497583BA-B535-FFF0-7E70-486EEAEF43CD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\IO">
+      <UniqueIdentifier>{153F7134-811E-F0CF-8A36-7BA6F6945631}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Rendering">
       <UniqueIdentifier>{FB0E51AA-E7DC-44B0-D070-B5D6BCDD2015}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Rendering\DirectX">
       <UniqueIdentifier>{BDBC453F-A9B6-6E91-9223-05A27EBCD4FD}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Rendering\General">
+      <UniqueIdentifier>{E8AB971C-D4A5-C06E-BD12-577FA9AB26DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utils">
+      <UniqueIdentifier>{0EA057CE-FA57-991B-635F-72774F36340C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utils\Cameras">
+      <UniqueIdentifier>{F9F18BCA-E5D5-4C20-4E36-47733A3937A2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\IO\Input.h">
+      <Filter>Core\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\IO\KeyInputs.h">
+      <Filter>Core\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Rendering\DirectX\DXBuffer.h">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Rendering\DirectX\DXDeviceInstance.h">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Rendering\DirectX\DXRenderer.h">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Rendering\DirectX\DXShader.h">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClInclude>
-    <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Utils\Cameras\Camera.h" />
-    <ClInclude Include="src\Core\Rendering\DirectX\DXBuffer.h">
-      <Filter>Core\Rendering\DirectX</Filter>
+    <ClInclude Include="src\Core\Utils\Cameras\Camera.h">
+      <Filter>Core\Utils\Cameras</Filter>
     </ClInclude>
+    <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\Rendering\DirectX\DXMesh.h">
+      <Filter>Core\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Rendering\DirectX\DXModel.h">
+      <Filter>Core\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Rendering\General\Renderer.h" />
+    <ClInclude Include="src\Core\Model\Shapes\Triangle.h" />
+    <ClInclude Include="src\Core\Model\ModelHandler.h" />
+    <ClInclude Include="src\Core\Model\Model.h" />
+    <ClInclude Include="src\Core\Model\Mesh.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\IO\Input.cpp">
+      <Filter>Core\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Rendering\DirectX\DXBuffer.cpp">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Rendering\DirectX\DXDeviceInstance.cpp">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Rendering\DirectX\DXRenderer.cpp">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Rendering\DirectX\DXShader.cpp">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClCompile>
-    <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Utils\Cameras\Camera.cpp" />
-    <ClCompile Include="src\Core\Rendering\DirectX\DXBuffer.cpp">
-      <Filter>Core\Rendering\DirectX</Filter>
+    <ClCompile Include="src\Core\Utils\Cameras\Camera.cpp">
+      <Filter>Core\Utils\Cameras</Filter>
     </ClCompile>
+    <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Core\Rendering\DirectX\DXMesh.cpp">
+      <Filter>Core\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Rendering\DirectX\DXModel.cpp">
+      <Filter>Core\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Rendering\General\Renderer.cpp" />
+    <ClCompile Include="src\Core\Model\Shapes\Triangle.cpp" />
+    <ClCompile Include="src\Core\Model\ModelHandler.cpp" />
+    <ClCompile Include="src\Core\Model\Model.cpp" />
+    <ClCompile Include="src\Core\Model\Mesh.cpp" />
   </ItemGroup>
 </Project>

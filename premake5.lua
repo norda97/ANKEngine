@@ -1,4 +1,4 @@
-workspace "MiniEngine"
+workspace "AnkaEngine"
     architecture "x64"
     language "C++"
     cppdialect "C++17"
@@ -17,12 +17,12 @@ workspace "MiniEngine"
     
     
 	filter "configurations:Debug"
-        defines "MINI_DEBUG"
+        defines "ANK_DEBUG"
         runtime "Debug"
         symbols "on"
 
     filter "configurations:Release"
-        defines "MINI_RELEASE"
+        defines "ANK_RELEASE"
         runtime "Release"
         optimize "on"
 
@@ -30,6 +30,7 @@ OUTPUT_DIR = "%{cfg.buildcfg}-%{cfg.architecture}"
 
 includeList = {}
 includeList["XTK"] = "packages/directxtk_desktop_2017.2020.6.2.1/include"  -- DirecXTK
+includeList["Assimp"] = "Externals/Assimp/include"  -- Assimp
 
 project "Engine"
     location "Engine"
@@ -51,12 +52,16 @@ project "Engine"
     links
     {
         "D3DCompiler",
+        -- "assimp-vc140-mt"
+        "assimp-vc140-mt"
+
     }
 
     includedirs
     {
         "%{prj.name}/src",
         "%{includeList.XTK}",
+        "%{includeList.Assimp}",
     }
 
     removefiles
@@ -66,7 +71,7 @@ project "Engine"
 
     libdirs
     {
-        --"Externals/glfw/lib-vc2019",
+        "Externals/Assimp/lib"
     }
     
     filter "system:windows"
@@ -75,12 +80,12 @@ project "Engine"
         systemversion "latest"
 
     filter "configurations:Debug"
-        defines "MINI_DEBUG"
+        defines "ANK_DEBUG"
         runtime "Debug"
         symbols "on"
 
     filter "configurations:Release"
-        defines "MINI_RELEASE"
+        defines "ANK_RELEASE"
         runtime "Release"
         optimize "on"
 
@@ -112,7 +117,8 @@ project "Sandbox"
     links 
     {
         "Engine",
-        "D3DCompiler"
+        "D3DCompiler",
+        
     }
     
     filter "system:windows"
@@ -121,11 +127,11 @@ project "Sandbox"
         systemversion "latest"
 
     filter "configurations:Debug"
-        defines "MINI_DEBUG"
+        defines "ANK_DEBUG"
         runtime "Debug"
         symbols "on"
 
     filter "configurations:Release"
-        defines "MINI_RELEASE"
+        defines "ANK_RELEASE"
         runtime "Release"
         optimize "on"

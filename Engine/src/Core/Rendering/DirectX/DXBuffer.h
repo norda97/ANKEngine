@@ -1,6 +1,5 @@
 #pragma once
 
-
 class DXBuffer
 {
 public:
@@ -11,7 +10,6 @@ public:
 	void transferData(void* data, uint32_t size, D3D11_MAP mapType = D3D11_MAP_WRITE_DISCARD);
 
 	ID3D11Buffer* getBuffer();
-
 private:
 	ID3D11Buffer* buffer;
 
