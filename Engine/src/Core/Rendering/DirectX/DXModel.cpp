@@ -7,16 +7,17 @@ DXModel::DXModel()
 
 DXModel::~DXModel()
 {
+
 }
 
-bool DXModel::addMesh(const std::vector<float>& vertices, const std::vector<unsigned int>& indices)
+const std::vector<Mesh>& DXModel::getMeshes() const
 {
-	DXMesh* mesh = new DXMesh;
+	return this->meshes;
+}
 
-	mesh->setVertices(vertices);
-	mesh->setIndices(indices);
-
-	this->meshes.push_back(std::make_shared<DXMesh>(mesh));
+bool DXModel::addMesh(const Mesh& mesh)
+{
+	this->meshes.push_back(mesh);
 
 	return true;
 }

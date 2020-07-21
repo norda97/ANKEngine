@@ -1,24 +1,28 @@
 #pragma once
 
-#include "DXModel.h"
-#include "DXShader.h"
+#include "Core/Rendering/DirectX/DXShader.h"
+#include "Core/Rendering/DirectX/DXTexture.h"
+#include "Core/Rendering/DirectX/DXSampler.h"
+#include "Core/Rendering/DirectX/DXDeferred.h"
+#include "Core/Rendering/DirectX/DXCubemap.h"
 
-
-
-struct alignas(16) SceneVariables
-{
-	Matrix VP;
-	float time;
-};
+class Camera;
 
 struct Instance
 {
-	Matrix position;
-	Color color;
+	Matrix world;
 };
 
-#define INSTANCE_COUNT 10
-Instance instances[INSTANCE_COUNT];
+struct Light
+{
+	Vector3 position;
+	float intensity;
+};
+
+struct deferredPBR
+{
+
+};
 
 class DXRenderer
 {
@@ -26,16 +30,63 @@ public:
 	DXRenderer();
 	~DXRenderer();
 
-	bool renderModel(const DXModel& model);
+	bool init();
+
+	void setCamera(Camera* camera);
+	void render();
+	void update(float dt);
 
 private:
+	bool initStates();
+	bool initShaders();
+	bool initBuffers();
 
-	ID3D11RasterizerState* rsNormal = nullptr;
-	ID3D11RasterizerState* rsWireframe = nullptr;
+	void setupImgui();
+	void drawImgui();
+	void renderImgui();
 
-	DXShader testShader;
-	DXShader instanceShader;
+	void updateInstanceConstants();
+	void updateSceneConstants(float dt);
+
+	void renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
+	void createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
+	void createCubemapMip(DXCubemap& cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
+	void renderBRDFLutTex();
+	//void renderModel(DXModel& model, unsigned instanceCount, unsigned instanceOffset);
 	
-	DXBuffer constantBuffer;
+	const unsigned instanceThreshold;
+
+	Camera* camera;
+
+	// Deferred rendering
+	DXDeferred deferredRenderer;
+	
+	// Other
+	DXShader equirectangularShader;
+	DXShader irradianceShader;
+	DXShader radianceShader;
+	DXShader skyboxShader;
+	DXShader BRDFLutShader;
+
+	DXTexture equiTexture;
+	DXTexture BRDFLutTexture;
+	DXCubemap environmentMap;
+	DXCubemap irradianceMap;
+	DXCubemap radianceMap;
+
+	DXBuffer materialProperties;
+
+	DXBuffer lightBuffer;
+	DXBuffer sceneBuffer;
+	DXBuffer scenePBRBuffer;
 	DXBuffer instanceBuffer;
+
+	DXSampler sampler;
+
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState>		rsFrontCull				= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState>		rsBackCull				= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState>		rsWireframe				= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		depthStencilState		= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		noDepthStencilState		= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11BlendState>			blendState				= nullptr;
 };

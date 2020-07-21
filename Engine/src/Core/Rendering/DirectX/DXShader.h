@@ -12,11 +12,11 @@ public:
 	void prepare();
 	
 private:
-	bool compileShader(const std::string& file, const std::string& entry, const std::string& profile, ID3DBlob** blob);
+	bool compileShader(const std::string& file, const std::string& entry, const std::string& profile, ComPtr<ID3DBlob>& blob);
 	std::vector<uint8_t> loadShaderFile(const std::string& csofile);
 
-	ID3D11VertexShader* vertexShader;
-	ID3D11PixelShader* pixelShader;
-	ID3D11InputLayout* layout;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> layout;
 };
 

@@ -11,8 +11,10 @@ Camera::~Camera()
 {
 }
 
-bool Camera::init(float fov, float aspect, Vector3 target, Vector3 position, float nearPlane, float farPlane)
+bool Camera::init(float defaultSpeed, float fov, float aspect, Vector3 target, Vector3 position, float nearPlane, float farPlane)
 {
+	this->defaultSpeed = defaultSpeed;
+
 	this->forward = target - position;
 	this->forward.Normalize();
 
@@ -29,12 +31,12 @@ bool Camera::init(float fov, float aspect, Vector3 target, Vector3 position, flo
 
 void Camera::update(float dt)
 {
-	float speedFactor = 1.0;
+	float speedFactor = defaultSpeed;
 	float radPerFrame = XM_PI *0.5;
 
 	if (Input::get().keyPressed(KEY_SHIFT)) {
-		speedFactor = 3.0;
-		radPerFrame *= 3.0;
+		speedFactor *= 8.0;
+		radPerFrame *= 4.0;
 	}
 
 	if (Input::get().keyPressed(KEY_LEFT))
@@ -42,9 +44,9 @@ void Camera::update(float dt)
 	if (Input::get().keyPressed(KEY_RIGHT))
 		this->rotation.y -= radPerFrame * dt;
 	if (Input::get().keyPressed(KEY_UP))
-		this->rotation.x -= radPerFrame * dt;
+		this->rotation.x = max(this->rotation.x - radPerFrame * dt, -XM_PI * 0.5);
 	if (Input::get().keyPressed(KEY_DOWN))
-		this->rotation.x += radPerFrame * dt;
+		this->rotation.x = min(this->rotation.x + radPerFrame * dt, XM_PI * 0.5);
 
 	//Matrix rotationMatrix;
 	//rotationMatrix.CreateFromYawPitchRoll(this->rotation.x, this->rotation.y, this->rotation.z);
@@ -71,6 +73,21 @@ void Camera::update(float dt)
 	this->view = Matrix::CreateLookAt(this->position, target, this->up);
 }
 
+const Vector3& Camera::getPosition() const
+{
+	return this->position;
+}
+
+void Camera::rotate(Vector3 axis, float rad)
+{
+	if (axis == Vector3(1.0f, 0.0f, 0.0f))
+		this->rotation.x = rad;
+	if (axis == Vector3(0.0f, 1.0f, 0.0f))
+		this->rotation.y = rad;
+	if (axis == Vector3(0.0f, 0.0f, 1.0f))
+		this->rotation.z = rad;
+}
+
 Matrix Camera::getView() const
 {
 	return this->view;
@@ -79,6 +96,20 @@ Matrix Camera::getView() const
 Matrix Camera::getProjection() const
 {
 	return this->projection;
+}
+
+Matrix Camera::getRotation() const
+{
+	Matrix xRotMat = Matrix::CreateRotationX(this->rotation.x);
+	Matrix yRotMat = Matrix::CreateRotationY(this->rotation.y);
+	//Matrix zRotMat = Matrix::CreateRotationZ(this->rotation.z);
+	Matrix finalRotMat = xRotMat * yRotMat;
+	Vector3 forward = XMVector3TransformCoord(this->defaultForward, finalRotMat);
+	Vector3 right = XMVector3TransformCoord(this->defaultRight, finalRotMat);
+	Vector3 up = this->forward.Cross(this->right);
+	up.Normalize();
+
+	return Matrix::CreateLookAt(Vector3(0.0f, 0.0f, 0.0f), forward, this->up);
 }
 
 Matrix Camera::getViewProjection() const

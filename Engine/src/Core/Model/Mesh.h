@@ -1,20 +1,39 @@
 #pragma once
 
+class Buffer;
+
+struct VertexData
+{
+	Vector3 position;
+	Vector3 normal;
+	Vector3 tangent;
+	Vector2 texCoord;
+};
+
 class Mesh
 {
 public:
 	Mesh();
-	~Mesh();
+	virtual ~Mesh();
 
-	virtual void setVertices(const std::vector<float>& vertices) = 0;
-	virtual void setIndices(const std::vector<unsigned int>& indices) = 0;
+	unsigned getIndexCount() const;
+	void setIndexCount(unsigned count);
 
-	bool usesIndices;
-	bool usesTexCoords;
-	bool usesNormals;
+	void setVertexBuffer(Buffer* buffer);
+	void setIndexBuffer(Buffer* buffer);
+
+	const Buffer* getVertexBuffer() const;
+	const Buffer* getIndexBuffer() const;
+public:
+	// Need to be filled out somewhere!
+	bool hasIndices;
+	bool hasNormals;
+	bool hasTangents;
+	bool hasTexCoords;
 
 protected:
-	std::vector<float> vertices;
-	std::vector<unsigned int> indices;
+	Buffer* vertexBuffer;
+	Buffer* indexBuffer;
 
+	unsigned indexCount;
 };

@@ -9,8 +9,8 @@ DXBuffer::DXBuffer() : buffer(NULL)
 
 DXBuffer::~DXBuffer()
 {
-	if(this->buffer)
-		this->buffer->Release();
+	//if(this->buffer)
+	//	this->buffer->Release();
 }
 
 bool DXBuffer::init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t bufferType, uint32_t accessFlag)
@@ -33,10 +33,10 @@ bool DXBuffer::init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t
 	if (data) {
 		D3D11_SUBRESOURCE_DATA bufferData = { 0 };
 		bufferData.pSysMem = data;
-		hr = DXDeviceInstance::get().getDev()->CreateBuffer(&bd, &bufferData, &this->buffer);
+		hr = DXDeviceInstance::get().getDev()->CreateBuffer(&bd, &bufferData, this->buffer.GetAddressOf());
 	}
 	else 
-		hr = DXDeviceInstance::get().getDev()->CreateBuffer(&bd, NULL, &this->buffer);
+		hr = DXDeviceInstance::get().getDev()->CreateBuffer(&bd, NULL, this->buffer.GetAddressOf());
 
 	if (FAILED(hr))
 		return false;
@@ -44,15 +44,16 @@ bool DXBuffer::init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t
 	return true;
 }
 
-void DXBuffer::transferData(void* data, uint32_t size, D3D11_MAP mapType)
+void DXBuffer::update(void* data, uint32_t size, uint32_t offset, D3D11_MAP mapType)
 {
-	D3D11_MAPPED_SUBRESOURCE ms;
-	DXDeviceInstance::get().getDevCon()->Map(this->buffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+	D3D11_MAPPED_SUBRESOURCE ms = { 0 };
+	const D3D11_BOX sDstBox = { offset, 0U, 0U, offset+size, 1U, 1U };
+	DXDeviceInstance::get().getDevCon()->Map(this->buffer.Get(), NULL, mapType, NULL, &ms);
 	memcpy(ms.pData, data, size);	
-	DXDeviceInstance::get().getDevCon()->Unmap(this->buffer, NULL);
+	DXDeviceInstance::get().getDevCon()->Unmap(this->buffer.Get(), NULL);
 }
 
-ID3D11Buffer* DXBuffer::getBuffer()
+const ComPtr<ID3D11Buffer>& DXBuffer::getBuffer() const
 {
 	return this->buffer;
 }

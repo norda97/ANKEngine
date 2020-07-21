@@ -9,27 +9,32 @@ public:
 
 	void init(HWND hWnd);
 
-	ID3D11Device* getDev();
-	ID3D11DeviceContext* getDevCon();
-	IDXGISwapChain* getSwapchain();
-	ID3D11RenderTargetView* getBackbuffer();
-	ID3D11DepthStencilView* getDepthStencilView();
-	
-	HWND getHWND();
+	void setViewport(unsigned x, unsigned y, unsigned width, unsigned height);
 
+	const ComPtr<ID3D11Device>&				getDev();
+	const ComPtr<ID3D11DeviceContext>&		getDevCon();
+	const ComPtr<IDXGISwapChain>&			getSwapchain();
+	const ComPtr<ID3D11RenderTargetView>&	getBackbuffer();
+	const ComPtr<ID3D11DepthStencilView>&	getDepthStencilView();
+	
+	void handleErrorMessage();
+
+	HWND getHWND();
 private:
 	DXDeviceInstance() {};
 	DXDeviceInstance(const DXDeviceInstance& other) = delete;
 	DXDeviceInstance(DXDeviceInstance&& other) = delete;
 
-	HWND hWnd;
-	ID3D11Device*				device				= nullptr;           
-	ID3D11DeviceContext*		devcon				= nullptr;
-	IDXGISwapChain*				swapchain			= nullptr;
+	D3D11_MESSAGE* errorMsg;
 
-	ID3D11RenderTargetView*		backbuffer			= nullptr;
-	ID3D11DepthStencilView*		depthStencilView	= nullptr;
-	ID3D11DepthStencilState*	depthStencilState	= nullptr;
-	ID3D11Texture2D*			depthStencilBuffer	= nullptr;
+	HWND hWnd;
+	Microsoft::WRL::ComPtr<ID3D11Device>				device				= nullptr;           
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext>			devcon				= nullptr;
+	Microsoft::WRL::ComPtr<IDXGISwapChain>				swapchain			= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11InfoQueue>				infoQueue			= nullptr;
+		
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		backbuffer			= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		depthStencilView	= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D>				depthStencilBuffer	= nullptr;
 
 };
