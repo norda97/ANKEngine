@@ -10,7 +10,8 @@ TextureCube irradianceTex	: register(t4); // Irradiance Map
 TextureCube prefilterTex	: register(t5); // Prefilter Map
 Texture2D	brdfLUT			: register(t6); // BRDF Look up table
 
-SamplerState samplerr	: register(s0);
+SamplerState samplerLinear	: register(s0);
+SamplerState samplerPoint	: register(s1);
 
 cbuffer SceneVariables : register(b0)
 {
@@ -36,14 +37,14 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness);
 
 float4 PSMain(VS_Output input) : SV_TARGET
 {
-	float3 worldPos = worldTex.Sample(samplerr, input.texCoord).xyz;
-	float3 albedo = albedoTex.Sample(samplerr, input.texCoord).rgb;
-	float3 MRAO = MRAOTex.Sample(samplerr, input.texCoord).xyz;
+	float3 worldPos = worldTex.Sample(samplerLinear, input.texCoord).xyz;
+	float3 albedo = albedoTex.Sample(samplerLinear, input.texCoord).rgb;
+	float3 MRAO = MRAOTex.Sample(samplerLinear, input.texCoord).xyz;
 	float metallic = MRAO.x;
 	float roughness = MRAO.y;
 	float ao = MRAO.z;
 
-	float3 N = normalize(normalTex.Sample(samplerr, input.texCoord).xyz);
+	float3 N = normalize(normalTex.Sample(samplerLinear, input.texCoord).xyz);
 	float3 V = normalize(cameraPos - worldPos);
 
 	float3 Lo = float3(0.0, 0.0, 0.0);
@@ -83,13 +84,13 @@ float4 PSMain(VS_Output input) : SV_TARGET
 
 	Lo = (kD * albedo / PI + specular) * radiance * NdotL;
 
-	float3 irradiance = irradianceTex.Sample(samplerr, N).rgb;
+	float3 irradiance = irradianceTex.Sample(samplerLinear, N).rgb;
 	float3 diffuse = irradiance * albedo;
 
 	// IBL - Reflection
 	const float MAX_REFLECTION_LOD = 4.0;
-	float3 prefilteredColor = prefilterTex.SampleLevel(samplerr, N, roughness * MAX_REFLECTION_LOD).rgb;
-	float2 envBRDF = brdfLUT.Sample(samplerr, float2(max(dot(N,V), 0.0), roughness)).rg;
+	float3 prefilteredColor = prefilterTex.SampleLevel(samplerLinear, N, roughness * MAX_REFLECTION_LOD).rgb;
+	float2 envBRDF = brdfLUT.Sample(samplerPoint, float2(max(dot(N,V), 0.0), roughness)).rg;
 	specular = prefilteredColor * (kS * envBRDF.x + envBRDF.y);
 
 	float3 ambient = (kD * diffuse + specular) * ao;

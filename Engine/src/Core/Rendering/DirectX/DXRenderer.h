@@ -81,7 +81,8 @@ private:
 	DXBuffer scenePBRBuffer;
 	DXBuffer instanceBuffer;
 
-	DXSampler sampler;
+	DXSampler samplerLinear;
+	DXSampler samplerPoint;
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState>		rsFrontCull				= nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState>		rsBackCull				= nullptr;

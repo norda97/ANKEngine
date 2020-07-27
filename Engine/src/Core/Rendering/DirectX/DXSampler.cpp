@@ -13,13 +13,13 @@ DXSampler::~DXSampler()
 	//	this->samplerState->Release();
 }
 
-bool DXSampler::init()
+bool DXSampler::init(D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE addressMode)
 {
 	D3D11_SAMPLER_DESC sampDesc = {};
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.Filter = filter; //D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = addressMode; //D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = addressMode; //D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = addressMode; //D3D11_TEXTURE_ADDRESS_WRAP;
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	sampDesc.MaxAnisotropy = 0;
 	sampDesc.MinLOD = 0;

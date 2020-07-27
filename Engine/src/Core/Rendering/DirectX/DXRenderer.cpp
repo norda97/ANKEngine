@@ -50,7 +50,8 @@ bool DXRenderer::init()
 		return false;
 
 	// temp
-	this->sampler.init();
+	this->samplerLinear.init(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP);
+	this->samplerPoint.init(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_CLAMP);
 
 	int width, height, nrComponents;
 	stbi_set_flip_vertically_on_load(true);
@@ -122,7 +123,7 @@ void DXRenderer::render()
 	updateSceneConstants(0.0f);
 
 	// Set linear sampler
-	devcon->PSSetSamplers(0, 1, this->sampler.getSampler().GetAddressOf());
+	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
 
 	// Clear depth-stencil and gBuffers
 	devcon->ClearDepthStencilView(DXDeviceInstance::get().getDepthStencilView().Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -196,6 +197,9 @@ void DXRenderer::render()
 	devcon->PSSetShaderResources(4, 1, this->irradianceMap.getResourceView().GetAddressOf());
 	devcon->PSSetShaderResources(5, 1, this->radianceMap.getResourceView().GetAddressOf());
 	devcon->PSSetShaderResources(6, 1, this->BRDFLutTexture.getShaderResource().GetAddressOf());
+
+	// Used to sample BRDF Lut
+	devcon->PSSetSamplers(1, 1, this->samplerPoint.getSampler().GetAddressOf());
 
 	this->deferredRenderer.renderComplete(DXDeviceInstance::get().getBackbuffer().GetAddressOf());
 
@@ -484,7 +488,7 @@ void DXRenderer::createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPt
 	auto& devcon = DXDeviceInstance::get().getDevCon();
 	auto& dev = DXDeviceInstance::get().getDev();
 
-	devcon->PSSetSamplers(0, 1, this->sampler.getSampler().GetAddressOf());
+	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
 
 	Matrix proj = Matrix::CreatePerspectiveFieldOfView(XM_PI * 0.5f, 1.0f, .1f, 10.f);
 
@@ -497,7 +501,7 @@ void DXRenderer::createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPt
 	mat[5] =  Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, -1.0), Vector3(0.0, 1.0, 0.0));
 
 	// Set Sampler
-	devcon->PSSetSamplers(0, 1, this->sampler.getSampler().GetAddressOf());
+	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
 
 	ID3D11Buffer* cBuffers[1] = { this->sceneBuffer.getBuffer().Get() };
 	devcon->VSSetConstantBuffers(0, 1, cBuffers);
@@ -529,7 +533,7 @@ void DXRenderer::createCubemapMip(DXCubemap& cubemap, DXShader& shader, const Co
 	if (!roughnessBuffer.init(NULL, sizeof(float), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
 		return;
 
-	devcon->PSSetSamplers(0, 1, this->sampler.getSampler().GetAddressOf());
+	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
 
 	Matrix proj = Matrix::CreatePerspectiveFieldOfView(XM_PI * 0.5f, 1.0f, .1f, 10.f);
 
@@ -542,7 +546,7 @@ void DXRenderer::createCubemapMip(DXCubemap& cubemap, DXShader& shader, const Co
 	mat[5] = Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, -1.0), Vector3(0.0, 1.0, 0.0));
 
 	// Set Sampler
-	devcon->PSSetSamplers(0, 1, this->sampler.getSampler().GetAddressOf());
+	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
 
 	devcon->VSSetConstantBuffers(0, 1, this->sceneBuffer.getBuffer().GetAddressOf());
 	devcon->PSSetConstantBuffers(0, 1, roughnessBuffer.getBuffer().GetAddressOf());
