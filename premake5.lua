@@ -41,6 +41,11 @@ project "IMGUI"
     targetdir ("build/bin/" .. OUTPUT_DIR .. "/%{prj.name}")
     objdir ("build/obj/" .. OUTPUT_DIR .. "/%{prj.name}")
 
+    includedirs
+    {
+        "%{includeList.imgui}",
+    }
+
     files
     {
         includeList["imgui"] .. "/examples/imgui_impl_win32.cpp",

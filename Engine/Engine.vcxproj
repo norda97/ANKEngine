@@ -120,6 +120,8 @@
     <ClInclude Include="src\Core\Rendering\DirectX\DXDeferred.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXDeviceInstance.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXMaterial.h" />
+    <ClInclude Include="src\Core\Rendering\DirectX\DXMesh.h" />
+    <ClInclude Include="src\Core\Rendering\DirectX\DXModel.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXRenderer.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXSampler.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXShader.h" />
@@ -147,6 +149,8 @@
     <ClCompile Include="src\Core\Rendering\DirectX\DXDeferred.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXDeviceInstance.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXMaterial.cpp" />
+    <ClCompile Include="src\Core\Rendering\DirectX\DXMesh.cpp" />
+    <ClCompile Include="src\Core\Rendering\DirectX\DXModel.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXRenderer.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXSampler.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXShader.cpp" />

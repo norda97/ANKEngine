@@ -25,7 +25,7 @@ bool EditorScene::init()
 	Model* cube = ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("Cube/"), "cube.obj", "cube");
 	Model* spheres = ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("MatTest/"), "sphere.obj", "spheres");
 	
-	unsigned sphereCount = 9;
+	unsigned sphereCount = 5;
 	for (unsigned i = 0; i < sphereCount; i++)
 	{
 		for (unsigned j = 0; j < sphereCount; j++)

@@ -63,6 +63,9 @@
     <ClInclude Include="src\Core\Model\Mesh.h">
       <Filter>Core\Model</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Model\MeshInstance.h">
+      <Filter>Core\Model</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Model\Model.h">
       <Filter>Core\Model</Filter>
     </ClInclude>
@@ -87,6 +90,12 @@
     <ClInclude Include="src\Core\Rendering\DirectX\DXMaterial.h">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Rendering\DirectX\DXMesh.h">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Rendering\DirectX\DXModel.h">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Rendering\DirectX\DXRenderer.h">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClInclude>
@@ -109,7 +118,6 @@
       <Filter>Core\Utils\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Model\MeshInstance.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\IO\Input.cpp">
@@ -136,6 +144,9 @@
     <ClCompile Include="src\Core\Model\Mesh.cpp">
       <Filter>Core\Model</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Model\MeshInstance.cpp">
+      <Filter>Core\Model</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Model\Model.cpp">
       <Filter>Core\Model</Filter>
     </ClCompile>
@@ -160,6 +171,12 @@
     <ClCompile Include="src\Core\Rendering\DirectX\DXMaterial.cpp">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Rendering\DirectX\DXMesh.cpp">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Rendering\DirectX\DXModel.cpp">
+      <Filter>Core\Rendering\DirectX</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Rendering\DirectX\DXRenderer.cpp">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClCompile>
@@ -182,6 +199,5 @@
       <Filter>Core\Utils\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Model\MeshInstance.cpp" />
   </ItemGroup>
 </Project>
