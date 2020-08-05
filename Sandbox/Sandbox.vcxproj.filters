@@ -4,8 +4,8 @@
     <Filter Include="src">
       <UniqueIdentifier>{6e209d07-4aba-4c35-80e2-860597a0c736}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Core">
-      <UniqueIdentifier>{f8ae9ccc-ffac-499a-b77a-1f79c88768e8}</UniqueIdentifier>
+    <Filter Include="src\Scenes">
+      <UniqueIdentifier>{78243f33-320e-490f-a1d4-45ac2809000e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
