@@ -4,6 +4,9 @@
     <Filter Include="Core">
       <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\ECS">
+      <UniqueIdentifier>{780F99C2-64DC-F3CD-8DF5-E1757921295C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\IO">
       <UniqueIdentifier>{153F7134-811E-F0CF-8A36-7BA6F6945631}</UniqueIdentifier>
     </Filter>
@@ -42,16 +45,10 @@
     <ClInclude Include="src\Core\IO\KeyInputs.h">
       <Filter>Core\IO</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Logic\Entity.h">
-      <Filter>Core\Logic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Logic\EntityHandler.h">
-      <Filter>Core\Logic</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Logic\SceneHandler.h">
       <Filter>Core\Logic</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Logic\Scenes\EditorScene.h">
+    <ClInclude Include="src\Core\Logic\Scenes\MainScene.h">
       <Filter>Core\Logic\Scenes</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Logic\Scenes\Scene.h">
@@ -118,21 +115,30 @@
       <Filter>Core\Utils\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\ECS\ECSTypes.h" />
+    <ClInclude Include="src\Core\ECS\EntityManager.h" />
+    <ClInclude Include="src\Core\ECS\ComponentArray.h" />
+    <ClInclude Include="src\Core\ECS\ComponentManager.h" />
+    <ClInclude Include="src\Core\ECS\SystemManager.h" />
+    <ClInclude Include="src\Core\ECS\System.h" />
+    <ClInclude Include="src\Core\ECS\EntityComponentSystem.h" />
+    <ClInclude Include="src\Core\ECS\Components\Transform.h" />
+    <ClInclude Include="src\Core\Math\Vec4.h" />
+    <ClInclude Include="src\Core\Math\AnkMath.h" />
+    <ClInclude Include="src\Core\Math\Vec3.h" />
+    <ClInclude Include="src\Core\Math\Vec2.h" />
+    <ClInclude Include="src\Core\ECS\Components\Drawable.h" />
+    <ClInclude Include="src\Core\ECS\Systems\RenderSystem.h" />
+    <ClInclude Include="src\Core\Model\ModelTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\IO\Input.cpp">
       <Filter>Core\IO</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Logic\Entity.cpp">
-      <Filter>Core\Logic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Logic\EntityHandler.cpp">
-      <Filter>Core\Logic</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\Logic\SceneHandler.cpp">
       <Filter>Core\Logic</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Logic\Scenes\EditorScene.cpp">
+    <ClCompile Include="src\Core\Logic\Scenes\MainScene.cpp">
       <Filter>Core\Logic\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Logic\Scenes\Scene.cpp">
@@ -142,9 +148,6 @@
       <Filter>Core\Model</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Model\Mesh.cpp">
-      <Filter>Core\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Model\MeshInstance.cpp">
       <Filter>Core\Model</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Model\Model.cpp">
@@ -199,5 +202,7 @@
       <Filter>Core\Utils\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Core\ECS\EntityManager.cpp" />
+    <ClCompile Include="src\Core\ECS\Systems\RenderSystem.cpp" />
   </ItemGroup>
 </Project>

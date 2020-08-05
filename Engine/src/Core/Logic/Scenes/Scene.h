@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Logic/EntityHandler.h"
+//#include "Core/Logic/EntityHandler.h"
 
 struct alignas(16) SceneVariables
 {
@@ -20,8 +20,7 @@ public:
 	virtual bool render() = 0;
 	virtual void shutdown() = 0;
 
-
 protected:
-	EntityHandler entityHandler;
+	//EntityHandler entityHandler;
 };
 

@@ -19,7 +19,7 @@ public:
 	void bindShaders();
 	const std::array<ID3D11ShaderResourceView*, GBUFFER_COUNT>& getResourceViews() const;
 
-	void renderModelInstanced(const Model& model, unsigned instanceCount, unsigned instanceOffset);
+	//void renderModelInstanced(const Model& model, unsigned instanceCount, unsigned instanceOffset);
 	void renderMeshInstanced(const Mesh& mesh, unsigned instanceCount, unsigned instanceOffset);
 	void renderComplete(ID3D11RenderTargetView* const* renderTarget);
 

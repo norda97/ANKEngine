@@ -13,10 +13,9 @@
 	#include "Core/Rendering/DirectX/DXBuffer.h"
 #endif
 
-ModelHandler::ModelHandler()
+ModelHandler::ModelHandler() : modelCount(0)
 {
 	// Load default diffuse texture
-
 	DXTexture* defaultTexture = new DXTexture();
 	defaultTexture->loadTexture(ANK_TEXTURE_DEFAULT_BLACK_PATH);
 	this->textureMap[ANK_TEXTURE_DEFAULT_BLACK_PATH] = defaultTexture;
@@ -64,48 +63,66 @@ Material* ModelHandler::createMaterial()
 	return newMaterial;
 }
 
-Model* ModelHandler::duplicateModel(const std::string& key, const std::string& newKey)
+//Model* ModelHandler::duplicateModel(const std::string& key, const std::string& newKey)
+//{
+//	Model* model = getModel(key);
+//	if (model) {
+//		Model* dupe = new Model(*model);
+//
+//		this->modelMap[newKey] = dupe;
+//		return dupe;
+//	}
+//
+//	return nullptr;
+//}
+//
+//Model* ModelHandler::duplicateModel(Model* model, const std::string& newKey)
+//{
+//	if (model && this->modelMap.find(newKey) == this->modelMap.end()) {
+//		Model* dupe = new Model(*model);
+//
+//		this->modelMap[newKey] = dupe;
+//		return dupe;
+//	}
+//	else {
+//		ANK_WARNING("Failed to duplicate model");
+//	}
+//	
+//	return nullptr;
+//}
+
+Model* ModelHandler::getModel(const std::string& name)
 {
-	Model* model = getModel(key);
-	if (model) {
-		Model* dupe = new Model(*model);
-
-		this->modelMap[newKey] = dupe;
-		return dupe;
-	}
-
-	return nullptr;
-}
-
-Model* ModelHandler::duplicateModel(Model* model, const std::string& newKey)
-{
-	if (model && this->modelMap.find(newKey) == this->modelMap.end()) {
-		Model* dupe = new Model(*model);
-
-		this->modelMap[newKey] = dupe;
-		return dupe;
-	}
-	else {
-		ANK_WARNING("Failed to duplicate model");
-	}
-	
-	return nullptr;
-}
-
-Model* ModelHandler::getModel(const std::string& key)
-{
-	auto it = this->modelMap.find(key);
-	if (it == this->modelMap.end()) {
-		ANK_WARNING("Model is not accessible with key: %s", key);
+	auto it = this->nameToIndex.find(name);
+	if (it == this->nameToIndex.end()) {
+		ANK_WARNING("Model is not accessible with name: %s", name);
 		return nullptr;
 	}
-	else
-	{
-		return this->modelMap[key];
-	}
+
+	return getModel(it->second);
 }
 
-const std::unordered_map<std::string, Model*>& ModelHandler::getModels()
+Model* ModelHandler::getModel(ModelID id)
+{
+	auto it = this->modelMap.find(id);
+	if (it == this->modelMap.end()) {
+		ANK_WARNING("Model is not accessible with modelID: %s", id);
+		return nullptr;
+	}
+	return this->modelMap[id];
+}
+
+Material* ModelHandler::getMaterial(MaterialID materialID)
+{
+	return this->materials[materialID];
+}
+
+Mesh* ModelHandler::getMesh(MeshID meshID)
+{
+	return this->meshes[meshID];
+}
+
+const std::unordered_map<ModelID, Model*>& ModelHandler::getModels()
 {
 	return this->modelMap;
 }
@@ -120,15 +137,24 @@ DXTexture* ModelHandler::getTexture(const std::string& key)
 	return this->textureMap[key];
 }
 
-Model* ModelHandler::loadModel(const std::string& path, const std::string& file, const std::string& key)
+ModelID ModelHandler::loadModel(const std::string& path, const std::string& file, const std::string& name)
 {
-	Model* model = new Model();
 
-	if (this->modelMap.find(key) != this->modelMap.end()) {
-		ANK_WARNING("A model has already been loaded with that key!");
+	if (this->nameToIndex.find(name) != this->nameToIndex.end()) {
+		ANK_WARNING("A model has already been loaded with that name!");
+		
+		// Temporary assert
+		ANK_ASSERT(true, "FAILED TO LOAD MODEL");
+
 		// Return default model
-		return model;
+		return 0;
 	}
+
+	Model* model = new Model();
+	
+	ModelID modelID = modelCount++;
+	this->nameToIndex[name] = modelID;
+	this->modelMap[modelID] = model;
 
 	std::string filepath = path + file;
 	const aiScene* modelScene = this->importer.ReadFile(filepath,
@@ -145,9 +171,7 @@ Model* ModelHandler::loadModel(const std::string& path, const std::string& file,
 
 	processScene(path, modelScene, model);
 
-	this->modelMap[key] = model;
-
-	return model;
+	return modelID;
 }
 
 void ModelHandler::shutdown()
@@ -259,16 +283,18 @@ bool ModelHandler::processScene(const std::string& path, const aiScene* modelSce
 	for (auto modelNode : nodes) {
 		for (unsigned i = 0; i < modelNode->mNumMeshes; i++) {
 			aiMesh* aiMesh = modelScene->mMeshes[modelNode->mMeshes[i]];
-			Material* material = this->materials[prevTotalMats + aiMesh->mMaterialIndex];
+
+			MaterialID materialIndex = prevTotalMats + aiMesh->mMaterialIndex;
+			Material* material = this->materials[materialIndex];
 
 			Mesh* mesh = new Mesh();
 			processMesh(aiMesh, mesh);
 
-			MeshInstance* meshInstance = new MeshInstance(mesh, material);
+			MeshInstance meshInstance = { this->meshes.size(), materialIndex };
 
 			this->meshes.push_back(mesh);
 
-			model->addMesh(meshInstance);
+			model->addMeshInstance(meshInstance);
 		}
 	}
 

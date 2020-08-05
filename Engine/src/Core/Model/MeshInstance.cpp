@@ -4,7 +4,7 @@
 #include "Core/Model/Material.h"
 #include "Core/Model/ModelHandler.h"
 
-MeshInstance::MeshInstance(Mesh* mesh, Material* material) : material(nullptr), mesh(nullptr)
+MeshInstance::MeshInstance(Mesh* mesh, Material* material) :  material(nullptr), mesh(nullptr)
 {
 	setMaterial(material);
 	setMesh(mesh);
@@ -66,20 +66,20 @@ const Mesh& MeshInstance::getMesh() const
 	return *this->mesh;
 }
 
-const std::list<const Entity*>& MeshInstance::getInstanceList() const
-{
-	return this->instances;
-}
-
-void MeshInstance::addInstance(Entity* e)
-{
-	this->instances.push_back(e);
-}
-
-void MeshInstance::removeInstance(Entity* e)
-{
-	this->instances.remove(e);
-}
+//const std::list<const Entity*>& MeshInstance::getInstanceList() const
+//{
+//	return this->instances;
+//}
+//
+//void MeshInstance::addInstance(Entity* e)
+//{
+//	this->instances.push_back(e);
+//}
+//
+//void MeshInstance::removeInstance(Entity* e)
+//{
+//	this->instances.remove(e);
+//}
 
 void MeshInstance::copy(const MeshInstance& other)
 {

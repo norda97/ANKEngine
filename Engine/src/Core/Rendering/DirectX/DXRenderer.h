@@ -6,6 +6,8 @@
 #include "Core/Rendering/DirectX/DXDeferred.h"
 #include "Core/Rendering/DirectX/DXCubemap.h"
 
+#include "Core/Model/ModelTypes.h"
+
 class Camera;
 
 struct Instance
@@ -33,8 +35,12 @@ public:
 	bool init();
 
 	void setCamera(Camera* camera);
+	void prepare();
 	void render();
-	void update(float dt);
+	void setMaterial(MaterialID materialID);
+	void render(MeshID meshID, unsigned instanceCount, unsigned offset);
+
+	void finishFrame();
 
 private:
 	bool initStates();
@@ -79,7 +85,7 @@ private:
 	DXBuffer lightBuffer;
 	DXBuffer sceneBuffer;
 	DXBuffer scenePBRBuffer;
-	DXBuffer instanceBuffer;
+	//DXBuffer instanceBuffer;
 
 	DXSampler samplerLinear;
 	DXSampler samplerPoint;

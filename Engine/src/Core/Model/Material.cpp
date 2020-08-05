@@ -49,7 +49,7 @@ Vector3 Material::getAlbedo()
 
 void Material::setRoughness(float roughness)
 {
-	this->matProps.roughness = max(min(roughness, 1.0), 0.025);
+	this->matProps.roughness = max(min(roughness, 1.0f), 0.025f);
 }
 
 float Material::getRoughness()
@@ -60,7 +60,7 @@ float Material::getRoughness()
 
 void Material::setMetallicness(float metallicness)
 {
-	this->matProps.metallicness = max(min(metallicness, 1.0), 0.0);
+	this->matProps.metallicness = max(min(metallicness, 1.0f), 0.0f);
 }
 
 float Material::getMetallicness()
@@ -71,39 +71,39 @@ float Material::getMetallicness()
 
 void Material::setSpecular(float specular)
 {
-	this->matProps.specular = max(min(specular, 1.0), 0.0);
+	this->matProps.specular = max(min(specular, 1.0f), 0.0f);
 }
 
 float Material::getSpecular()
 {
 	return this->matProps.specular;
 }
-
-const std::list<const MeshInstance*>& Material::getRenderList() const
-{
-	return this->renderList;
-}
-
-void Material::addMeshInstance(const MeshInstance* mesh)
-{
-	this->renderList.push_back(mesh);
-}
-
-void Material::removeMeshInstance(const MeshInstance* mesh)
-{
-	this->renderList.remove(mesh);
-}
-
-void Material::addModel(const Model* model)
-{
-	const std::vector<MeshInstance*>& meshes = model->getMeshInstances();
-	for (unsigned i = 0; i < meshes.size(); i++)
-		addMeshInstance(meshes[i]);
-}
-
-void Material::removeModel(const Model* model)
-{
-	const std::vector<MeshInstance*>& meshes = model->getMeshInstances();
-	for (unsigned i = 0; i < meshes.size(); i++)
-		removeMeshInstance(meshes[i]);
-}
+//
+//const std::list<MeshInstance>& Material::getRenderList() const
+//{
+//	return this->renderList;
+//}
+//
+//void Material::addMeshInstance(MeshInstance meshInstance)
+//{
+//	this->renderList.push_back(meshInstance);
+//}
+//
+//void Material::removeMeshInstance(MeshInstance meshInstance)
+//{
+//	this->renderList.remove(meshInstance);
+//}
+//
+//void Material::addModel(const Model* model)
+//{
+//	const std::vector<MeshInstance>& meshes = model->getMeshInstances();
+//	for (unsigned i = 0; i < meshes.size(); i++)
+//		addMeshInstance(meshes[i]);
+//}
+//
+//void Material::removeModel(const Model* model)
+//{
+//	const std::vector<MeshInstance>& meshes = model->getMeshInstances();
+//	for (unsigned i = 0; i < meshes.size(); i++)
+//		removeMeshInstance(meshes[i]);
+//}

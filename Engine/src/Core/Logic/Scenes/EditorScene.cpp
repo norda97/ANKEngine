@@ -2,7 +2,6 @@
 #include "EditorScene.h"
 
 #include "Core/Rendering/DirectX/DXDeviceInstance.h"
-#include "Core/Rendering/DirectX/DXModel.h"
 
 #include "Core/Model/ModelHandler.h"
 #include "Core/Model/MeshInstance.h"
@@ -22,10 +21,10 @@ bool EditorScene::init()
 
 	// Load sponza model
 	Model* sponza = ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("SponzaPBR/"), "sponza.obj", "sponza");
-	Model* cube = ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("Cube/"), "cube.obj", "cube");
+	//Model* cube = ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("Cube/"), "cube.obj", "cube");
 	Model* spheres = ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("MatTest/"), "sphere.obj", "spheres");
 	
-	unsigned sphereCount = 5;
+	/*unsigned sphereCount = 5;
 	for (unsigned i = 0; i < sphereCount; i++)
 	{
 		for (unsigned j = 0; j < sphereCount; j++)
@@ -47,7 +46,7 @@ bool EditorScene::init()
 		}
 	}
 
-	this->entityHandler.addEntity({ 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f }, { 0.1f, 0.1f, 0.1f }, sponza);
+	this->entityHandler.addEntity({ 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f }, { 0.1f, 0.1f, 0.1f }, sponza);*/
 
 	// Init camera
 	this->camera.init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f), Vector3(0.f, 0.f, -30.0f), 0.1f, 1000.0f);

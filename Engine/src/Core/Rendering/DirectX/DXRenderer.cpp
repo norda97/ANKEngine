@@ -14,7 +14,7 @@
 #include "Core/Model/MeshInstance.h"
 
 #include "Core/Logic/Scenes/Scene.h"
-#include "Core/Logic/Entity.h"
+//#include "Core/Logic/Entity.h"
 #include "Core/Utils/Cameras/Camera.h"
 
 #include "stbi/stb_image.h"
@@ -59,7 +59,7 @@ bool DXRenderer::init()
 	stbi_set_flip_vertically_on_load(false);
 	if (data)
 	{
-		size_t size = width * height * 4;
+		size_t size = (width * height * 4U);
 		float* rgba32 = new float[size];
 		ZeroMemory(rgba32, sizeof(float) * width * height * 4);
 		unsigned offset = 0;
@@ -102,6 +102,10 @@ bool DXRenderer::init()
 	radianceMap.init(128, 128, 5);
 
 	setupImgui();
+	
+	// Used for cubemap pre rendering
+	ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("Cube/"), "cube.obj", "cube");
+
 	createCubemap(environmentMap, this->equirectangularShader, this->equiTexture.getShaderResource());
 	createCubemap(irradianceMap, this->irradianceShader, environmentMap.getResourceView());
 	createCubemapMip(radianceMap, this->radianceShader, environmentMap.getResourceView());
@@ -109,15 +113,10 @@ bool DXRenderer::init()
 	return true;
 }
 
-void DXRenderer::render()
-{
-	
-#ifdef ANK_USE_IMGUI
-	drawImgui();
-#endif
 
+void DXRenderer::prepare()
+{
 	auto& devcon = DXDeviceInstance::get().getDevCon();
-	auto& dev = DXDeviceInstance::get().getDev();
 
 	// Update scene constant buffers
 	updateSceneConstants(0.0f);
@@ -129,65 +128,103 @@ void DXRenderer::render()
 	devcon->ClearDepthStencilView(DXDeviceInstance::get().getDepthStencilView().Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	deferredRenderer.clearRenderTargets();
 
-	auto materials = ModelHandler::get().getMaterials();
-	unsigned matCount = materials.size();
-	if (matCount > 0)
-	{
-		// Set constant buffers
-		ID3D11Buffer* cBuffers[1] = { this->sceneBuffer.getBuffer().Get() };
-		devcon->VSSetConstantBuffers(0, 1, cBuffers);
-		devcon->PSSetConstantBuffers(0, 1, this->materialProperties.getBuffer().GetAddressOf());
+	// Set constant buffers
+	ID3D11Buffer* cBuffers[1] = { this->sceneBuffer.getBuffer().Get() };
+	devcon->VSSetConstantBuffers(0, 1, cBuffers);
+	devcon->PSSetConstantBuffers(0, 1, this->materialProperties.getBuffer().GetAddressOf());
 
-		// Set gbuffers to rendertargets
-		devcon->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
-		deferredRenderer.bindRenderTargets(DXDeviceInstance::get().getDepthStencilView().Get());
+	// Set gbuffers as rendertargets
+	devcon->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
+	deferredRenderer.bindRenderTargets(DXDeviceInstance::get().getDepthStencilView().Get());
 
-		devcon->RSSetState(this->rsBackCull.Get());
+	devcon->RSSetState(this->rsBackCull.Get());
 
-		// Bind instance world position buffer
-		unsigned int strides[1] = { sizeof(Matrix) };
-		unsigned int offsets[1] = { 0 };
-		ID3D11Buffer* bufferPointers[1] = { this->instanceBuffer.getBuffer().Get() };
-
-		devcon->IASetVertexBuffers(1, 1, bufferPointers, strides, offsets);
-		deferredRenderer.bindShaders();
+	deferredRenderer.bindShaders();
+}
 
 
-		// For each material, render all instances of models whichs use the material.
-		unsigned instanceOffset = 0;
-		for (unsigned i = 0; i < matCount; i++)
-		{
-			if (instanceOffset >= instanceThreshold) {
-				ANK_WARNING("Instance buffer not large enough for scheduled work!\n");
-				break;
-			}
+void DXRenderer::render()
+{
+	auto& devcon = DXDeviceInstance::get().getDevCon();
 
-			const Material* mat = materials[i];
+//	auto materials = ModelHandler::get().getMaterials();
+//	unsigned matCount = materials.size();
+//	if (matCount > 0)
+//	{
+//		// Bind instance world position buffer
+//		unsigned int strides[1] = { sizeof(Matrix) };
+//		unsigned int offsets[1] = { 0 };
+//		ID3D11Buffer* bufferPointers[1] = { this->instanceBuffer.getBuffer().Get() };
+//
+//		devcon->IASetVertexBuffers(1, 1, bufferPointers, strides, offsets);
+//		deferredRenderer.bindShaders();
+//
+//
+//		// For each material, render all instances of models whichs use the material.
+//		unsigned instanceOffset = 0;
+//		for (unsigned i = 0; i < matCount; i++)
+//		{
+//			if (instanceOffset >= instanceThreshold) {
+//				ANK_WARNING("Instance buffer not large enough for scheduled work!\n");
+//				break;
+//			}
+//
+//			const Material* mat = materials[i];
+//
+//			this->materialProperties.update((void*)&mat->getProperties(), sizeof(MaterialProperties), 0, D3D11_MAP_WRITE_DISCARD);
+//
+//#define TEX_COUNT 5
+//			ID3D11ShaderResourceView* textures[TEX_COUNT] = {
+//				mat->getAlbedoMap().getShaderResource().Get(),
+//				mat->getMetallicMap().getShaderResource().Get(),
+//				mat->getRoughnessMap().getShaderResource().Get(),
+//				mat->getAmbientOcclusionMap().getShaderResource().Get(),
+//				mat->getNormalMap().getShaderResource().Get()
+//			};
+//
+//			devcon->PSSetShaderResources(0, TEX_COUNT, textures);
+//
+//			for (const MeshInstance* meshInstance : mat->getRenderList())
+//			{
+//				const std::list<const Entity*>& instances = meshInstance->getInstanceList();
+//				unsigned instanceCount = instances.size();
+//
+//				deferredRenderer.renderMeshInstanced(meshInstance->getMesh(), instanceCount, instanceOffset);
+//				instanceOffset += instanceCount;
+//			}
+//		}
+//	}
+	
 
-			this->materialProperties.update((void*)&mat->getProperties(), sizeof(MaterialProperties), 0, D3D11_MAP_WRITE_DISCARD);
+}
+
+void DXRenderer::setMaterial(MaterialID materialID)
+{
+	auto material = ModelHandler::get().getMaterial(materialID);
+
+	this->materialProperties.update((void*)& material->getProperties(), sizeof(MaterialProperties), 0, D3D11_MAP_WRITE_DISCARD);
 
 #define TEX_COUNT 5
-			ID3D11ShaderResourceView* textures[TEX_COUNT] = {
-				mat->getAlbedoMap().getShaderResource().Get(),
-				mat->getMetallicMap().getShaderResource().Get(),
-				mat->getRoughnessMap().getShaderResource().Get(),
-				mat->getAmbientOcclusionMap().getShaderResource().Get(),
-				mat->getNormalMap().getShaderResource().Get()
-			};
+	ID3D11ShaderResourceView* textures[TEX_COUNT] = {
+		material->getAlbedoMap().getShaderResource().Get(),
+		material->getMetallicMap().getShaderResource().Get(),
+		material->getRoughnessMap().getShaderResource().Get(),
+		material->getAmbientOcclusionMap().getShaderResource().Get(),
+		material->getNormalMap().getShaderResource().Get()
+	};
 
-			devcon->PSSetShaderResources(0, TEX_COUNT, textures);
+	DXDeviceInstance::get().getDevCon()->PSSetShaderResources(0, TEX_COUNT, textures);
+}
 
-			for (const MeshInstance* meshInstance : mat->getRenderList())
-			{
-				const std::list<const Entity*>& instances = meshInstance->getInstanceList();
-				unsigned instanceCount = instances.size();
+void DXRenderer::render(MeshID meshID, unsigned instanceCount, unsigned offset)
+{
+	deferredRenderer.renderMeshInstanced(*ModelHandler::get().getMesh(meshID), instanceCount, offset);
+}
 
-				deferredRenderer.renderMeshInstanced(meshInstance->getMesh(), instanceCount, instanceOffset);
-				instanceOffset += instanceCount;
-			}
-		}
-	}
-	
+void DXRenderer::finishFrame()
+{
+	auto& devcon = DXDeviceInstance::get().getDevCon();
+
 	devcon->OMSetDepthStencilState(this->noDepthStencilState.Get(), 0);
 	devcon->RSSetState(this->rsBackCull.Get());
 
@@ -215,16 +252,11 @@ void DXRenderer::render()
 	renderEnvironmentMap(this->skyboxShader, this->environmentMap.getResourceView());
 
 #ifdef ANK_USE_IMGUI
+	drawImgui();
 	renderImgui();
 #endif
 
 	DXDeviceInstance::get().getSwapchain()->Present(0, 0);
-}
-
-void DXRenderer::update(float dt)
-{
-	static bool update = true;
-	updateInstanceConstants();
 }
 
 bool DXRenderer::initStates()
@@ -332,8 +364,8 @@ bool DXRenderer::initBuffers()
 	if (!this->scenePBRBuffer.init(NULL, sizeof(Vector4), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
 		return false;
 
-	if (!this->instanceBuffer.init(NULL, sizeof(Instance)* instanceThreshold, D3D11_USAGE_DYNAMIC, D3D11_BIND_VERTEX_BUFFER, D3D11_CPU_ACCESS_WRITE))
-		return false;
+	//if (!this->instanceBuffer.init(NULL, sizeof(Instance) * instanceThreshold, D3D11_USAGE_DYNAMIC, D3D11_BIND_VERTEX_BUFFER, D3D11_CPU_ACCESS_WRITE))
+	//	return false;
 
 	if (!this->materialProperties.init(NULL, sizeof(MaterialProperties), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
 		return false;
@@ -350,6 +382,7 @@ bool DXRenderer::initBuffers()
 
 void DXRenderer::setupImgui()
 {
+#ifdef ANK_USE_IMGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -358,26 +391,29 @@ void DXRenderer::setupImgui()
 
 	ImGui_ImplWin32_Init(DXDeviceInstance::get().getHWND());
 	ImGui_ImplDX11_Init(DXDeviceInstance::get().getDev().Get(), DXDeviceInstance::get().getDevCon().Get());
+#endif
 }
 
 void DXRenderer::drawImgui()
 {
+#ifdef ANK_USE_IMGUI
 	// Create new frame for imgui
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+#endif
 
 	static bool show = true;
 	if (show)
 	{
 
 		//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		{
+	/*	{
 			ImGui::Begin("BRDF LUT textures");
 			ImGui::Image((void*)BRDFLutTexture.getShaderResource().Get(), ImVec2(256, 256));
 			ImGui::End();
 		}
-
+*/
 	/*	{
 			ImGui::Begin("Convulution");
 			ImGui::BeginGroup();
@@ -398,42 +434,43 @@ void DXRenderer::drawImgui()
 
 void DXRenderer::renderImgui()
 {
+#ifdef ANK_USE_IMGUI
 	auto& devcon = DXDeviceInstance::get().getDevCon();
-
 	ImGui::Render();
 	devcon->OMSetBlendState(this->blendState.Get(), NULL, 0xFFFFFF);
 	devcon->OMSetRenderTargets(1, DXDeviceInstance::get().getBackbuffer().GetAddressOf(), NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+#endif
 }
 
 void DXRenderer::updateInstanceConstants()
 {
-	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
+	//D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 
-	DXDeviceInstance::get().getDevCon()->Map(this->instanceBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	//DXDeviceInstance::get().getDevCon()->Map(this->instanceBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
-	auto materials = ModelHandler::get().getMaterials();
-	unsigned matCount = materials.size();
-	if (matCount > 0)
-	{
-		// For each material, render all instances of models whichs use the material.
-		unsigned instanceIndex = 0;
-		for (unsigned i = 0; i < matCount; i++)
-		{
-			const Material* mat = materials[i];
-			for (const MeshInstance* mesh : mat->getRenderList())
-			{
-				//EXPENSIVE! - Can be solved with single memcpy per entity list
-				const std::list<const Entity*>& instances = mesh->getInstanceList();
-				for (const Entity* entity : instances)
-				{
-					memcpy((char*)mappedResource.pData + (instanceIndex++ * sizeof(Instance)), (void*)&entity->getTransform(), sizeof(Instance));
-				}
-			}
-		}
-	}
+	//auto materials = ModelHandler::get().getMaterials();
+	//unsigned matCount = materials.size();
+	//if (matCount > 0)
+	//{
+	//	 For each material, render all instances of models whichs use the material.
+	//	unsigned instanceIndex = 0;
+	//	for (unsigned i = 0; i < matCount; i++)
+	//	{
+	//		const Material* mat = materials[i];
+	//		for (const MeshInstance* mesh : mat->getRenderList())
+	//		{
+	//			//EXPENSIVE! - Can be solved with single memcpy per entity list
+	//			const std::list<const Entity*>& instances = mesh->getInstanceList();
+	//			for (const Entity* entity : instances)
+	//			{
+	//				memcpy((char*)mappedResource.pData + (instanceIndex++ * sizeof(Instance)), (void*)&entity->getTransform(), sizeof(Instance));
+	//			}
+	//		}
+	//	}
+	//}
 
-	DXDeviceInstance::get().getDevCon()->Unmap(this->instanceBuffer.getBuffer().Get(), 0);
+	//DXDeviceInstance::get().getDevCon()->Unmap(this->instanceBuffer.getBuffer().Get(), 0);
 }
 
 void DXRenderer::setCamera(Camera* camera)
@@ -464,9 +501,9 @@ void DXRenderer::renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11Shade
 
 	shader.prepare();
 
-	const std::vector<MeshInstance*>& meshes = cube->getMeshInstances();
+	const std::vector<MeshInstance>& meshes = cube->getMeshInstances();
 
-	const Mesh& mesh = meshes[0]->getMesh();
+	const Mesh& mesh = *ModelHandler::get().getMesh(meshes[0].meshID);
 
 	devcon->PSSetShaderResources(0, 1, envMap.GetAddressOf());
 

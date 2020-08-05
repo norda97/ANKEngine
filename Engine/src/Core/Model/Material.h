@@ -1,9 +1,9 @@
 #pragma once
 
-class DXTexture;
-class Entity;
+#include "Core/Model/MeshInstance.h"
+#include "Core/Rendering/DirectX/DXTexture.h"
+
 class Model;
-class MeshInstance;
 
 struct alignas(16) MaterialProperties
 {
@@ -52,16 +52,16 @@ public:
 	virtual void setNormalMap(DXTexture* ao) = 0;
 	const virtual DXTexture& getNormalMap() const = 0;
 
-	const std::list<const MeshInstance*>& getRenderList() const;
+	//const std::list<MeshInstance>& getRenderList() const;
 
-	void addMeshInstance(const MeshInstance* mesh);
-	void removeMeshInstance(const MeshInstance* mesh);
+	//void addMeshInstance(MeshInstance meshInstance);
+	//void removeMeshInstance(MeshInstance meshInstance);
 
-	void addModel(const Model* model);
-	void removeModel(const Model* model);
+	//void addModel(const Model* model);
+	//void removeModel(const Model* model);
 
 private:
 	MaterialProperties matProps;
 
-	std::list<const MeshInstance*> renderList;
+	//std::list<MeshInstance> renderList;
 };
