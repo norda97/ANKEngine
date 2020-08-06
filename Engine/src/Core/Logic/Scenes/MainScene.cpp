@@ -7,8 +7,12 @@
 
 #include "Core/ECS/Components/Transform.h"
 #include "Core/ECS/Components/Drawable.h"
+#include "Core/ECS/Components/RigidBody.h"
+#include "Core/ECS/Components/Gravity.h"
 
 #include "Core/ECS/Systems/RenderSystem.h"
+#include "Core/ECS/Systems/PhysicsSystem.h"
+#include "Core/ECS/Systems/HoverSystem.h"
 
 
 MainScene::MainScene()
@@ -25,6 +29,25 @@ bool MainScene::init()
 
 	ecs.registerComponent<Transform>();
 	ecs.registerComponent<Drawable>();
+	ecs.registerComponent<RigidBody>();
+	ecs.registerComponent<Gravity>();
+
+	this->hoverSystem = ecs.registerSystem<HoverSystem>();
+	{
+		Signature signature;
+		signature.set(ecs.getComponentType<Gravity>());
+		signature.set(ecs.getComponentType<Transform>());
+		signature.set(ecs.getComponentType<RigidBody>());
+		ecs.setSystemSignature<HoverSystem>(signature);
+	}
+
+	this->physicsSystem = ecs.registerSystem<PhysicsSystem>();
+	{
+		Signature signature;
+		signature.set(ecs.getComponentType<Transform>());
+		signature.set(ecs.getComponentType<RigidBody>());
+		ecs.setSystemSignature<PhysicsSystem>(signature);
+	}
 
 	this->renderSystem = ecs.registerSystem<RenderSystem>();
 	{
@@ -37,14 +60,52 @@ bool MainScene::init()
 	this->renderSystem->init();
 
 	ModelID sponza = ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("SponzaPBR/"), "sponza.obj", "sponza");
+	ModelID sphere = ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("MatTest/"), "sphere.obj", "sphere");
 
+	// Sphere entities
+	std::default_random_engine generator;
+	std::uniform_real_distribution<float> randPos(-8.f, 8.f);
+	std::uniform_real_distribution<float> randScale(0.5f, 1.f);
+
+	std::vector<Entity> entities(20);
+
+	for (auto& entity : entities) {
+		entity = ecs.createEntity();
+
+		ecs.addComponent<Gravity>(entity,
+			Gravity{
+				{0.f, -2.8f, 0.f}
+			});
+
+		ecs.addComponent<RigidBody>(entity,
+			RigidBody{
+				{0.f, 0.f, 0.f},
+				{0.f, 0.f, 0.f}
+			});
+
+		float scale = randScale(generator);
+		ecs.addComponent<Transform>(entity,
+			Transform{
+				{randPos(generator), 15.f, randPos(generator)},
+				{0.f, 0.f, 0.f},
+				{scale, scale, scale}
+			});
+
+		ecs.addComponent<Drawable>(entity,
+			Drawable{
+				sphere
+			});
+	}
+
+
+	// Sponza scene
 	Entity entity = ecs.createEntity();
 
 	ecs.addComponent<Transform>(entity,
 		Transform{
-			Vec3(0.f, 0.f, 0.f),
-			Vec3(0.f, 0.f, 0.f),
-			Vec3(0.1f, 0.1f, 0.1f),
+			{0.f, 0.f, 0.f},
+			{0.f, 0.f, 0.f},
+			{0.1f, 0.1f, 0.1f}
 		});
 
 	ecs.addComponent<Drawable>(entity,
@@ -57,7 +118,10 @@ bool MainScene::init()
 
 bool MainScene::update(float dt)
 {
+	this->hoverSystem->update(ecs, dt);
+	this->physicsSystem->update(ecs, dt);
 	this->renderSystem->update(ecs, dt);
+
 	return true;
 }
 

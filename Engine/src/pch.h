@@ -10,6 +10,7 @@
 #include <map>
 #include <memory>
 #include <queue>
+#include <random>
 
 // include the Direct3D Library file
 #include <d3d11.h>

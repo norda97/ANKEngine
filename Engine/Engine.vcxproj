@@ -105,12 +105,15 @@
     <ClInclude Include="src\Core\ECS\ComponentArray.h" />
     <ClInclude Include="src\Core\ECS\ComponentManager.h" />
     <ClInclude Include="src\Core\ECS\Components\Drawable.h" />
+    <ClInclude Include="src\Core\ECS\Components\Gravity.h" />
     <ClInclude Include="src\Core\ECS\Components\Transform.h" />
     <ClInclude Include="src\Core\ECS\EntityComponentSystem.h" />
     <ClInclude Include="src\Core\ECS\EntityManager.h" />
     <ClInclude Include="src\Core\ECS\ECSTypes.h" />
     <ClInclude Include="src\Core\ECS\SystemManager.h" />
     <ClInclude Include="src\Core\ECS\System.h" />
+    <ClInclude Include="src\Core\ECS\Systems\HoverSystem.h" />
+    <ClInclude Include="src\Core\ECS\Systems\PhysicsSystem.h" />
     <ClInclude Include="src\Core\ECS\Systems\RenderSystem.h" />
     <ClInclude Include="src\Core\IO\Input.h" />
     <ClInclude Include="src\Core\IO\KeyInputs.h" />
@@ -145,7 +148,12 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\ECS\Components\RigidBody.h">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\Core\ECS\EntityManager.cpp" />
+    <ClCompile Include="src\Core\ECS\Systems\HoverSystem.cpp" />
+    <ClCompile Include="src\Core\ECS\Systems\PhysicsSystem.cpp" />
     <ClCompile Include="src\Core\ECS\Systems\RenderSystem.cpp" />
     <ClCompile Include="src\Core\IO\Input.cpp" />
     <ClCompile Include="src\Core\Logic\SceneHandler.cpp" />

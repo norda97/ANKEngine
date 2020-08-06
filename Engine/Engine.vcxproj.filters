@@ -130,6 +130,9 @@
     <ClInclude Include="src\Core\ECS\Components\Drawable.h" />
     <ClInclude Include="src\Core\ECS\Systems\RenderSystem.h" />
     <ClInclude Include="src\Core\Model\ModelTypes.h" />
+    <ClInclude Include="src\Core\ECS\Systems\HoverSystem.h" />
+    <ClInclude Include="src\Core\ECS\Systems\PhysicsSystem.h" />
+    <ClInclude Include="src\Core\ECS\Components\Gravity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\IO\Input.cpp">
@@ -204,5 +207,8 @@
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Core\ECS\EntityManager.cpp" />
     <ClCompile Include="src\Core\ECS\Systems\RenderSystem.cpp" />
+    <ClCompile Include="src\Core\ECS\Components\RigidBody.h" />
+    <ClCompile Include="src\Core\ECS\Systems\HoverSystem.cpp" />
+    <ClCompile Include="src\Core\ECS\Systems\PhysicsSystem.cpp" />
   </ItemGroup>
 </Project>

@@ -5,6 +5,8 @@
 #include "Core/ECS/EntityComponentSystem.h"
 
 class RenderSystem;
+class PhysicsSystem;
+class HoverSystem;
 
 class MainScene : public Scene
 {
@@ -20,6 +22,8 @@ public:
 private:
 
 	RenderSystem* renderSystem;
+	PhysicsSystem* physicsSystem;
+	HoverSystem* hoverSystem;
 
 	ECS ecs;
 };

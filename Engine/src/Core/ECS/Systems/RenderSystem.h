@@ -5,7 +5,6 @@
 
 #include "Core/Rendering/DirectX/DXRenderer.h"
 
-
 class ECS;
 
 class RenderSystem : public System
