@@ -5,5 +5,5 @@
 using MaterialID = std::uint32_t;
 using MeshID = std::uint32_t;
 using ModelID = std::uint32_t;
-const ModelID MAX_MESH_INSTANCES = 50;
+const ModelID MAX_MESH_INSTANCES = 2000;
 

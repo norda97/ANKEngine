@@ -25,7 +25,7 @@
 	#include "examples/imgui_impl_dx11.h"
 #endif
 
-DXRenderer::DXRenderer() : camera(nullptr), instanceThreshold(100)
+DXRenderer::DXRenderer() : camera(nullptr), maxPointLights(10), pointLightCount(0)
 {
 
 }
@@ -107,7 +107,7 @@ bool DXRenderer::init()
 	ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("Cube/"), "cube.obj", "cube");
 
 	createCubemap(environmentMap, this->equirectangularShader, this->equiTexture.getShaderResource());
-	createCubemap(irradianceMap, this->irradianceShader, environmentMap.getResourceView());
+	createCubemapMip(irradianceMap, this->irradianceShader, environmentMap.getResourceView());
 	createCubemapMip(radianceMap, this->radianceShader, environmentMap.getResourceView());
 
 	return true;
@@ -142,62 +142,6 @@ void DXRenderer::prepare()
 	deferredRenderer.bindShaders();
 }
 
-
-void DXRenderer::render()
-{
-	auto& devcon = DXDeviceInstance::get().getDevCon();
-
-//	auto materials = ModelHandler::get().getMaterials();
-//	unsigned matCount = materials.size();
-//	if (matCount > 0)
-//	{
-//		// Bind instance world position buffer
-//		unsigned int strides[1] = { sizeof(Matrix) };
-//		unsigned int offsets[1] = { 0 };
-//		ID3D11Buffer* bufferPointers[1] = { this->instanceBuffer.getBuffer().Get() };
-//
-//		devcon->IASetVertexBuffers(1, 1, bufferPointers, strides, offsets);
-//		deferredRenderer.bindShaders();
-//
-//
-//		// For each material, render all instances of models whichs use the material.
-//		unsigned instanceOffset = 0;
-//		for (unsigned i = 0; i < matCount; i++)
-//		{
-//			if (instanceOffset >= instanceThreshold) {
-//				ANK_WARNING("Instance buffer not large enough for scheduled work!\n");
-//				break;
-//			}
-//
-//			const Material* mat = materials[i];
-//
-//			this->materialProperties.update((void*)&mat->getProperties(), sizeof(MaterialProperties), 0, D3D11_MAP_WRITE_DISCARD);
-//
-//#define TEX_COUNT 5
-//			ID3D11ShaderResourceView* textures[TEX_COUNT] = {
-//				mat->getAlbedoMap().getShaderResource().Get(),
-//				mat->getMetallicMap().getShaderResource().Get(),
-//				mat->getRoughnessMap().getShaderResource().Get(),
-//				mat->getAmbientOcclusionMap().getShaderResource().Get(),
-//				mat->getNormalMap().getShaderResource().Get()
-//			};
-//
-//			devcon->PSSetShaderResources(0, TEX_COUNT, textures);
-//
-//			for (const MeshInstance* meshInstance : mat->getRenderList())
-//			{
-//				const std::list<const Entity*>& instances = meshInstance->getInstanceList();
-//				unsigned instanceCount = instances.size();
-//
-//				deferredRenderer.renderMeshInstanced(meshInstance->getMesh(), instanceCount, instanceOffset);
-//				instanceOffset += instanceCount;
-//			}
-//		}
-//	}
-	
-
-}
-
 void DXRenderer::setMaterial(MaterialID materialID)
 {
 	auto material = ModelHandler::get().getMaterial(materialID);
@@ -218,7 +162,23 @@ void DXRenderer::setMaterial(MaterialID materialID)
 
 void DXRenderer::render(MeshID meshID, unsigned instanceCount, unsigned offset)
 {
-	deferredRenderer.renderMeshInstanced(*ModelHandler::get().getMesh(meshID), instanceCount, offset);
+	//deferredRenderer.renderMeshInstanced(, instanceCount, offset);
+
+	//auto& devcon = DXDeviceInstance::get().getDevCon();
+
+	//unsigned int strides[1] = { sizeof(VertexData) };
+	//unsigned int offsets[1] = { 0 };
+
+	//Mesh& mesh = *ModelHandler::get().getMesh(meshID);
+
+	//ID3D11Buffer* bufferPointers[1] = { static_cast<const DXBuffer*>(mesh.getVertexBuffer())->getBuffer().Get() };
+
+	//devcon->IASetVertexBuffers(0, 1, bufferPointers, strides, offsets);
+	//devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->getBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
+	//devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	////DXDeviceInstance::get().getDevCon()->RSSetState(rsWireframe);
+	//devcon->DrawIndexedInstanced(mesh.getIndexCount(), instanceCount, 0, 0, offset);
 }
 
 void DXRenderer::finishFrame()
@@ -319,15 +279,6 @@ bool DXRenderer::initStates()
 
 bool DXRenderer::initShaders()
 {
-	// Create input layout for default shader
-	//std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
-	//{
-	//	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	//	{"NORMAL",	 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(Vector3) * 1, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	//	{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(Vector3) * 2, D3D11_INPUT_PER_VERTEX_DATA, 0}
-	//};
-	//if(!this->defaultShader.init("DefaultShader_V.hlsl", "DefaultShader_P.hlsl", ied))
-	//	return false;
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
@@ -363,9 +314,6 @@ bool DXRenderer::initBuffers()
 
 	if (!this->scenePBRBuffer.init(NULL, sizeof(Vector4), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
 		return false;
-
-	//if (!this->instanceBuffer.init(NULL, sizeof(Instance) * instanceThreshold, D3D11_USAGE_DYNAMIC, D3D11_BIND_VERTEX_BUFFER, D3D11_CPU_ACCESS_WRITE))
-	//	return false;
 
 	if (!this->materialProperties.init(NULL, sizeof(MaterialProperties), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
 		return false;
@@ -443,35 +391,6 @@ void DXRenderer::renderImgui()
 #endif
 }
 
-void DXRenderer::updateInstanceConstants()
-{
-	//D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-
-	//DXDeviceInstance::get().getDevCon()->Map(this->instanceBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-
-	//auto materials = ModelHandler::get().getMaterials();
-	//unsigned matCount = materials.size();
-	//if (matCount > 0)
-	//{
-	//	 For each material, render all instances of models whichs use the material.
-	//	unsigned instanceIndex = 0;
-	//	for (unsigned i = 0; i < matCount; i++)
-	//	{
-	//		const Material* mat = materials[i];
-	//		for (const MeshInstance* mesh : mat->getRenderList())
-	//		{
-	//			//EXPENSIVE! - Can be solved with single memcpy per entity list
-	//			const std::list<const Entity*>& instances = mesh->getInstanceList();
-	//			for (const Entity* entity : instances)
-	//			{
-	//				memcpy((char*)mappedResource.pData + (instanceIndex++ * sizeof(Instance)), (void*)&entity->getTransform(), sizeof(Instance));
-	//			}
-	//		}
-	//	}
-	//}
-
-	//DXDeviceInstance::get().getDevCon()->Unmap(this->instanceBuffer.getBuffer().Get(), 0);
-}
 
 void DXRenderer::setCamera(Camera* camera)
 {
@@ -530,8 +449,8 @@ void DXRenderer::createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPt
 	Matrix proj = Matrix::CreatePerspectiveFieldOfView(XM_PI * 0.5f, 1.0f, .1f, 10.f);
 
 	Matrix mat[6];
-	mat[0] =  Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
-	mat[1] =  Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(-1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
+	mat[0] =  Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(-1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
+	mat[1] =  Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
 	mat[2] =  Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0), Vector3(0.0, 0.0, -1.0));
 	mat[3] =  Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(0.0, -1.0, 0.0), Vector3(0.0, 0.0, 1.0));
 	mat[4] =  Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0), Vector3(0.0, 1.0, 0.0));
@@ -575,8 +494,8 @@ void DXRenderer::createCubemapMip(DXCubemap& cubemap, DXShader& shader, const Co
 	Matrix proj = Matrix::CreatePerspectiveFieldOfView(XM_PI * 0.5f, 1.0f, .1f, 10.f);
 
 	Matrix mat[6];
-	mat[0] = Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
-	mat[1] = Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(-1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
+	mat[0] = Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(-1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
+	mat[1] = Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0));
 	mat[2] = Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0), Vector3(0.0, 0.0, -1.0));
 	mat[3] = Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(0.0, -1.0, 0.0), Vector3(0.0, 0.0, 1.0));
 	mat[4] = Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0), Vector3(0.0, 1.0, 0.0));
@@ -646,11 +565,6 @@ void DXRenderer::renderBRDFLutTex()
 	texDesc.CPUAccessFlags = 0;
 	texDesc.MiscFlags = 0;
 
-	//D3D11_SUBRESOURCE_DATA srd = { 0 };
-	//srd.pSysMem = (void*)image;
-	//srd.SysMemPitch = 512 * 8;
-	//srd.SysMemSlicePitch = 0;
-
 	this->BRDFLutTexture.init(NULL, texDesc);
 
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> rtv;
@@ -660,7 +574,6 @@ void DXRenderer::renderBRDFLutTex()
 	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Texture2D.MipSlice = 0;
 
-	//.MipSlice = D3D11CalcSubresource(0, 6, tdesc.MipLevels);
 	ANK_ASSERT(SUCCEEDED(DXDeviceInstance::get().getDev()->CreateRenderTargetView(this->BRDFLutTexture.getTexture().Get(), &rtvDesc, rtv.ReleaseAndGetAddressOf())),
 		"Failed to create render target view for BRDF LUT");
 

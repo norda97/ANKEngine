@@ -19,7 +19,6 @@ void PhysicsSystem::update(ECS& ecs, float dt)
 		auto & rigidBody	= ecs.getComponent<RigidBody>(entity);
 		auto const& gravity = ecs.getComponent<Gravity>(entity);
 
-
 		transform.position += rigidBody.velocity * dt;
 
 		rigidBody.velocity += gravity.force * dt;

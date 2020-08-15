@@ -111,57 +111,21 @@ const std::array<ID3D11ShaderResourceView*, 4>& DXDeferred::getResourceViews() c
 {
 	return this->ptrResourceViews;
 }
-//
-//void DXDeferred::renderModelInstanced(const Model& model, unsigned instanceCount, unsigned instanceOffset)
-//{
-//	auto& devcon = DXDeviceInstance::get().getDevCon();
-//
-//	const std::vector<MeshInstance*>& meshes = model.getMeshInstances();
-//
-//	for (const MeshInstance* meshInstance : meshes)
-//	{
-//		const Material& mat = meshInstance->getMaterial();
-//
-//#define TEX_COUNT 5
-//		ID3D11ShaderResourceView* textures[TEX_COUNT] = {
-//			mat.getAlbedoMap().getShaderResource().Get(),
-//			mat.getMetallicMap().getShaderResource().Get(),
-//			mat.getRoughnessMap().getShaderResource().Get(),
-//			mat.getAmbientOcclusionMap().getShaderResource().Get(),
-//			mat.getNormalMap().getShaderResource().Get()
-//		};
-//
-//		devcon->PSSetShaderResources(0, TEX_COUNT, textures);
-//
-//		unsigned int strides[1] = { sizeof(VertexData) };
-//		unsigned int offsets[1] = { 0 };
-//
-//		const Mesh& mesh = meshInstance->getMesh();
-//		ID3D11Buffer* bufferPointers[1] = { static_cast<const DXBuffer*>(mesh.getVertexBuffer())->getBuffer().Get() };
-//
-//		devcon->IASetVertexBuffers(0, 1, bufferPointers, strides, offsets);
-//		devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->getBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
-//		devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-//
-//		//DXDeviceInstance::get().getDevCon()->RSSetState(rsWireframe);
-//		devcon->DrawIndexedInstanced(mesh.getIndexCount(), instanceCount, 0, 0, instanceOffset);
-//	}
-//}
 
 void DXDeferred::renderMeshInstanced(const Mesh& mesh, unsigned instanceCount, unsigned instanceOffset)
 {
-	auto& devcon = DXDeviceInstance::get().getDevCon();
+	//auto& devcon = DXDeviceInstance::get().getDevCon();
 
-	unsigned int strides[1] = { sizeof(VertexData) };
-	unsigned int offsets[1] = { 0 };
-	ID3D11Buffer* bufferPointers[1] = { static_cast<const DXBuffer*>(mesh.getVertexBuffer())->getBuffer().Get() };
+	//unsigned int strides[1] = { sizeof(VertexData) };
+	//unsigned int offsets[1] = { 0 };
+	//ID3D11Buffer* bufferPointers[1] = { static_cast<const DXBuffer*>(mesh.getVertexBuffer())->getBuffer().Get() };
 
-	devcon->IASetVertexBuffers(0, 1, bufferPointers, strides, offsets);
-	devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->getBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
-	devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//devcon->IASetVertexBuffers(0, 1, bufferPointers, strides, offsets);
+	//devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->getBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
+	//devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//DXDeviceInstance::get().getDevCon()->RSSetState(rsWireframe);
-	devcon->DrawIndexedInstanced(mesh.getIndexCount(), instanceCount, 0, 0, instanceOffset);
+	////DXDeviceInstance::get().getDevCon()->RSSetState(rsWireframe);
+	//devcon->DrawIndexedInstanced(mesh.getIndexCount(), instanceCount, 0, 0, instanceOffset);
 }
 
 void DXDeferred::renderComplete(ID3D11RenderTargetView* const* renderTarget)

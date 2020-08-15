@@ -7,7 +7,7 @@
 Material::Material()
 {
 	this->matProps.albedo = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	this->matProps.roughness = 0.25f;
+	this->matProps.roughness = 0.5f;
 	this->matProps.metallicness = 0.0f;
 	this->matProps.specular = 1.0f;
 }

@@ -36,7 +36,6 @@ public:
 
 	void setCamera(Camera* camera);
 	void prepare();
-	void render();
 	void setMaterial(MaterialID materialID);
 	void render(MeshID meshID, unsigned instanceCount, unsigned offset);
 
@@ -51,7 +50,6 @@ private:
 	void drawImgui();
 	void renderImgui();
 
-	void updateInstanceConstants();
 	void updateSceneConstants(float dt);
 
 	void renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
@@ -60,7 +58,8 @@ private:
 	void renderBRDFLutTex();
 	//void renderModel(DXModel& model, unsigned instanceCount, unsigned instanceOffset);
 	
-	const unsigned instanceThreshold;
+	const unsigned maxPointLights;
+	unsigned pointLightCount;
 
 	Camera* camera;
 

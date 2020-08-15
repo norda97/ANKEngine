@@ -25,6 +25,13 @@ MainScene::~MainScene()
 
 bool MainScene::init()
 {
+
+	this->renderer.init();
+	
+	// Init camera
+	this->camera.init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f, 8.f, 0.f), Vector3(-30.f, 8.f, 0.0f), 0.1f, 1000.0f);
+	this->renderer.setCamera(&camera);
+
 	ecs.init();
 
 	ecs.registerComponent<Transform>();
@@ -57,17 +64,17 @@ bool MainScene::init()
 		ecs.setSystemSignature<RenderSystem>(signature);
 	}
 
-	this->renderSystem->init();
+	this->renderSystem->init(&this->ecs);
 
 	ModelID sponza = ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("SponzaPBR/"), "sponza.obj", "sponza");
-	ModelID sphere = ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("MatTest/"), "sphere.obj", "sphere");
+	ModelID sphere = ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("MatTest/"), "lowpoly_sphere_224tris.obj", "sphere");
 
 	// Sphere entities
 	std::default_random_engine generator;
 	std::uniform_real_distribution<float> randPos(-8.f, 8.f);
 	std::uniform_real_distribution<float> randScale(0.5f, 1.f);
 
-	std::vector<Entity> entities(20);
+	std::vector<Entity> entities(250);
 
 	for (auto& entity : entities) {
 		entity = ecs.createEntity();
@@ -93,25 +100,32 @@ bool MainScene::init()
 
 		ecs.addComponent<Drawable>(entity,
 			Drawable{
+				{1.0f, 0.0f, 0.0f, 1.0f},
+				0.5f,
+				0.0f,
+				1.0f,
 				sphere
 			});
 	}
 
-
 	// Sponza scene
-	Entity entity = ecs.createEntity();
+	//Entity entity = ecs.createEntity();
 
-	ecs.addComponent<Transform>(entity,
-		Transform{
-			{0.f, 0.f, 0.f},
-			{0.f, 0.f, 0.f},
-			{0.1f, 0.1f, 0.1f}
-		});
+	//ecs.addComponent<Transform>(entity,
+	//	Transform{
+	//		{0.f, 0.f, 0.f},
+	//		{0.f, 0.f, 0.f},
+	//		{0.1f, 0.1f, 0.1f}
+	//	});
 
-	ecs.addComponent<Drawable>(entity,
-		Drawable{
-			sponza
-		});
+	//ecs.addComponent<Drawable>(entity,
+	//	Drawable{
+	//		{1.0f, 0.0f, 0.0f, 1.0f},
+	//		0.5f,
+	//		0.0f,
+	//		1.0f,
+	//		sponza
+	//	});
 
 	return true;
 }
@@ -120,13 +134,21 @@ bool MainScene::update(float dt)
 {
 	this->hoverSystem->update(ecs, dt);
 	this->physicsSystem->update(ecs, dt);
-	this->renderSystem->update(ecs, dt);
+
+	camera.update(dt);
+
 
 	return true;
 }
 
 bool MainScene::render()
 {
+	this->renderer.prepare();
+
+	this->renderSystem->update(this->renderer);
+
+	this->renderer.finishFrame();
+	
 	return true;
 }
 

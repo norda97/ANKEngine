@@ -57,12 +57,13 @@ public:
 
 			if ((entitySignature & systemSignature) == systemSignature)
 			{
-				system->entities.insert(entity);
+				system->insertEntity(entity);
 			}
 			else
 			{
-				system->entities.erase(entity);
+				system->eraseEntity(entity);
 			}
+
 		}
 	}
 

@@ -10,56 +10,60 @@
 
 #include "Core/ECS/Components/Transform.h"
 #include "Core/ECS/Components/Drawable.h"
+#include "Core/ECS/Components/RigidBody.h"
 
 #include "Core/ECS/EntityComponentSystem.h"
+#include "Core/ECS/ECSTypes.h"
 
 
 
 
-void RenderSystem::init()
+void RenderSystem::init(ECS* ecs)
 {
+	this->ecs = ecs;
 	this->instanceCount = entities.size();
 
-	// Init camera
-	this->camera.init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f, 8.f, 0.f), Vector3(-30.f, 8.f, 0.0f), 0.1f, 1000.0f);
+	ANK_ASSERT(
+		this->transformBuffer.init(
+			NULL,
+			sizeof(Instance) * MAX_MESH_INSTANCES,
+			D3D11_USAGE_DYNAMIC,
+			D3D11_BIND_VERTEX_BUFFER,
+			D3D11_CPU_ACCESS_WRITE),
+		"Failed to init constant buffer for transforms."
+	);
 
-	this->renderer.init();
-	this->renderer.setCamera(&camera);
-
-	ANK_ASSERT(this->transformBuffer.init(NULL, sizeof(Instance) * MAX_MESH_INSTANCES, D3D11_USAGE_DYNAMIC, D3D11_BIND_VERTEX_BUFFER, D3D11_CPU_ACCESS_WRITE), "Failed to init constant buffer for transforms.")
+	ANK_ASSERT(ecs != nullptr, "ECS must be a valid pointer in renderSystem");
 }
 
-void RenderSystem::update(ECS& ecs, float dt)
+void RenderSystem::update(DXRenderer& renderer)
 {
-	// INEFFCIENT FIND BETTER SOLUTION
-	for (auto & material : this->transformMap)
-	{
-		for (auto & pair : material.second)
-		{
-			auto& matrix = pair.second;
-			matrix.clear();
-		}
-	}
-
-	// Update camera
-	camera.update(dt);
+	//// INEFFCIENT FIND BETTER SOLUTION
+	//for (auto & material : this->transformMap)
+	//{
+	//	for (auto & pair : material.second)
+	//	{
+	//		auto& matrix = pair.second;
+	//		matrix.clear();
+	//	}
+	//}
 
 	// Update instance buffers
 	auto const& modelMap = ModelHandler::get().getModels();
 
 	for (auto const& entity : this->entities)
 	{
-		auto const& transform = ecs.getComponent<Transform>(entity);
-		auto const& drawable = ecs.getComponent<Drawable>(entity);
-		Model* model = modelMap.at(drawable.modelID);
+		auto & transform = this->ecs->getComponent<Transform>(entity);
+		auto const& drawable = this->ecs->getComponent<Drawable>(entity);
 
+		Model* model = modelMap.at(drawable.modelID);
 		for (auto const& meshInstance : model->getMeshInstances())
 		{
 			Matrix matrix = Matrix::CreateScale(transform.scale);
 			matrix *= Matrix::CreateFromYawPitchRoll(transform.rotation.y, transform.rotation.x, transform.rotation.z);
 			matrix *= Matrix::CreateTranslation(transform.position);
 
-			this->transformMap[meshInstance.materialID][meshInstance.meshID].push_back(matrix);
+			this->instanceData[meshInstance.materialID][meshInstance.meshID].updateEntity(entity, matrix);
 		}
 	}
 
@@ -74,67 +78,105 @@ void RenderSystem::update(ECS& ecs, float dt)
 	DXDeviceInstance::get().getDevCon()->IASetVertexBuffers(1, 1, bufferPointers, strides, offsets);
 
 	// Render scene
-	this->renderer.prepare();
+	renderer.prepare();
 	unsigned instanceOffset = 0;
-	for (auto& material : this->transformMap)
+	for (auto& materialID : this->instanceData)
 	{
-		renderer.setMaterial(material.first);
-		for (auto& pair : material.second)
+		renderer.setMaterial(materialID.first);
+		for (auto& meshID : materialID.second)
 		{
-			auto const& meshID = pair.first;
-			unsigned instanceCount = pair.second.size();
-			renderer.render(meshID, pair.second.size(), instanceOffset);
+			unsigned instanceCount = meshID.second.getData().size();
+			//renderer.render(meshID, pair.second.size(), instanceOffset);
+
+			auto& devcon = DXDeviceInstance::get().getDevCon();
+
+			unsigned int strides[1] = { sizeof(VertexData) };
+			unsigned int offsets[1] = { 0 };
+
+			Mesh& mesh = *ModelHandler::get().getMesh(meshID.first);
+
+			ID3D11Buffer* bufferPointers[1] = { static_cast<const DXBuffer*>(mesh.getVertexBuffer())->getBuffer().Get() };
+
+			devcon->IASetVertexBuffers(0, 1, bufferPointers, strides, offsets);
+			devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->getBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
+			devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+			//DXDeviceInstance::get().getDevCon()->RSSetState(rsWireframe);
+			devcon->DrawIndexedInstanced(mesh.getIndexCount(), instanceCount, 0, 0, instanceOffset);
+
 			instanceOffset += instanceCount;
 		}
 	}
 
-	renderer.finishFrame();
+}
+
+void RenderSystem::insertEntity(Entity entity)
+{
+	auto const& drawable = this->ecs->getComponent<Drawable>(entity);
+
+	auto const& modelMap = ModelHandler::get().getModels();
+
+	Model* model = modelMap.at(drawable.modelID);
+	for (auto const& meshInstance : model->getMeshInstances())
+	{
+		auto& instanceContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
+
+		instanceContainer.addEntity(entity);
+	}
+	this->entities.insert(entity);
+}
+
+void RenderSystem::eraseEntity(Entity entity)
+{
+	size_t removedEntities = this->entities.erase(entity);
+	if (removedEntities > 0)
+	{
+		auto const& drawable = this->ecs->getComponent<Drawable>(entity);
+
+		auto const& modelMap = ModelHandler::get().getModels();
+
+		Model* model = modelMap.at(drawable.modelID);
+		for (auto const& meshInstance : model->getMeshInstances())
+		{
+			auto& instanceContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
+
+			instanceContainer.removeEntity(entity);
+		}
+	}
 }
 
 void RenderSystem::updateInstanceBuffer()
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 
-
 	DXDeviceInstance::get().getDevCon()->Map(this->transformBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
-	auto materials = ModelHandler::get().getMaterials();
-	unsigned instanceIndex = 0;
-
-	for (auto& material : this->transformMap)
-	{
-		for (auto& pair : material.second)
-		{
-			auto& matrix = pair.second;
-			size_t instanceCount = matrix.size();
-			memcpy((char*)mappedResource.pData + (instanceIndex * sizeof(Instance)), (void*)matrix.data(), sizeof(Instance) * instanceCount);
-			instanceIndex += instanceCount;
-		}
-	}
-	DXDeviceInstance::get().getDevCon()->Unmap(this->transformBuffer.getBuffer().Get(), 0);
-
-	//DXDeviceInstance::get().getDevCon()->Map(this->instanceBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-
 	//auto materials = ModelHandler::get().getMaterials();
-	//unsigned matCount = materials.size();
-	//if (matCount > 0)
+	//
+
+	//for (auto& material : this->transformMap)
 	//{
-	//	// For each material, render all instances of models whichs use the material.
-	//	unsigned instanceIndex = 0;
-	//	for (unsigned i = 0; i < matCount; i++)
+	//	for (auto& pair : material.second)
 	//	{
-	//		const Material* mat = materials[i];
-	//		for (const MeshInstance* mesh : mat->getRenderList())
-	//		{
-	//			////EXPENSIVE! - Can be solved with single memcpy per entity list
-	//			//const std::list<const Entity*>& instances = mesh->getInstanceList();
-	//			//for (const Entity* entity : instances)
-	//			//{
-	//			//	memcpy((char*)mappedResource.pData + (instanceIndex++ * sizeof(Instance)), (void*)&entity->getTransform(), sizeof(Instance));
-	//			//}
-	//		}
+	//		auto& matrix = pair.second;
+	//		size_t instanceCount = matrix.size();
+	//		memcpy((char*)mappedResource.pData + (instanceIndex * sizeof(Instance)), (void*)matrix.data(), sizeof(Instance) * instanceCount);
+	//		instanceIndex += instanceCount;
 	//	}
 	//}
 
-	//DXDeviceInstance::get().getDevCon()->Unmap(this->instanceBuffer.getBuffer().Get(), 0);
+	unsigned instanceIndex = 0;
+	for (auto& materialID : this->instanceData)
+	{
+		for (auto& meshID : materialID.second)
+		{
+			auto& meshInstanceData = meshID.second;
+			auto& transformVector = meshInstanceData.getData();
+			size_t instanceCount = transformVector.size();
+			memcpy((char*)mappedResource.pData + (instanceIndex * sizeof(Instance)), (void*)transformVector.data(), sizeof(Instance) * instanceCount);
+			instanceIndex += instanceCount;
+		}
+	}
+
+	DXDeviceInstance::get().getDevCon()->Unmap(this->transformBuffer.getBuffer().Get(), 0);
 }

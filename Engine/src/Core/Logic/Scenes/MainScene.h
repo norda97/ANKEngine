@@ -1,8 +1,11 @@
 #pragma once
 
 #include "Core/Logic/Scenes/Scene.h"
+#include "Core/Rendering/DirectX/DXRenderer.h"
 
 #include "Core/ECS/EntityComponentSystem.h"
+
+#include "Core/Utils/Cameras/Camera.h"
 
 class RenderSystem;
 class PhysicsSystem;
@@ -26,4 +29,7 @@ private:
 	HoverSystem* hoverSystem;
 
 	ECS ecs;
+
+	DXRenderer renderer;
+	Camera camera;
 };

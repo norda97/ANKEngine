@@ -63,34 +63,6 @@ Material* ModelHandler::createMaterial()
 	return newMaterial;
 }
 
-//Model* ModelHandler::duplicateModel(const std::string& key, const std::string& newKey)
-//{
-//	Model* model = getModel(key);
-//	if (model) {
-//		Model* dupe = new Model(*model);
-//
-//		this->modelMap[newKey] = dupe;
-//		return dupe;
-//	}
-//
-//	return nullptr;
-//}
-//
-//Model* ModelHandler::duplicateModel(Model* model, const std::string& newKey)
-//{
-//	if (model && this->modelMap.find(newKey) == this->modelMap.end()) {
-//		Model* dupe = new Model(*model);
-//
-//		this->modelMap[newKey] = dupe;
-//		return dupe;
-//	}
-//	else {
-//		ANK_WARNING("Failed to duplicate model");
-//	}
-//	
-//	return nullptr;
-//}
-
 Model* ModelHandler::getModel(const std::string& name)
 {
 	auto it = this->nameToIndex.find(name);
@@ -187,16 +159,6 @@ void ModelHandler::shutdown()
 		}
 	}
 	this->meshes.clear();
-
-	// Clear meshInstances
-	//for (MeshInstance* meshInstance : this->meshInstances)
-	//{
-	//	if (meshInstance) {
-	//		delete meshInstance;
-	//		meshInstance = nullptr;
-	//	}
-	//}
-	//this->meshInstances.clear();
 
 	// Clear models
 	for (auto pair : this->modelMap)
@@ -322,22 +284,6 @@ bool ModelHandler::processMaterial(const std::string& path, const aiMaterial* ai
 
 	mat->setAmbientOcclusionMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
 
-	//float value = 1.0;
-	//aiColor3D colorValue;
-	//if (aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, colorValue) == AI_SUCCESS) {
-	//	mat->setAlbedo(Vector4(colorValue.r, colorValue.g, colorValue.b, 1.0f));
-	//}
-
-	//if (aiMat->Get(AI_MATKEY_COLOR_AMBIENT, colorValue) == AI_SUCCESS) {
-	//	mat->setMetallicness(colorValue.r);
-	//}
-
-	//if (aiMat->Get(AI_MATKEY_SHININESS, value) == AI_SUCCESS) {
-	//	const float min = 0.025f;
-	//	const float max = 1.0f;
-	//	mat->setRoughness(min + (max - min) * value);
-	//}
-
 	return true;
 }
 
@@ -381,23 +327,6 @@ bool ModelHandler::processMaterialTexture(aiTextureType texType, const std::stri
 			}
 		}
 	}
-
-//#ifdef ANK_DX11
-//	switch (texType) {
-//	case aiTextureType_DIFFUSE:
-//		mat->setAlbedoMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
-//		break;
-//	case aiTextureType_AMBIENT: // Metallic
-//		mat->setMetallicMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
-//		break;
-//	case aiTextureType_SHININESS: // Roughness
-//		mat->setRoughnessMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
-//		break;
-//	case aiTextureType_HEIGHT: // Roughness
-//		mat->setNormalMap(this->textureMap[ANK_TEXTURE_DEFAULT_NORMAL_PATH]);
-//		break;
-//	}
-//#endif
 
 	return false;
 }
