@@ -52,8 +52,6 @@ public:
 		return this->componentArray[this->entityToIndexMap[entity]];
 	};
 
-
-	
 	void entityDestroyed(Entity entity) override
 	{
 		if (this->entityToIndexMap.find(entity) != this->entityToIndexMap.end())

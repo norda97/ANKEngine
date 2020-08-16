@@ -3,15 +3,9 @@
 #include "Core/Model/MeshInstance.h"
 #include "Core/Rendering/DirectX/DXTexture.h"
 
-class Model;
+#include "MaterialProperties.h"
 
-struct alignas(16) MaterialProperties
-{
-	Vector4 albedo;
-	float roughness;
-	float metallicness;
-	float specular;
-};
+class Model;
 
 class Material
 {
@@ -52,16 +46,6 @@ public:
 	virtual void setNormalMap(DXTexture* ao) = 0;
 	const virtual DXTexture& getNormalMap() const = 0;
 
-	//const std::list<MeshInstance>& getRenderList() const;
-
-	//void addMeshInstance(MeshInstance meshInstance);
-	//void removeMeshInstance(MeshInstance meshInstance);
-
-	//void addModel(const Model* model);
-	//void removeModel(const Model* model);
-
 private:
 	MaterialProperties matProps;
-
-	//std::list<MeshInstance> renderList;
 };

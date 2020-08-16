@@ -37,7 +37,6 @@ public:
 	void setCamera(Camera* camera);
 	void prepare();
 	void setMaterial(MaterialID materialID);
-	void render(MeshID meshID, unsigned instanceCount, unsigned offset);
 
 	void finishFrame();
 

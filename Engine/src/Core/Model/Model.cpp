@@ -3,62 +3,14 @@
 
 #include "Core/Model/MeshInstance.h"
 
-Model::Model()
+Model::Model(ModelID modelID) : id(modelID)
 {
 }
-
-//Model::Model(const Model& other)  noexcept
-//{
-//	deepCopy(other);
-//}
-//
-//Model::Model(Model&& other) noexcept
-//{
-//	deepCopy(other);
-//}
 
 Model::~Model()
 {
-	/*for (auto meshInstance : this->meshInstances) {
-		if (meshInstance) {
-			delete meshInstance;
-			meshInstance = nullptr;
-		}
-	}
-	this->meshInstances.clear();*/
+
 }
-
-//Model& Model::operator=(const Model& other)
-//{
-//	deepCopy(other);
-//	return *this;
-//}
-
-//void Model::addInstance(Entity* e)
-//{
-//	for (unsigned i = 0; i < this->meshInstances.size(); i++)
-//	{
-//		this->meshInstances[i]->addInstance(e);
-//	}
-//}
-//
-//void Model::removeInstance(Entity* e)
-//{
-//	for (unsigned i = 0; i < this->meshInstances.size(); i++)
-//	{
-//		this->meshInstances[i]->removeInstance(e);
-//	}
-//}
-//
-//void Model::deepCopy(const Model& other)
-//{
-//	unsigned meshInstanceCount = other.meshInstances.size();
-//	this->meshInstances.resize(meshInstanceCount);
-//	for (unsigned i = 0; i < meshInstanceCount; i++)
-//	{
-//		this->meshInstances[i] = new MeshInstance(*other.meshInstances[i]);
-//	}
-//}
 
 const std::vector<MeshInstance>& Model::getMeshInstances() const
 {
@@ -70,4 +22,22 @@ bool Model::addMeshInstance(MeshInstance mesh)
 	this->meshInstances.push_back(mesh);
 
 	return true;
+}
+
+void Model::changeMeshMaterial(uint32_t index, MaterialID matID)
+{
+	if (index >= 0 && index < this->meshInstances.size())
+		this->meshInstances[index].materialID = matID;
+	else
+		ANK_WARNING("Change Mesh Material: Index out of range");
+}
+
+ModelID Model::getModelID() const
+{
+	return this->id;
+}
+
+void Model::setModelID(ModelID id)
+{
+	this->id = id;
 }

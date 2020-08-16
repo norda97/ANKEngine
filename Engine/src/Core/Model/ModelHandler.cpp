@@ -27,6 +27,9 @@ ModelHandler::ModelHandler() : modelCount(0)
 	defaultTexture = new DXTexture();
 	defaultTexture->loadTexture(ANK_TEXTURE_DEFAULT_NORMAL_PATH);
 	this->textureMap[ANK_TEXTURE_DEFAULT_NORMAL_PATH] = defaultTexture;
+
+	// Load default model - Not working currently look into
+	//loadModel(std::string(ANK_MODEL_PATH).append("Cube/"), "cube.obj", "cube");
 }
 
 ModelHandler::~ModelHandler()
@@ -41,7 +44,7 @@ ModelHandler& ModelHandler::get()
 	return instance;
 }
 
-Material* ModelHandler::createMaterial(Material* material)
+Material* ModelHandler::duplicateMaterial(Material* material)
 {
 #ifdef ANK_DX11
 	DXMaterial* newMaterial = new DXMaterial(*static_cast<DXMaterial*>(material));
@@ -52,34 +55,69 @@ Material* ModelHandler::createMaterial(Material* material)
 	return newMaterial;
 }
 
-Material* ModelHandler::createMaterial()
+MaterialID ModelHandler::createMaterial(Vector4& albedo, float roughness, float metallicness)
 {
+	unsigned materialID = this->materials.size();
+
 #ifdef ANK_DX11
 	DXMaterial* newMaterial = new DXMaterial();
+
+	newMaterial->setAlbedo(albedo);
+	newMaterial->setRoughness(roughness);
+	newMaterial->setMetallicness(metallicness);
+
 	this->materials.push_back(newMaterial);
 #elif
 	ANK_ASSERT(false, "FAILED due to no other implementation than dx11")
 #endif
-	return newMaterial;
+
+	return materialID;
 }
 
-Model* ModelHandler::getModel(const std::string& name)
+Model& ModelHandler::duplicateModel(const std::string& modelKey, const std::string& newKey)
+{
+	Model& model = getModel(modelKey);
+	Model newModel(model);
+
+	// Store model and create modelID
+	ModelID newModelID = modelCount++;
+	newModel.setModelID(newModelID);
+	this->nameToIndex[newKey] = newModelID;
+	this->modelMap[newModelID] = newModel;
+
+	return this->modelMap[newModelID];
+}
+
+Model& ModelHandler::duplicateModel(const Model& model, const std::string& newKey)
+{
+	Model newModel(model);
+
+	// Store model and create modelID
+	ModelID newModelID = modelCount++;
+	newModel.setModelID(newModelID);
+	this->nameToIndex[newKey] = newModelID;
+	this->modelMap[newModelID] = newModel;
+
+	return this->modelMap[newModelID];
+}
+
+Model& ModelHandler::getModel(const std::string& name)
 {
 	auto it = this->nameToIndex.find(name);
 	if (it == this->nameToIndex.end()) {
 		ANK_WARNING("Model is not accessible with name: %s", name);
-		return nullptr;
+		ANK_ASSERT(false, "FIX default model!")
 	}
 
 	return getModel(it->second);
 }
 
-Model* ModelHandler::getModel(ModelID id)
+Model& ModelHandler::getModel(ModelID id)
 {
 	auto it = this->modelMap.find(id);
 	if (it == this->modelMap.end()) {
 		ANK_WARNING("Model is not accessible with modelID: %s", id);
-		return nullptr;
+		ANK_ASSERT(false, "FIX default model!")
 	}
 	return this->modelMap[id];
 }
@@ -94,7 +132,7 @@ Mesh* ModelHandler::getMesh(MeshID meshID)
 	return this->meshes[meshID];
 }
 
-const std::unordered_map<ModelID, Model*>& ModelHandler::getModels()
+const std::unordered_map<ModelID, Model>& ModelHandler::getModels()
 {
 	return this->modelMap;
 }
@@ -109,7 +147,7 @@ DXTexture* ModelHandler::getTexture(const std::string& key)
 	return this->textureMap[key];
 }
 
-ModelID ModelHandler::loadModel(const std::string& path, const std::string& file, const std::string& name)
+Model& ModelHandler::loadModel(const std::string& path, const std::string& file, const std::string& name)
 {
 
 	if (this->nameToIndex.find(name) != this->nameToIndex.end()) {
@@ -119,16 +157,12 @@ ModelID ModelHandler::loadModel(const std::string& path, const std::string& file
 		ANK_ASSERT(true, "FAILED TO LOAD MODEL");
 
 		// Return default model
-		return 0;
 	}
-
-	Model* model = new Model();
-	
 	ModelID modelID = modelCount++;
-	this->nameToIndex[name] = modelID;
-	this->modelMap[modelID] = model;
+	Model model(modelID);
 
 	std::string filepath = path + file;
+	ANK_INFO("Loading Model %s\n", filepath.c_str());
 	const aiScene* modelScene = this->importer.ReadFile(filepath,
 		aiProcess_MakeLeftHanded | aiProcess_FlipUVs | aiProcess_PreTransformVertices |
 		aiProcess_CalcTangentSpace |
@@ -139,11 +173,14 @@ ModelID ModelHandler::loadModel(const std::string& path, const std::string& file
 		aiProcess_ValidateDataStructure | 0);
 
 	ANK_ASSERT(modelScene, "Failed to load model: %s\n", filepath.c_str());
-	ANK_INFO("Loading Model %s\n", filepath.c_str());
 
 	processScene(path, modelScene, model);
 
-	return modelID;
+	// Store model and create modelID
+	this->nameToIndex[name] = modelID;
+	this->modelMap[modelID] = model;
+
+	return this->modelMap[modelID];
 }
 
 void ModelHandler::shutdown()
@@ -159,16 +196,6 @@ void ModelHandler::shutdown()
 		}
 	}
 	this->meshes.clear();
-
-	// Clear models
-	for (auto pair : this->modelMap)
-	{
-		if (pair.second) {
-			delete pair.second;
-			pair.second = nullptr;
-		}
-	}
-	this->modelMap.clear();
 
 	// Clear vertex and index buffers
 	for (Buffer* buffer : this->bufferMap)
@@ -199,7 +226,7 @@ void ModelHandler::shutdown()
 	this->materials.clear();
 }
 
-bool ModelHandler::processScene(const std::string& path, const aiScene* modelScene, Model* model)
+bool ModelHandler::processScene(const std::string& path, const aiScene* modelScene, Model& model)
 {
 	std::vector<aiNode*> nodes;
 
@@ -256,7 +283,7 @@ bool ModelHandler::processScene(const std::string& path, const aiScene* modelSce
 
 			this->meshes.push_back(mesh);
 
-			model->addMeshInstance(meshInstance);
+			model.addMeshInstance(meshInstance);
 		}
 	}
 

@@ -38,15 +38,6 @@ void RenderSystem::init(ECS* ecs)
 
 void RenderSystem::update(DXRenderer& renderer)
 {
-	//// INEFFCIENT FIND BETTER SOLUTION
-	//for (auto & material : this->transformMap)
-	//{
-	//	for (auto & pair : material.second)
-	//	{
-	//		auto& matrix = pair.second;
-	//		matrix.clear();
-	//	}
-	//}
 
 	// Update instance buffers
 	auto const& modelMap = ModelHandler::get().getModels();
@@ -56,8 +47,8 @@ void RenderSystem::update(DXRenderer& renderer)
 		auto & transform = this->ecs->getComponent<Transform>(entity);
 		auto const& drawable = this->ecs->getComponent<Drawable>(entity);
 
-		Model* model = modelMap.at(drawable.modelID);
-		for (auto const& meshInstance : model->getMeshInstances())
+		const Model& model = modelMap.at(drawable.modelID);
+		for (auto const& meshInstance : model.getMeshInstances())
 		{
 			Matrix matrix = Matrix::CreateScale(transform.scale);
 			matrix *= Matrix::CreateFromYawPitchRoll(transform.rotation.y, transform.rotation.x, transform.rotation.z);
@@ -68,27 +59,29 @@ void RenderSystem::update(DXRenderer& renderer)
 	}
 
 	// Prepare instancebuffer
-	updateInstanceBuffer();
-
-	// Bind instance world position buffer
-	unsigned int strides[1] = { sizeof(Matrix) };
-	unsigned int offsets[1] = { 0 };
-	ID3D11Buffer* bufferPointers[1] = { this->transformBuffer.getBuffer().Get() };
-
-	DXDeviceInstance::get().getDevCon()->IASetVertexBuffers(1, 1, bufferPointers, strides, offsets);
+	updateTransformBuffer();
 
 	// Render scene
 	renderer.prepare();
+
+	auto& devcon = DXDeviceInstance::get().getDevCon();
+
+	//devcon->VSSetConstantBuffers(1, 1, transformBuffer.getBuffer().GetAddressOf());
+
+	unsigned int strides[1] = { sizeof(InstanceData) };
+	unsigned int offsets[1] = { 0 };
+	devcon->IASetVertexBuffers(1, 1, transformBuffer.getBuffer().GetAddressOf(), strides, offsets);
+
 	unsigned instanceOffset = 0;
 	for (auto& materialID : this->instanceData)
 	{
 		renderer.setMaterial(materialID.first);
 		for (auto& meshID : materialID.second)
 		{
-			unsigned instanceCount = meshID.second.getData().size();
+			auto& instanceVector = meshID.second;
+			unsigned instanceCount = instanceVector.getData().size();
 			//renderer.render(meshID, pair.second.size(), instanceOffset);
 
-			auto& devcon = DXDeviceInstance::get().getDevCon();
 
 			unsigned int strides[1] = { sizeof(VertexData) };
 			unsigned int offsets[1] = { 0 };
@@ -116,12 +109,12 @@ void RenderSystem::insertEntity(Entity entity)
 
 	auto const& modelMap = ModelHandler::get().getModels();
 
-	Model* model = modelMap.at(drawable.modelID);
-	for (auto const& meshInstance : model->getMeshInstances())
+	const Model& model = modelMap.at(drawable.modelID);
+	for (auto const& meshInstance : model.getMeshInstances())
 	{
-		auto& instanceContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
+		auto& transformContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
 
-		instanceContainer.addEntity(entity);
+		transformContainer.addEntity(entity);
 	}
 	this->entities.insert(entity);
 }
@@ -135,43 +128,29 @@ void RenderSystem::eraseEntity(Entity entity)
 
 		auto const& modelMap = ModelHandler::get().getModels();
 
-		Model* model = modelMap.at(drawable.modelID);
-		for (auto const& meshInstance : model->getMeshInstances())
+		const Model & model = modelMap.at(drawable.modelID);
+		for (auto const& meshInstance : model.getMeshInstances())
 		{
-			auto& instanceContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
+			auto& transformContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
 
-			instanceContainer.removeEntity(entity);
+			transformContainer.removeEntity(entity);
 		}
 	}
 }
 
-void RenderSystem::updateInstanceBuffer()
+void RenderSystem::updateTransformBuffer()
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
 
 	DXDeviceInstance::get().getDevCon()->Map(this->transformBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-
-	//auto materials = ModelHandler::get().getMaterials();
-	//
-
-	//for (auto& material : this->transformMap)
-	//{
-	//	for (auto& pair : material.second)
-	//	{
-	//		auto& matrix = pair.second;
-	//		size_t instanceCount = matrix.size();
-	//		memcpy((char*)mappedResource.pData + (instanceIndex * sizeof(Instance)), (void*)matrix.data(), sizeof(Instance) * instanceCount);
-	//		instanceIndex += instanceCount;
-	//	}
-	//}
 
 	unsigned instanceIndex = 0;
 	for (auto& materialID : this->instanceData)
 	{
 		for (auto& meshID : materialID.second)
 		{
-			auto& meshInstanceData = meshID.second;
-			auto& transformVector = meshInstanceData.getData();
+			auto& transformContainer = meshID.second;
+			auto& transformVector = transformContainer.getData();
 			size_t instanceCount = transformVector.size();
 			memcpy((char*)mappedResource.pData + (instanceIndex * sizeof(Instance)), (void*)transformVector.data(), sizeof(Instance) * instanceCount);
 			instanceIndex += instanceCount;

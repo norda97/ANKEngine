@@ -90,9 +90,6 @@
     <ClInclude Include="src\Core\Rendering\DirectX\DXMesh.h">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Rendering\DirectX\DXModel.h">
-      <Filter>Core\Rendering\DirectX</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Rendering\DirectX\DXRenderer.h">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClInclude>
@@ -133,6 +130,7 @@
     <ClInclude Include="src\Core\ECS\Systems\HoverSystem.h" />
     <ClInclude Include="src\Core\ECS\Systems\PhysicsSystem.h" />
     <ClInclude Include="src\Core\ECS\Components\Gravity.h" />
+    <ClInclude Include="src\Core\Model\MaterialProperties.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\IO\Input.cpp">
@@ -178,9 +176,6 @@
       <Filter>Core\Rendering\DirectX</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Rendering\DirectX\DXMesh.cpp">
-      <Filter>Core\Rendering\DirectX</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Rendering\DirectX\DXModel.cpp">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Rendering\DirectX\DXRenderer.cpp">

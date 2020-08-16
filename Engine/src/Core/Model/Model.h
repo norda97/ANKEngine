@@ -11,22 +11,24 @@ struct InstanceData
 class Model
 {
 public:
-	Model();
-	/*
-	Model(const Model& other) noexcept;
-	Model(Model&& other) noexcept;*/
+	Model() {};
+	Model(ModelID modelID);
 	virtual ~Model();
-
-	//Model& operator= (const Model& other);
-
+	
 	const std::vector<MeshInstance>& getMeshInstances() const;
 	bool addMeshInstance(MeshInstance mesh);
 
-	//void addInstance(Entity* e);
-	//void removeInstance(Entity* e);
+	void changeMeshMaterial(MeshID meshID, MaterialID matID);
+
+	ModelID getModelID() const;
+
+	/*
+		Do not change modelID, without knowing what you are doing
+	*/
+	void setModelID(ModelID id);
 
 private:
-	//void deepCopy(const Model& other);
+	ModelID id;
 
 	std::vector<MeshInstance> meshInstances;
 };

@@ -125,6 +125,7 @@
     <ClInclude Include="src\Core\Math\Vec3.h" />
     <ClInclude Include="src\Core\Math\Vec4.h" />
     <ClInclude Include="src\Core\Model\Material.h" />
+    <ClInclude Include="src\Core\Model\MaterialProperties.h" />
     <ClInclude Include="src\Core\Model\Mesh.h" />
     <ClInclude Include="src\Core\Model\MeshInstance.h" />
     <ClInclude Include="src\Core\Model\Model.h" />
@@ -137,7 +138,6 @@
     <ClInclude Include="src\Core\Rendering\DirectX\DXDeviceInstance.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXMaterial.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXMesh.h" />
-    <ClInclude Include="src\Core\Rendering\DirectX\DXModel.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXRenderer.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXSampler.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXShader.h" />
@@ -170,7 +170,6 @@
     <ClCompile Include="src\Core\Rendering\DirectX\DXDeviceInstance.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXMaterial.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXMesh.cpp" />
-    <ClCompile Include="src\Core\Rendering\DirectX\DXModel.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXRenderer.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXSampler.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXShader.cpp" />

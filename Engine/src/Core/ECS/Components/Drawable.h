@@ -4,9 +4,5 @@
 
 struct Drawable
 {
-	Vector4 albedo;
-	float roughness;
-	float metallicness;
-	float specular;
 	ModelID modelID;
 };

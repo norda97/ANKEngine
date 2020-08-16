@@ -7,9 +7,11 @@
 
 #include "Core/Rendering/DirectX/DXRenderer.h"
 
+#include "Core/Model/MaterialProperties.h"
 
 class ECS;
 
+template <typename T>
 class InstanceDataContainer
 {
 public:
@@ -28,7 +30,7 @@ public:
 		}
 		this->entityToIndex[entity] = index;
 		this->indexToEntity[index] = entity;
-		this->data.push_back(Mat4());
+		this->data.push_back(T());
 	}
 
 	void removeEntity(Entity entity)
@@ -48,12 +50,12 @@ public:
 		this->indexToEntity.erase(lastIndex);
 	}
 
-	void updateEntity(Entity entity, Mat4 transform)
+	void updateEntity(Entity entity, T transform)
 	{
 		this->data[this->entityToIndex[entity]] = transform;
 	}
 
-	std::vector<Mat4>& getData()
+	std::vector<T>& getData()
 	{
 		return this->data;
 	}
@@ -62,7 +64,7 @@ private:
 	size_t reservedSize;
 	std::unordered_map<Entity, size_t>  entityToIndex;
 	std::unordered_map<size_t, Entity>  indexToEntity;
-	std::vector<Mat4> data;
+	std::vector<T> data;
 };
 
 class RenderSystem : public System
@@ -76,14 +78,12 @@ public:
 	void eraseEntity(Entity entity);
 
 private:
-	void updateInstanceBuffer();
+	void updateTransformBuffer();
 
 	ECS* ecs;
 
-	std::map <MaterialID, std::unordered_map<MeshID, InstanceDataContainer>>	instanceData;
-	//std::map <MaterialID, std::unordered_map<MeshID, DXBuffer>>					instanceBuffers;
+	std::map <MaterialID, std::unordered_map<MeshID, InstanceDataContainer<Mat4>>>	instanceData;
 
 	DXBuffer transformBuffer;
-	std::map<MaterialID, std::map<MeshID, std::vector<Mat4>> > transformMap;
 	size_t instanceCount;
 };

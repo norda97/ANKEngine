@@ -103,7 +103,7 @@ bool DXRenderer::init()
 
 	setupImgui();
 	
-	// Used for cubemap pre rendering
+	// Create default cube inside modelhandler
 	ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("Cube/"), "cube.obj", "cube");
 
 	createCubemap(environmentMap, this->equirectangularShader, this->equiTexture.getShaderResource());
@@ -158,27 +158,6 @@ void DXRenderer::setMaterial(MaterialID materialID)
 	};
 
 	DXDeviceInstance::get().getDevCon()->PSSetShaderResources(0, TEX_COUNT, textures);
-}
-
-void DXRenderer::render(MeshID meshID, unsigned instanceCount, unsigned offset)
-{
-	//deferredRenderer.renderMeshInstanced(, instanceCount, offset);
-
-	//auto& devcon = DXDeviceInstance::get().getDevCon();
-
-	//unsigned int strides[1] = { sizeof(VertexData) };
-	//unsigned int offsets[1] = { 0 };
-
-	//Mesh& mesh = *ModelHandler::get().getMesh(meshID);
-
-	//ID3D11Buffer* bufferPointers[1] = { static_cast<const DXBuffer*>(mesh.getVertexBuffer())->getBuffer().Get() };
-
-	//devcon->IASetVertexBuffers(0, 1, bufferPointers, strides, offsets);
-	//devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->getBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
-	//devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	////DXDeviceInstance::get().getDevCon()->RSSetState(rsWireframe);
-	//devcon->DrawIndexedInstanced(mesh.getIndexCount(), instanceCount, 0, 0, offset);
 }
 
 void DXRenderer::finishFrame()
@@ -416,11 +395,11 @@ void DXRenderer::renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11Shade
 	auto& devcon = DXDeviceInstance::get().getDevCon();
 
 	// Render equiMap
-	Model* cube = ModelHandler::get().getModel("cube");
+	Model& cube = ModelHandler::get().getModel(0);
 
 	shader.prepare();
 
-	const std::vector<MeshInstance>& meshes = cube->getMeshInstances();
+	const std::vector<MeshInstance>& meshes = cube.getMeshInstances();
 
 	const Mesh& mesh = *ModelHandler::get().getMesh(meshes[0].meshID);
 
