@@ -10,5 +10,8 @@ public:
 	void init();
 
 	void update(ECS& ecs, float dt);
+
+	void insertEntityEvent(Entity entity) {};
+	void eraseEntityEvent(Entity entity) {};
 private:
 };

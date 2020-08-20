@@ -23,9 +23,9 @@ public:
 
 	void destroyEntity(Entity entity)
 	{
-		this->entityManager->removeEntity(entity);
-		this->componentManager->entityDestroyed(entity);
 		this->systemManager->entityDestroyed(entity);
+		this->componentManager->entityDestroyed(entity);
+		this->entityManager->removeEntity(entity);
 	}
 
 	template <typename T>

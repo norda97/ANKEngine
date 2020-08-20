@@ -29,7 +29,7 @@ public:
 	void removeData(Entity entity)
 	{
 
-		ANK_ASSERT(this->entityToIndexMap.find(entity) == this->entityToIndexMap.end(), "Component is not attached to Entity!");
+		ANK_ASSERT(this->entityToIndexMap.find(entity) != this->entityToIndexMap.end(), "Component is not attached to Entity!");
 
 		size_t rmIndex = this->entityToIndexMap[entity];
 		size_t indexOfLast = this->size - 1;

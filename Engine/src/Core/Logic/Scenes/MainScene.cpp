@@ -69,21 +69,25 @@ bool MainScene::init()
 	Model& sphere = mh.loadModel(std::string(ANK_MODEL_PATH).append("MatTest/"), "lowpoly_sphere_224tris.obj", "sphere");
 
 	Model& redSphere = mh.duplicateModel(sphere, "redSphere");
+	Model& blueSphere = mh.duplicateModel(sphere, "blueSphere");
 	{
 		MaterialID newMatID = mh.createMaterial(Vector4(1.0f, 0.0f, 0.0f, 1.0f), 0.1f, 0.9f);
 		redSphere.changeMeshMaterial(0, newMatID);
+
+		newMatID = mh.createMaterial(Vector4(0.0f, 0.0f, 1.0f, 1.0f), 0.5f, 0.9f);
+		blueSphere.changeMeshMaterial(0, newMatID);
 	}
 
 	this->renderSystem->init(&this->ecs);
 
 	// Sphere entities
-	std::vector<Entity> entities(50);
+	this->entities.resize(30);
 	{
 		std::default_random_engine generator;
 		std::uniform_real_distribution<float> randPos(-8.f, 8.f);
 		std::uniform_real_distribution<float> randScale(0.5f, 1.f);
 
-		ModelID materials[2] = { sphere.getModelID(), redSphere.getModelID() };
+		ModelID materials[3] = { sphere.getModelID(), redSphere.getModelID(), blueSphere.getModelID() };
 		unsigned index = 0;
 		for (auto& entity : entities) {
 			entity = ecs.createEntity();
@@ -109,7 +113,7 @@ bool MainScene::init()
 
 			ecs.addComponent<Drawable>(entity,
 				Drawable{
-					materials[index % 2]
+					materials[index % 3]
 				});
 
 			index++;
@@ -140,7 +144,6 @@ bool MainScene::update(float dt)
 	this->physicsSystem->update(ecs, dt);
 
 	camera.update(dt);
-
 
 	return true;
 }

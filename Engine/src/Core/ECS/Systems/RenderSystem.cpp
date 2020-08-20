@@ -103,7 +103,7 @@ void RenderSystem::update(DXRenderer& renderer)
 
 }
 
-void RenderSystem::insertEntity(Entity entity)
+void RenderSystem::insertEntityEvent(Entity entity)
 {
 	auto const& drawable = this->ecs->getComponent<Drawable>(entity);
 
@@ -116,25 +116,20 @@ void RenderSystem::insertEntity(Entity entity)
 
 		transformContainer.addEntity(entity);
 	}
-	this->entities.insert(entity);
 }
 
-void RenderSystem::eraseEntity(Entity entity)
+void RenderSystem::eraseEntityEvent(Entity entity)
 {
-	size_t removedEntities = this->entities.erase(entity);
-	if (removedEntities > 0)
+	auto const& drawable = this->ecs->getComponent<Drawable>(entity);
+
+	auto const& modelMap = ModelHandler::get().getModels();
+
+	const Model & model = modelMap.at(drawable.modelID);
+	for (auto const& meshInstance : model.getMeshInstances())
 	{
-		auto const& drawable = this->ecs->getComponent<Drawable>(entity);
+		auto& transformContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
 
-		auto const& modelMap = ModelHandler::get().getModels();
-
-		const Model & model = modelMap.at(drawable.modelID);
-		for (auto const& meshInstance : model.getMeshInstances())
-		{
-			auto& transformContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
-
-			transformContainer.removeEntity(entity);
-		}
+		transformContainer.removeEntity(entity);
 	}
 }
 

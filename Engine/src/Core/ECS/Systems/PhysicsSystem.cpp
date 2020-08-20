@@ -44,6 +44,9 @@ void PhysicsSystem::update(ECS& ecs, float dt)
 		}
 
 		if (outY)
+		{
 			rigidBody.velocity = Vector3::Reflect(rigidBody.velocity, { 0.f, 1.f, 0.f }) * lossFactor;
+			transform.position.y = 0.f;
+		}
 	}
 }

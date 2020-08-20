@@ -43,7 +43,7 @@ public:
 		{
 			System* system = pair.second;
 
-			system->entities.erase(entity);
+			system->eraseEntity(entity);
 		}
 	}
 
@@ -63,10 +63,8 @@ public:
 			{
 				system->eraseEntity(entity);
 			}
-
 		}
 	}
-
 
 private:
 	// Map from system type string pointer to a signature

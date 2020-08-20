@@ -74,9 +74,8 @@ public:
 
 	void update(DXRenderer& renderer);
 
-	void insertEntity(Entity entity);
-	void eraseEntity(Entity entity);
-
+	void insertEntityEvent(Entity entity);
+	void eraseEntityEvent(Entity entity);
 private:
 	void updateTransformBuffer();
 

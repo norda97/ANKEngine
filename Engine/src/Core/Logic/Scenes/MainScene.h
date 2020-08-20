@@ -22,7 +22,9 @@ public:
 	bool render();
 	void shutdown();
 
+
 private:
+	std::vector<Entity> entities;
 
 	RenderSystem* renderSystem;
 	PhysicsSystem* physicsSystem;
