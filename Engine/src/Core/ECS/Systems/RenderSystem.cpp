@@ -136,21 +136,22 @@ void RenderSystem::eraseEntityEvent(Entity entity)
 void RenderSystem::updateTransformBuffer()
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-
-	DXDeviceInstance::get().getDevCon()->Map(this->transformBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-
-	unsigned instanceIndex = 0;
-	for (auto& materialID : this->instanceData)
-	{
-		for (auto& meshID : materialID.second)
+	HRESULT hr = DXDeviceInstance::get().getDevCon()->Map(this->transformBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	
+	if (SUCCEEDED(hr))
+	{ 
+		unsigned instanceIndex = 0;
+		for (auto& materialID : this->instanceData)
 		{
-			auto& transformContainer = meshID.second;
-			auto& transformVector = transformContainer.getData();
-			size_t instanceCount = transformVector.size();
-			memcpy((char*)mappedResource.pData + (instanceIndex * sizeof(Instance)), (void*)transformVector.data(), sizeof(Instance) * instanceCount);
-			instanceIndex += instanceCount;
+			for (auto& meshID : materialID.second)
+			{
+				auto& transformContainer = meshID.second;
+				auto& transformVector = transformContainer.getData();
+				size_t instanceCount = transformVector.size();
+				memcpy((char*)mappedResource.pData + (instanceIndex * sizeof(Instance)), (void*)transformVector.data(), sizeof(Instance) * instanceCount);
+				instanceIndex += instanceCount;
+			}
 		}
 	}
-
 	DXDeviceInstance::get().getDevCon()->Unmap(this->transformBuffer.getBuffer().Get(), 0);
 }

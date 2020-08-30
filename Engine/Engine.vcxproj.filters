@@ -69,9 +69,6 @@
     <ClInclude Include="src\Core\Model\ModelHandler.h">
       <Filter>Core\Model</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Model\Shapes\Triangle.h">
-      <Filter>Core\Model\Shapes</Filter>
-    </ClInclude>
     <ClInclude Include="src\Core\Rendering\DirectX\DXBuffer.h">
       <Filter>Core\Rendering\DirectX</Filter>
     </ClInclude>
@@ -119,18 +116,19 @@
     <ClInclude Include="src\Core\ECS\SystemManager.h" />
     <ClInclude Include="src\Core\ECS\System.h" />
     <ClInclude Include="src\Core\ECS\EntityComponentSystem.h" />
-    <ClInclude Include="src\Core\ECS\Components\Transform.h" />
     <ClInclude Include="src\Core\Math\Vec4.h" />
     <ClInclude Include="src\Core\Math\AnkMath.h" />
     <ClInclude Include="src\Core\Math\Vec3.h" />
     <ClInclude Include="src\Core\Math\Vec2.h" />
-    <ClInclude Include="src\Core\ECS\Components\Drawable.h" />
     <ClInclude Include="src\Core\ECS\Systems\RenderSystem.h" />
     <ClInclude Include="src\Core\Model\ModelTypes.h" />
     <ClInclude Include="src\Core\ECS\Systems\HoverSystem.h" />
     <ClInclude Include="src\Core\ECS\Systems\PhysicsSystem.h" />
-    <ClInclude Include="src\Core\ECS\Components\Gravity.h" />
     <ClInclude Include="src\Core\Model\MaterialProperties.h" />
+    <ClInclude Include="src\Core\ECS\Components\Drawable.h" />
+    <ClInclude Include="src\Core\ECS\Components\Gravity.h" />
+    <ClInclude Include="src\Core\ECS\Components\RigidBody.h" />
+    <ClInclude Include="src\Core\ECS\Components\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\IO\Input.cpp">
@@ -156,9 +154,6 @@
     </ClCompile>
     <ClCompile Include="src\Core\Model\ModelHandler.cpp">
       <Filter>Core\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Model\Shapes\Triangle.cpp">
-      <Filter>Core\Model\Shapes</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Rendering\DirectX\DXBuffer.cpp">
       <Filter>Core\Rendering\DirectX</Filter>
@@ -202,7 +197,6 @@
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Core\ECS\EntityManager.cpp" />
     <ClCompile Include="src\Core\ECS\Systems\RenderSystem.cpp" />
-    <ClCompile Include="src\Core\ECS\Components\RigidBody.h" />
     <ClCompile Include="src\Core\ECS\Systems\HoverSystem.cpp" />
     <ClCompile Include="src\Core\ECS\Systems\PhysicsSystem.cpp" />
   </ItemGroup>

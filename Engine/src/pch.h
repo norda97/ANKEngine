@@ -48,7 +48,7 @@ using namespace SimpleMath;
 #define ANK_ERROR(errorMsg)
 #define ANK_WARNING(warningMsg)
 #define ANK_INFO(warningMsg)
-#define ANK_ASSERT(exp, msg)
+#define ANK_ASSERT(exp, msg) {exp;}
 #endif
 
 #define ANK_TEXTURE_PATH "../Engine/src/Assets/Textures/"

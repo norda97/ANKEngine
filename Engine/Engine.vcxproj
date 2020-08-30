@@ -131,7 +131,6 @@
     <ClInclude Include="src\Core\Model\Model.h" />
     <ClInclude Include="src\Core\Model\ModelHandler.h" />
     <ClInclude Include="src\Core\Model\ModelTypes.h" />
-    <ClInclude Include="src\Core\Model\Shapes\Triangle.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXBuffer.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXCubemap.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXDeferred.h" />
@@ -148,9 +147,9 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Core\ECS\Components\RigidBody.h">
+    <ClInclude Include="src\Core\ECS\Components\RigidBody.h">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    </ClInclude>
     <ClCompile Include="src\Core\ECS\EntityManager.cpp" />
     <ClCompile Include="src\Core\ECS\Systems\HoverSystem.cpp" />
     <ClCompile Include="src\Core\ECS\Systems\PhysicsSystem.cpp" />
@@ -163,7 +162,6 @@
     <ClCompile Include="src\Core\Model\Mesh.cpp" />
     <ClCompile Include="src\Core\Model\Model.cpp" />
     <ClCompile Include="src\Core\Model\ModelHandler.cpp" />
-    <ClCompile Include="src\Core\Model\Shapes\Triangle.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXBuffer.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXCubemap.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXDeferred.cpp" />
