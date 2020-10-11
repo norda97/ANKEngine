@@ -6,7 +6,6 @@
 
 // Scenes
 #include "Core/Logic/Scenes/MainScene.h"
-#include "Core/Logic/Scenes/EditorScene.h"
 
 #include "IO/Input.h"
 

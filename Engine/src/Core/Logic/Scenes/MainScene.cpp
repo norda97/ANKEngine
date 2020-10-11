@@ -68,20 +68,58 @@ bool MainScene::init()
 	Model& sponza = mh.loadModel(std::string(ANK_MODEL_PATH).append("SponzaPBR/"), "sponza.obj", "sponza");
 	Model& sphere = mh.loadModel(std::string(ANK_MODEL_PATH).append("MatTest/"), "lowpoly_sphere_224tris.obj", "sphere");
 
+	
+
+	this->renderSystem->init(&this->ecs);
+
+
+	// Material Showcase
+	/*uint32_t sphereCount = 5;
+	uint32_t currEntityCount = entities.size();
+	uint32_t index = currEntityCount;
+	this->entities.resize(currEntityCount + 25);
+	const float scale = 2.0f;
+	const float offset = 4.0f;
+	for (unsigned i = 0; i < sphereCount; i++)
+	{
+		for (unsigned j = 0; j < sphereCount; j++)
+		{
+			Entity entity = ecs.createEntity();
+			this->entities[index] = entity;
+			Model& newSphere = mh.duplicateModel(sphere, "redSphere");
+			MaterialID newMatID = mh.createMaterial(Vector4(1.0f, 0.0f, 0.0f, 1.0f), 1.0f - (float)(j * (1.0f / sphereCount)), (float)(i * (1.0f / sphereCount)));
+			newSphere.changeMeshMaterial(0, newMatID);
+			
+			Vec3 startPos = { 0.0f, offset, offset * sphereCount * 0.5f };
+			startPos += { 0.f, j * offset, i * -offset};
+
+			ecs.addComponent<Transform>(entity,
+				Transform{
+					startPos,
+					{0.f, 0.f, 0.f},
+					{ scale, scale, scale }
+				});
+
+			ecs.addComponent<Drawable>(entity,
+				Drawable{
+					newSphere.getModelID()
+				});
+		}
+	}*/
+
+	// Sphere entities
+	
 	Model& redSphere = mh.duplicateModel(sphere, "redSphere");
 	Model& blueSphere = mh.duplicateModel(sphere, "blueSphere");
 	{
-		MaterialID newMatID = mh.createMaterial(Vector4(1.0f, 0.0f, 0.0f, 1.0f), 0.1f, 0.9f);
+		MaterialID newMatID = mh.createMaterial(Vector4(1.0f, 1.0f, 0.0f, 1.0f), 0.1f, 0.9f);
 		redSphere.changeMeshMaterial(0, newMatID);
 
 		newMatID = mh.createMaterial(Vector4(0.0f, 0.0f, 1.0f, 1.0f), 0.5f, 0.9f);
 		blueSphere.changeMeshMaterial(0, newMatID);
 	}
 
-	this->renderSystem->init(&this->ecs);
-
-	// Sphere entities
-	this->entities.resize(30);
+	this->entities.resize(entities.size() + 30);
 	{
 		std::default_random_engine generator;
 		std::uniform_real_distribution<float> randPos(-8.f, 8.f);

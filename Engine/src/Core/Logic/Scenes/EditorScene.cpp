@@ -2,7 +2,6 @@
 #include "EditorScene.h"
 
 #include "Core/Rendering/DirectX/DXDeviceInstance.h"
-#include "Core/Rendering/DirectX/DXModel.h"
 
 #include "Core/Model/ModelHandler.h"
 #include "Core/Model/MeshInstance.h"
