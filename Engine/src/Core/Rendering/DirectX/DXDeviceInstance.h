@@ -5,36 +5,38 @@ class DXDeviceInstance
 public:
 	~DXDeviceInstance();
 
-	static DXDeviceInstance& get();
+	static DXDeviceInstance& get() { return s_Instance; }
 
-	void init(HWND hWnd);
+	static bool init(HWND hWnd);
+	static bool release();
 
-	void setViewport(unsigned x, unsigned y, unsigned width, unsigned height);
+	static void setViewport(unsigned x, unsigned y, unsigned width, unsigned height);
 
-	const ComPtr<ID3D11Device>&				getDev();
-	const ComPtr<ID3D11DeviceContext>&		getDevCon();
-	const ComPtr<IDXGISwapChain>&			getSwapchain();
-	const ComPtr<ID3D11RenderTargetView>&	getBackbuffer();
-	const ComPtr<ID3D11DepthStencilView>&	getDepthStencilView();
+	static const ComPtr<ID3D11Device>&				getDev() { return s_Device;};
+	static const ComPtr<ID3D11DeviceContext>&		getDevCon() { return s_Devcon; };
+	static const ComPtr<IDXGISwapChain>&			getSwapchain() { return s_Swapchain; };
+	static const ComPtr<ID3D11RenderTargetView>&	getBackbuffer() { return s_Backbuffer; };
+	static const ComPtr<ID3D11DepthStencilView>&	getDepthStencilView() { return s_DepthStencilView; };
 	
-	void handleErrorMessage();
+	static void handleErrorMessage();
 
-	HWND getHWND();
+	static HWND getHWND();
 private:
 	DXDeviceInstance() {};
 	DXDeviceInstance(const DXDeviceInstance& other) = delete;
 	DXDeviceInstance(DXDeviceInstance&& other) = delete;
 
-	D3D11_MESSAGE* errorMsg = nullptr;
+	static D3D11_MESSAGE* errorMsg;
 
-	HWND hWnd = NULL;
-	Microsoft::WRL::ComPtr<ID3D11Device>				device				= nullptr;           
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext>			devcon				= nullptr;
-	Microsoft::WRL::ComPtr<IDXGISwapChain>				swapchain			= nullptr;
-	Microsoft::WRL::ComPtr<ID3D11InfoQueue>				infoQueue			= nullptr;
+	static HWND hWnd;
+	static Microsoft::WRL::ComPtr<ID3D11Device>					s_Device;
+	static Microsoft::WRL::ComPtr<ID3D11DeviceContext>			s_Devcon;
+	static Microsoft::WRL::ComPtr<IDXGISwapChain>				s_Swapchain;
+	static Microsoft::WRL::ComPtr<ID3D11InfoQueue>				s_InfoQueue;
 		
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		backbuffer			= nullptr;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		depthStencilView	= nullptr;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D>				depthStencilBuffer	= nullptr;
+	static Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		s_Backbuffer;
+	static Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		s_DepthStencilView;
+	static Microsoft::WRL::ComPtr<ID3D11Texture2D>				s_DepthStencilBuffer;
 
+	static DXDeviceInstance s_Instance;
 };

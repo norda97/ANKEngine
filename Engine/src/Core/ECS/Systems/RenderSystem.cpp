@@ -64,7 +64,7 @@ void RenderSystem::update(DXRenderer& renderer)
 	// Render scene
 	renderer.prepare();
 
-	auto& devcon = DXDeviceInstance::get().getDevCon();
+	auto& devcon = DXDeviceInstance::getDevCon();
 
 	//devcon->VSSetConstantBuffers(1, 1, transformBuffer.getBuffer().GetAddressOf());
 
@@ -94,7 +94,7 @@ void RenderSystem::update(DXRenderer& renderer)
 			devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->getBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
 			devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-			//DXDeviceInstance::get().getDevCon()->RSSetState(rsWireframe);
+			//DXDeviceInstance::getDevCon()->RSSetState(rsWireframe);
 			devcon->DrawIndexedInstanced(mesh.getIndexCount(), instanceCount, 0, 0, instanceOffset);
 
 			instanceOffset += instanceCount;
@@ -136,7 +136,7 @@ void RenderSystem::eraseEntityEvent(Entity entity)
 void RenderSystem::updateTransformBuffer()
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-	HRESULT hr = DXDeviceInstance::get().getDevCon()->Map(this->transformBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	HRESULT hr = DXDeviceInstance::getDevCon()->Map(this->transformBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	
 	if (SUCCEEDED(hr))
 	{ 
@@ -153,5 +153,5 @@ void RenderSystem::updateTransformBuffer()
 			}
 		}
 	}
-	DXDeviceInstance::get().getDevCon()->Unmap(this->transformBuffer.getBuffer().Get(), 0);
+	DXDeviceInstance::getDevCon()->Unmap(this->transformBuffer.getBuffer().Get(), 0);
 }

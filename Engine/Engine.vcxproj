@@ -143,7 +143,6 @@
     <ClInclude Include="src\Core\Rendering\DirectX\DXShader.h" />
     <ClInclude Include="src\Core\Rendering\DirectX\DXTexture.h" />
     <ClInclude Include="src\Core\Rendering\General\Buffer.h" />
-    <ClInclude Include="src\Core\Rendering\General\Renderer.h" />
     <ClInclude Include="src\Core\Utils\Cameras\Camera.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
@@ -155,7 +154,6 @@
     <ClCompile Include="src\Core\IO\Input.cpp" />
     <ClCompile Include="src\Core\Logic\SceneHandler.cpp" />
     <ClCompile Include="src\Core\Logic\Scenes\MainScene.cpp" />
-    <ClCompile Include="src\Core\Logic\Scenes\Scene.cpp" />
     <ClCompile Include="src\Core\Model\Material.cpp" />
     <ClCompile Include="src\Core\Model\Mesh.cpp" />
     <ClCompile Include="src\Core\Model\Model.cpp" />
@@ -171,7 +169,6 @@
     <ClCompile Include="src\Core\Rendering\DirectX\DXShader.cpp" />
     <ClCompile Include="src\Core\Rendering\DirectX\DXTexture.cpp" />
     <ClCompile Include="src\Core\Rendering\General\Buffer.cpp" />
-    <ClCompile Include="src\Core\Rendering\General\Renderer.cpp" />
     <ClCompile Include="src\Core\Utils\Cameras\Camera.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
