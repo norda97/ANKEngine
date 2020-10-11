@@ -25,9 +25,9 @@ private:
 	DXDeviceInstance(const DXDeviceInstance& other) = delete;
 	DXDeviceInstance(DXDeviceInstance&& other) = delete;
 
-	D3D11_MESSAGE* errorMsg;
+	D3D11_MESSAGE* errorMsg = nullptr;
 
-	HWND hWnd;
+	HWND hWnd = NULL;
 	Microsoft::WRL::ComPtr<ID3D11Device>				device				= nullptr;           
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>			devcon				= nullptr;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				swapchain			= nullptr;

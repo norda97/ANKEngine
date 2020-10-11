@@ -13,10 +13,9 @@
 	#include "Core/Rendering/DirectX/DXBuffer.h"
 #endif
 
-ModelHandler::ModelHandler()
+ModelHandler::ModelHandler() : modelCount(0)
 {
 	// Load default diffuse texture
-
 	DXTexture* defaultTexture = new DXTexture();
 	defaultTexture->loadTexture(ANK_TEXTURE_DEFAULT_BLACK_PATH);
 	this->textureMap[ANK_TEXTURE_DEFAULT_BLACK_PATH] = defaultTexture;
@@ -28,6 +27,9 @@ ModelHandler::ModelHandler()
 	defaultTexture = new DXTexture();
 	defaultTexture->loadTexture(ANK_TEXTURE_DEFAULT_NORMAL_PATH);
 	this->textureMap[ANK_TEXTURE_DEFAULT_NORMAL_PATH] = defaultTexture;
+
+	// Load default model - Not working currently look into
+	//loadModel(std::string(ANK_MODEL_PATH).append("Cube/"), "cube.obj", "cube");
 }
 
 ModelHandler::~ModelHandler()
@@ -42,7 +44,7 @@ ModelHandler& ModelHandler::get()
 	return instance;
 }
 
-Material* ModelHandler::createMaterial(Material* material)
+Material* ModelHandler::duplicateMaterial(Material* material)
 {
 #ifdef ANK_DX11
 	DXMaterial* newMaterial = new DXMaterial(*static_cast<DXMaterial*>(material));
@@ -53,59 +55,84 @@ Material* ModelHandler::createMaterial(Material* material)
 	return newMaterial;
 }
 
-Material* ModelHandler::createMaterial()
+MaterialID ModelHandler::createMaterial(Vector4& albedo, float roughness, float metallicness)
 {
+	unsigned materialID = this->materials.size();
+
 #ifdef ANK_DX11
 	DXMaterial* newMaterial = new DXMaterial();
+
+	newMaterial->setAlbedo(albedo);
+	newMaterial->setRoughness(roughness);
+	newMaterial->setMetallicness(metallicness);
+
 	this->materials.push_back(newMaterial);
 #elif
 	ANK_ASSERT(false, "FAILED due to no other implementation than dx11")
 #endif
-	return newMaterial;
+
+	return materialID;
 }
 
-Model* ModelHandler::duplicateModel(const std::string& key, const std::string& newKey)
+Model& ModelHandler::duplicateModel(const std::string& modelKey, const std::string& newKey)
 {
-	Model* model = getModel(key);
-	if (model) {
-		Model* dupe = new Model(*model);
+	Model& model = getModel(modelKey);
+	Model newModel(model);
 
-		this->modelMap[newKey] = dupe;
-		return dupe;
-	}
+	// Store model and create modelID
+	ModelID newModelID = modelCount++;
+	newModel.setModelID(newModelID);
+	this->nameToIndex[newKey] = newModelID;
+	this->modelMap[newModelID] = newModel;
 
-	return nullptr;
+	return this->modelMap[newModelID];
 }
 
-Model* ModelHandler::duplicateModel(Model* model, const std::string& newKey)
+Model& ModelHandler::duplicateModel(const Model& model, const std::string& newKey)
 {
-	if (model && this->modelMap.find(newKey) == this->modelMap.end()) {
-		Model* dupe = new Model(*model);
+	Model newModel(model);
 
-		this->modelMap[newKey] = dupe;
-		return dupe;
-	}
-	else {
-		ANK_WARNING("Failed to duplicate model");
-	}
-	
-	return nullptr;
+	// Store model and create modelID
+	ModelID newModelID = modelCount++;
+	newModel.setModelID(newModelID);
+	this->nameToIndex[newKey] = newModelID;
+	this->modelMap[newModelID] = newModel;
+
+	return this->modelMap[newModelID];
 }
 
-Model* ModelHandler::getModel(const std::string& key)
+Model& ModelHandler::getModel(const std::string& name)
 {
-	auto it = this->modelMap.find(key);
+	auto it = this->nameToIndex.find(name);
+	if (it == this->nameToIndex.end()) {
+		ANK_WARNING("Model is not accessible with name: %s", name);
+		ANK_ASSERT(false, "FIX default model!")
+	}
+
+	return getModel(it->second);
+}
+
+Model& ModelHandler::getModel(ModelID id)
+{
+	auto it = this->modelMap.find(id);
 	if (it == this->modelMap.end()) {
-		ANK_WARNING("Model is not accessible with key: %s", key);
-		return nullptr;
+		ANK_WARNING("Model is not accessible with modelID: %s", id);
+		ANK_ASSERT(false, "FIX default model!")
 	}
-	else
-	{
-		return this->modelMap[key];
-	}
+	return this->modelMap[id];
 }
 
-const std::unordered_map<std::string, Model*>& ModelHandler::getModels()
+Material* ModelHandler::getMaterial(MaterialID materialID)
+{
+	return this->materials[materialID];
+}
+
+Mesh* ModelHandler::getMesh(MeshID meshID)
+{
+	return this->meshes[meshID];
+}
+
+const std::unordered_map<ModelID, Model>& ModelHandler::getModels()
 {
 	return this->modelMap;
 }
@@ -120,17 +147,22 @@ DXTexture* ModelHandler::getTexture(const std::string& key)
 	return this->textureMap[key];
 }
 
-Model* ModelHandler::loadModel(const std::string& path, const std::string& file, const std::string& key)
+Model& ModelHandler::loadModel(const std::string& path, const std::string& file, const std::string& name)
 {
-	Model* model = new Model();
 
-	if (this->modelMap.find(key) != this->modelMap.end()) {
-		ANK_WARNING("A model has already been loaded with that key!");
+	if (this->nameToIndex.find(name) != this->nameToIndex.end()) {
+		ANK_WARNING("A model has already been loaded with that name!");
+		
+		// Temporary assert
+		ANK_ASSERT(true, "FAILED TO LOAD MODEL");
+
 		// Return default model
-		return model;
 	}
+	ModelID modelID = modelCount++;
+	Model model(modelID);
 
 	std::string filepath = path + file;
+	ANK_INFO("Loading Model %s\n", filepath.c_str());
 	const aiScene* modelScene = this->importer.ReadFile(filepath,
 		aiProcess_MakeLeftHanded | aiProcess_FlipUVs | aiProcess_PreTransformVertices |
 		aiProcess_CalcTangentSpace |
@@ -141,13 +173,14 @@ Model* ModelHandler::loadModel(const std::string& path, const std::string& file,
 		aiProcess_ValidateDataStructure | 0);
 
 	ANK_ASSERT(modelScene, "Failed to load model: %s\n", filepath.c_str());
-	ANK_INFO("Loading Model %s\n", filepath.c_str());
 
 	processScene(path, modelScene, model);
 
-	this->modelMap[key] = model;
+	// Store model and create modelID
+	this->nameToIndex[name] = modelID;
+	this->modelMap[modelID] = model;
 
-	return model;
+	return this->modelMap[modelID];
 }
 
 void ModelHandler::shutdown()
@@ -163,26 +196,6 @@ void ModelHandler::shutdown()
 		}
 	}
 	this->meshes.clear();
-
-	// Clear meshInstances
-	//for (MeshInstance* meshInstance : this->meshInstances)
-	//{
-	//	if (meshInstance) {
-	//		delete meshInstance;
-	//		meshInstance = nullptr;
-	//	}
-	//}
-	//this->meshInstances.clear();
-
-	// Clear models
-	for (auto pair : this->modelMap)
-	{
-		if (pair.second) {
-			delete pair.second;
-			pair.second = nullptr;
-		}
-	}
-	this->modelMap.clear();
 
 	// Clear vertex and index buffers
 	for (Buffer* buffer : this->bufferMap)
@@ -213,7 +226,7 @@ void ModelHandler::shutdown()
 	this->materials.clear();
 }
 
-bool ModelHandler::processScene(const std::string& path, const aiScene* modelScene, Model* model)
+bool ModelHandler::processScene(const std::string& path, const aiScene* modelScene, Model& model)
 {
 	std::vector<aiNode*> nodes;
 
@@ -259,16 +272,18 @@ bool ModelHandler::processScene(const std::string& path, const aiScene* modelSce
 	for (auto modelNode : nodes) {
 		for (unsigned i = 0; i < modelNode->mNumMeshes; i++) {
 			aiMesh* aiMesh = modelScene->mMeshes[modelNode->mMeshes[i]];
-			Material* material = this->materials[prevTotalMats + aiMesh->mMaterialIndex];
+
+			MaterialID materialIndex = prevTotalMats + aiMesh->mMaterialIndex;
+			Material* material = this->materials[materialIndex];
 
 			Mesh* mesh = new Mesh();
 			processMesh(aiMesh, mesh);
 
-			MeshInstance* meshInstance = new MeshInstance(mesh, material);
+			MeshInstance meshInstance = { this->meshes.size(), materialIndex };
 
 			this->meshes.push_back(mesh);
 
-			model->addMesh(meshInstance);
+			model.addMeshInstance(meshInstance);
 		}
 	}
 
@@ -295,22 +310,6 @@ bool ModelHandler::processMaterial(const std::string& path, const aiMaterial* ai
 	}
 
 	mat->setAmbientOcclusionMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
-
-	//float value = 1.0;
-	//aiColor3D colorValue;
-	//if (aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, colorValue) == AI_SUCCESS) {
-	//	mat->setAlbedo(Vector4(colorValue.r, colorValue.g, colorValue.b, 1.0f));
-	//}
-
-	//if (aiMat->Get(AI_MATKEY_COLOR_AMBIENT, colorValue) == AI_SUCCESS) {
-	//	mat->setMetallicness(colorValue.r);
-	//}
-
-	//if (aiMat->Get(AI_MATKEY_SHININESS, value) == AI_SUCCESS) {
-	//	const float min = 0.025f;
-	//	const float max = 1.0f;
-	//	mat->setRoughness(min + (max - min) * value);
-	//}
 
 	return true;
 }
@@ -355,23 +354,6 @@ bool ModelHandler::processMaterialTexture(aiTextureType texType, const std::stri
 			}
 		}
 	}
-
-//#ifdef ANK_DX11
-//	switch (texType) {
-//	case aiTextureType_DIFFUSE:
-//		mat->setAlbedoMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
-//		break;
-//	case aiTextureType_AMBIENT: // Metallic
-//		mat->setMetallicMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
-//		break;
-//	case aiTextureType_SHININESS: // Roughness
-//		mat->setRoughnessMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
-//		break;
-//	case aiTextureType_HEIGHT: // Roughness
-//		mat->setNormalMap(this->textureMap[ANK_TEXTURE_DEFAULT_NORMAL_PATH]);
-//		break;
-//	}
-//#endif
 
 	return false;
 }

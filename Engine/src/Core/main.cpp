@@ -3,7 +3,9 @@
 
 #include "Rendering/DirectX/DXDeviceInstance.h"
 #include "Core/Logic/SceneHandler.h"
-#include "Core/Logic/Scenes/EditorScene.h"
+
+// Scenes
+#include "Core/Logic/Scenes/MainScene.h"
 
 #include "IO/Input.h"
 
@@ -124,7 +126,7 @@ void run(HWND hWnd)
 	double elapsedTime = 0;
 
 	SceneHandler sceneHandler;
-	sceneHandler.setCurrentScene(new EditorScene);
+	sceneHandler.setCurrentScene(new MainScene());
 	
 
 	MSG msg = { 0 };

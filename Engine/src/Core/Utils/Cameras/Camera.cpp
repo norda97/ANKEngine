@@ -18,6 +18,9 @@ bool Camera::init(float defaultSpeed, float fov, float aspect, Vector3 target, V
 	this->forward = target - position;
 	this->forward.Normalize();
 
+	float omega = atan2(this->forward.x, this->forward.z);
+	this->rotation.y = omega;
+
 	this->right = this->forward.Cross(this->defaultUp);
 	this->right.Normalize();
 

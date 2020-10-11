@@ -1,17 +1,11 @@
 #pragma once
 
-class DXTexture;
-class Entity;
-class Model;
-class MeshInstance;
+#include "Core/Model/MeshInstance.h"
+#include "Core/Rendering/DirectX/DXTexture.h"
 
-struct alignas(16) MaterialProperties
-{
-	Vector4 albedo;
-	float roughness;
-	float metallicness;
-	float specular;
-};
+#include "MaterialProperties.h"
+
+class Model;
 
 class Material
 {
@@ -52,16 +46,6 @@ public:
 	virtual void setNormalMap(DXTexture* ao) = 0;
 	const virtual DXTexture& getNormalMap() const = 0;
 
-	const std::list<const MeshInstance*>& getRenderList() const;
-
-	void addMeshInstance(const MeshInstance* mesh);
-	void removeMeshInstance(const MeshInstance* mesh);
-
-	void addModel(const Model* model);
-	void removeModel(const Model* model);
-
 private:
 	MaterialProperties matProps;
-
-	std::list<const MeshInstance*> renderList;
 };

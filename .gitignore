@@ -347,3 +347,4 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+/Externals/assimp-4.0.1/test/models/invalid

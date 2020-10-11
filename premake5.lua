@@ -143,8 +143,8 @@ project "Sandbox"
     kind "WindowedApp"
     language "C++"
 
-    -- pchheader "%{prj.name}/src/pch.h"
-    -- pchsource "%{prj.name}/src/pch.cpp"
+    -- pchheader "pch.h"
+    -- pchsource "Engine/src/pch.cpp"
 
     targetdir ("Build/bin/" .. OUTPUT_DIR .. "/%{prj.name}")
     objdir ("Build/obj/" .. OUTPUT_DIR .. "/%{prj.name}")

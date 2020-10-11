@@ -29,6 +29,7 @@ bool SceneHandler::setCurrentScene(Scene* scene)
 void SceneHandler::tick(double dt)
 {
 	if (this->currentScene) {
+
 		this->currentScene->update(dt);
 
 		this->currentScene->render();

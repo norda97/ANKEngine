@@ -3,7 +3,7 @@
 
 #include "Core/Rendering/DirectX/DXDeviceInstance.h"
 
-DXBuffer::DXBuffer() : buffer(NULL)
+DXBuffer::DXBuffer() : buffer(NULL), initilized(false)
 {
 }
 
@@ -15,33 +15,39 @@ DXBuffer::~DXBuffer()
 
 bool DXBuffer::init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t bufferType, uint32_t accessFlag)
 {
-	// 16 byte alignment
-	uint32_t alignedSize = size;
-	if(size % 16 != 0)
-		alignedSize = 16 * (uint32_t)(ceilf(float(size) / 16.f));
+	if (!initilized)
+	{
+		this->size = size;
+		// 16 byte alignment
+		if (this->size % 16 != 0)
+			this->size = 16 * (uint32_t)(ceilf(float(size) / 16.f));
 
-	// Vertex buffer
-	D3D11_BUFFER_DESC bd = { 0 };
-	bd.Usage = usage;                
-	bd.ByteWidth = alignedSize;
-	bd.BindFlags = bufferType;
-	bd.CPUAccessFlags = accessFlag;
-	bd.MiscFlags = 0;
 
-	HRESULT hr;
+		// Vertex buffer
+		this->desc = { 0 };
+		this->desc.Usage = usage;
+		this->desc.ByteWidth = this->size;
+		this->desc.BindFlags = bufferType;
+		this->desc.CPUAccessFlags = accessFlag;
+		this->desc.MiscFlags = 0;
 
-	if (data) {
-		D3D11_SUBRESOURCE_DATA bufferData = { 0 };
-		bufferData.pSysMem = data;
-		hr = DXDeviceInstance::get().getDev()->CreateBuffer(&bd, &bufferData, this->buffer.GetAddressOf());
-	}
-	else 
-		hr = DXDeviceInstance::get().getDev()->CreateBuffer(&bd, NULL, this->buffer.GetAddressOf());
+		HRESULT hr;
 
-	if (FAILED(hr))
-		return false;
+		if (data) {
+			D3D11_SUBRESOURCE_DATA bufferData = { 0 };
+			bufferData.pSysMem = data;
+			hr = DXDeviceInstance::get().getDev()->CreateBuffer(&this->desc, &bufferData, this->buffer.ReleaseAndGetAddressOf());
+		}
+		else
+			hr = DXDeviceInstance::get().getDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
+
+		if (FAILED(hr))
+			return false;
 
 	return true;
+	}
+	ANK_ERROR("Buffer already initilized!");
+	return false;
 }
 
 void DXBuffer::update(void* data, uint32_t size, uint32_t offset, D3D11_MAP mapType)
@@ -56,4 +62,23 @@ void DXBuffer::update(void* data, uint32_t size, uint32_t offset, D3D11_MAP mapT
 const ComPtr<ID3D11Buffer>& DXBuffer::getBuffer() const
 {
 	return this->buffer;
+}
+
+const uint32_t DXBuffer::getSize() const
+{
+	return this->size;
+}
+
+void DXBuffer::resize(uint32_t size)
+{
+	this->size = size;
+	// 16 byte alignment
+	if (this->size % 16 != 0)
+		this->size = 16 * (uint32_t)(ceilf(float(size) / 16.f));
+
+	// Vertex buffer
+	HRESULT hr;
+	hr = DXDeviceInstance::get().getDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
+
+	ANK_ASSERT(FAILED(hr), "Failed to resize DXBuffer");
 }

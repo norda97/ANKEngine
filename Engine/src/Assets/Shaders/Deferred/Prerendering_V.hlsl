@@ -1,3 +1,5 @@
+#define NUM_MESH_INSTANCES 1000
+
 struct VertexData
 {
 	float4 pos						: POSITION;
@@ -26,13 +28,16 @@ struct VS_Output
 VS_Output VSMain(VertexData input)
 {
 	VS_Output output;
-	output.worldPos = mul(input.world, input.pos);
+
+	float4x4 worldMatrix = input.world;
+
+	output.worldPos = mul(worldMatrix, input.pos);
 	output.texCoord = input.texCoord;
 
 	output.pos = mul(vp, output.worldPos);
 
-	float3 T = normalize(mul(input.world, float4(input.tangent.xyz, 0.0f)).xyz);
-	float3 N = normalize(mul(input.world, float4(input.normal.xyz, 0.0f)).xyz);
+	float3 T = normalize(mul(worldMatrix, float4(input.tangent.xyz, 0.0f)).xyz);
+	float3 N = normalize(mul(worldMatrix, float4(input.normal.xyz, 0.0f)).xyz);
 	float3 B = normalize(cross(N, T));
 	float3x3 TBN = float3x3(T, B, N);
 

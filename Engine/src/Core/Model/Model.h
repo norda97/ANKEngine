@@ -1,8 +1,7 @@
 #pragma once
 
-
-class Entity;
-class MeshInstance;
+//class Entity;
+#include "MeshInstance.h"
 
 struct InstanceData
 {
@@ -12,22 +11,24 @@ struct InstanceData
 class Model
 {
 public:
-	Model();
-	Model(const Model& other) noexcept;
-	Model(Model&& other) noexcept;
+	Model() {};
+	Model(ModelID modelID);
 	virtual ~Model();
+	
+	const std::vector<MeshInstance>& getMeshInstances() const;
+	bool addMeshInstance(MeshInstance mesh);
 
-	Model& operator= (const Model& other);
+	void changeMeshMaterial(MeshID meshID, MaterialID matID);
 
-	const std::vector<MeshInstance*>& getMeshInstances() const;
-	bool addMesh(MeshInstance* mesh);
+	ModelID getModelID() const;
 
-	void addInstance(Entity* e);
-	void removeInstance(Entity* e);
+	/*
+		Do not change modelID, without knowing what you are doing
+	*/
+	void setModelID(ModelID id);
 
 private:
-	void deepCopy(const Model& other);
+	ModelID id;
 
-
-	std::vector<MeshInstance*> meshInstances;
+	std::vector<MeshInstance> meshInstances;
 };

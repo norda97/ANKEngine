@@ -6,6 +6,8 @@
 #include "Core/Rendering/DirectX/DXDeferred.h"
 #include "Core/Rendering/DirectX/DXCubemap.h"
 
+#include "Core/Model/ModelTypes.h"
+
 class Camera;
 
 struct Instance
@@ -33,8 +35,10 @@ public:
 	bool init();
 
 	void setCamera(Camera* camera);
-	void render();
-	void update(float dt);
+	void prepare();
+	void setMaterial(MaterialID materialID);
+
+	void finishFrame();
 
 private:
 	bool initStates();
@@ -45,7 +49,6 @@ private:
 	void drawImgui();
 	void renderImgui();
 
-	void updateInstanceConstants();
 	void updateSceneConstants(float dt);
 
 	void renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
@@ -54,7 +57,8 @@ private:
 	void renderBRDFLutTex();
 	//void renderModel(DXModel& model, unsigned instanceCount, unsigned instanceOffset);
 	
-	const unsigned instanceThreshold;
+	const unsigned maxPointLights;
+	unsigned pointLightCount;
 
 	Camera* camera;
 
@@ -79,7 +83,7 @@ private:
 	DXBuffer lightBuffer;
 	DXBuffer sceneBuffer;
 	DXBuffer scenePBRBuffer;
-	DXBuffer instanceBuffer;
+	//DXBuffer instanceBuffer;
 
 	DXSampler samplerLinear;
 	DXSampler samplerPoint;
