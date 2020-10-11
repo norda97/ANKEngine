@@ -198,9 +198,6 @@
     <ClCompile Include="src\Core\Logic\Scenes\MainScene.cpp">
       <Filter>Core\Logic\Scenes</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Logic\Scenes\Scene.cpp">
-      <Filter>Core\Logic\Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\Model\Material.cpp">
       <Filter>Core\Model</Filter>
     </ClCompile>
