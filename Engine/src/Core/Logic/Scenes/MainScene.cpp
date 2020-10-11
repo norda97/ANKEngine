@@ -26,13 +26,6 @@ MainScene::~MainScene()
 
 bool MainScene::init()
 {
-
-	this->renderer.init();
-	
-	// Init camera
-	this->camera.init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f, 8.f, 0.f), Vector3(-30.f, 8.f, 0.0f), 0.1f, 1000.0f);
-	this->renderer.setCamera(&camera);
-
 	ecs.init();
 
 	ecs.registerComponent<Transform>();
@@ -68,10 +61,7 @@ bool MainScene::init()
 	Model& sponza = mh.loadModel(std::string(ANK_MODEL_PATH).append("SponzaPBR/"), "sponza.obj", "sponza");
 	Model& sphere = mh.loadModel(std::string(ANK_MODEL_PATH).append("MatTest/"), "lowpoly_sphere_224tris.obj", "sphere");
 
-	
-
 	this->renderSystem->init(&this->ecs);
-
 
 	// Material Showcase
 	/*uint32_t sphereCount = 5;
@@ -180,19 +170,13 @@ bool MainScene::update(float dt)
 {
 	this->hoverSystem->update(ecs, dt);
 	this->physicsSystem->update(ecs, dt);
-
-	camera.update(dt);
-
+	this->renderSystem->update(dt);
 	return true;
 }
 
 bool MainScene::render()
 {
-	this->renderer.prepare();
-
-	this->renderSystem->update(this->renderer);
-
-	this->renderer.finishFrame();
+	this->renderSystem->render();
 	
 	return true;
 }

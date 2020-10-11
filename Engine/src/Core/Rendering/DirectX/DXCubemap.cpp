@@ -45,9 +45,7 @@ bool DXCubemap::init(unsigned width, unsigned height, unsigned mipLevels)
 		srd.SysMemPitch = width * 4;
 		srd.SysMemSlicePitch = 0;
 
-		HRESULT hr = DXDeviceInstance::get().getDev()->CreateTexture2D(&tdesc, NULL, this->cubemap.ReleaseAndGetAddressOf());
-
-
+		HRESULT hr = DXDeviceInstance::getDev()->CreateTexture2D(&tdesc, NULL, this->cubemap.ReleaseAndGetAddressOf());
 		if (FAILED(hr)) {
 			ANK_ERROR("Failed to create texture2D\n");
 			return false;

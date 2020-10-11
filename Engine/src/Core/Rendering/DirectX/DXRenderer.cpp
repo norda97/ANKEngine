@@ -420,10 +420,8 @@ void DXRenderer::renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11Shade
 
 void DXRenderer::createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap)
 {
-	auto& devcon = DXDeviceInstance::get().getDevCon();
-	auto& dev = DXDeviceInstance::get().getDev();
-
-	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
+	auto& devcon = DXDeviceInstance::getDevCon();
+	auto& dev = DXDeviceInstance::getDev();
 
 	Matrix proj = Matrix::CreatePerspectiveFieldOfView(XM_PI * 0.5f, 1.0f, .1f, 10.f);
 

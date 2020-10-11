@@ -23,6 +23,12 @@ void RenderSystem::init(ECS* ecs)
 	this->ecs = ecs;
 	this->instanceCount = entities.size();
 
+	m_Renderer.init();
+
+	// Init camera
+	m_Camera.init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f, 8.f, 0.f), Vector3(-30.f, 8.f, 0.0f), 0.1f, 1000.0f);
+	m_Renderer.setCamera(&m_Camera);
+
 	ANK_ASSERT(
 		this->transformBuffer.init(
 			NULL,
@@ -33,12 +39,12 @@ void RenderSystem::init(ECS* ecs)
 		"Failed to init constant buffer for transforms."
 	);
 
+
 	ANK_ASSERT(ecs != nullptr, "ECS must be a valid pointer in renderSystem");
 }
 
-void RenderSystem::update(DXRenderer& renderer)
+void RenderSystem::update(float dt)
 {
-
 	// Update instance buffers
 	auto const& modelMap = ModelHandler::get().getModels();
 
@@ -61,12 +67,16 @@ void RenderSystem::update(DXRenderer& renderer)
 	// Prepare instancebuffer
 	updateTransformBuffer();
 
-	// Render scene
-	renderer.prepare();
+	// Update camera
+	m_Camera.update(dt);
+}
 
+void RenderSystem::render()
+{
+	// Render scene
 	auto& devcon = DXDeviceInstance::getDevCon();
 
-	//devcon->VSSetConstantBuffers(1, 1, transformBuffer.getBuffer().GetAddressOf());
+	m_Renderer.prepare();
 
 	unsigned int strides[1] = { sizeof(InstanceData) };
 	unsigned int offsets[1] = { 0 };
@@ -75,13 +85,11 @@ void RenderSystem::update(DXRenderer& renderer)
 	unsigned instanceOffset = 0;
 	for (auto& materialID : this->instanceData)
 	{
-		renderer.setMaterial(materialID.first);
+		m_Renderer.setMaterial(materialID.first);
 		for (auto& meshID : materialID.second)
 		{
 			auto& instanceVector = meshID.second;
 			unsigned instanceCount = instanceVector.getData().size();
-			//renderer.render(meshID, pair.second.size(), instanceOffset);
-
 
 			unsigned int strides[1] = { sizeof(VertexData) };
 			unsigned int offsets[1] = { 0 };
@@ -101,6 +109,7 @@ void RenderSystem::update(DXRenderer& renderer)
 		}
 	}
 
+	m_Renderer.finishFrame();
 }
 
 void RenderSystem::insertEntityEvent(Entity entity)

@@ -8,6 +8,8 @@
 #include "Core/Rendering/DirectX/DXRenderer.h"
 
 #include "Core/Model/MaterialProperties.h"
+#include "Core/Utils/Cameras/Camera.h"
+
 
 class ECS;
 
@@ -72,7 +74,8 @@ class RenderSystem : public System
 public:
 	void init(ECS* ecs);
 
-	void update(DXRenderer& renderer);
+	void update(float dt);
+	void render();
 
 	void insertEntityEvent(Entity entity);
 	void eraseEntityEvent(Entity entity);
@@ -85,4 +88,8 @@ private:
 
 	DXBuffer transformBuffer;
 	size_t instanceCount;
+
+	Camera m_Camera;
+
+	DXRenderer m_Renderer;
 };

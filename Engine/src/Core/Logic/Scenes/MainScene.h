@@ -5,8 +5,6 @@
 
 #include "Core/ECS/EntityComponentSystem.h"
 
-#include "Core/Utils/Cameras/Camera.h"
-
 class RenderSystem;
 class PhysicsSystem;
 class HoverSystem;
@@ -22,7 +20,6 @@ public:
 	bool render();
 	void shutdown();
 
-
 private:
 	std::vector<Entity> entities;
 
@@ -31,7 +28,4 @@ private:
 	HoverSystem* hoverSystem;
 
 	ECS ecs;
-
-	DXRenderer renderer;
-	Camera camera;
 };
