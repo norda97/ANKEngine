@@ -13,6 +13,9 @@
     <Filter Include="Core\Logic\Scenes">
       <UniqueIdentifier>{7BBFDDE4-E7D5-DB7A-304D-679C9CA2AC02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Math">
+      <UniqueIdentifier>{C7E5BF15-3350-748C-7C8E-2532E83752E1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Model">
       <UniqueIdentifier>{EE07C4CD-DABF-051B-43C7-DE762F9EA00B}</UniqueIdentifier>
     </Filter>
@@ -56,6 +59,18 @@
     </ClInclude>
     <ClInclude Include="src\Core\Logic\Scenes\Scene.h">
       <Filter>Core\Logic\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Math\AnkMath.h">
+      <Filter>Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Math\Vec2.h">
+      <Filter>Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Math\Vec3.h">
+      <Filter>Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Math\Vec4.h">
+      <Filter>Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Model\Material.h">
       <Filter>Core\Model</Filter>
@@ -133,9 +148,6 @@
       <Filter>Core\Logic</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Logic\Scenes\EditorScene.cpp">
-      <Filter>Core\Logic\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Logic\Scenes\Scene.cpp">
       <Filter>Core\Logic\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Model\Material.cpp">

@@ -12,8 +12,8 @@ struct alignas(16) SceneVariables
 class Scene
 {
 public:
-	Scene();
-	virtual ~Scene();
+	Scene() = default;
+	virtual ~Scene() = default;
 
 	virtual bool init() = 0;
 	virtual bool update(float dt) = 0;

@@ -50,7 +50,7 @@ bool EditorScene::init()
 	this->entityHandler.addEntity({ 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f }, { 0.1f, 0.1f, 0.1f }, sponza);
 
 	// Init camera
-	this->camera.init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f), Vector3(0.f, 0.f, -30.0f), 0.1f, 1000.0f);
+	this->camera.init(10.0f, XM_PI * 0.5f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f), Vector3(0.f, 0.f, -30.0f), 0.1f, 1000.0f);
 
 	this->renderer.init();
 	this->renderer.setCamera(&camera);
