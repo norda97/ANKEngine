@@ -43,12 +43,6 @@
     <Filter Include="Core\Utils\Cameras">
       <UniqueIdentifier>{F9F18BCA-E5D5-4C20-4E36-47733A3937A2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\ECS\Systems\Rendering">
-      <UniqueIdentifier>{78825397-b09a-48c4-93da-fb0354f8892f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\ECS\Systems\Physics">
-      <UniqueIdentifier>{e7adb88f-e3e1-4d2a-a56a-fcf73ab4cefb}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\ECS\ComponentArray.h">
@@ -83,6 +77,15 @@
     </ClInclude>
     <ClInclude Include="src\Core\ECS\SystemManager.h">
       <Filter>Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Systems\HoverSystem.h">
+      <Filter>Core\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Systems\PhysicsSystem.h">
+      <Filter>Core\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Systems\RenderSystem.h">
+      <Filter>Core\ECS\Systems</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\IO\Input.h">
       <Filter>Core\IO</Filter>
@@ -169,19 +172,19 @@
       <Filter>Core\Utils\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\ECS\Systems\RenderSystem.h">
-      <Filter>Core\ECS\Systems\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\ECS\Systems\PhysicsSystem.h">
-      <Filter>Core\ECS\Systems\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\ECS\Systems\HoverSystem.h">
-      <Filter>Core\ECS\Systems\Physics</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\ECS\EntityManager.cpp">
       <Filter>Core\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\ECS\Systems\HoverSystem.cpp">
+      <Filter>Core\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\ECS\Systems\PhysicsSystem.cpp">
+      <Filter>Core\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\ECS\Systems\RenderSystem.cpp">
+      <Filter>Core\ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\IO\Input.cpp">
       <Filter>Core\IO</Filter>
@@ -241,14 +244,5 @@
       <Filter>Core\Utils\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\ECS\Systems\RenderSystem.cpp">
-      <Filter>Core\ECS\Systems\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\ECS\Systems\HoverSystem.cpp">
-      <Filter>Core\ECS\Systems\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\ECS\Systems\PhysicsSystem.cpp">
-      <Filter>Core\ECS\Systems\Physics</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
