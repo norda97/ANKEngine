@@ -29,7 +29,7 @@ void Model::changeMeshMaterial(uint32_t index, MaterialID matID)
 	if (index >= 0 && index < this->meshInstances.size())
 		this->meshInstances[index].materialID = matID;
 	else
-		ANK_WARNING("Change Mesh Material: Index out of range");
+		LOG_WARNING("Change Mesh Material: Index out of range");
 }
 
 ModelID Model::getModelID() const

@@ -8,7 +8,7 @@ public:
 	DXShader();
 	~DXShader();
 
-	bool init(const std::string& vFilename, const std::string& pFilename, std::vector<D3D11_INPUT_ELEMENT_DESC>& ied);
+	bool Init(const std::string& vFilename, const std::string& pFilename, std::vector<D3D11_INPUT_ELEMENT_DESC>& ied);
 	void prepare();
 	
 private:

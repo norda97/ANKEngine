@@ -17,11 +17,11 @@ DXCubemap::~DXCubemap()
 {
 }
 
-bool DXCubemap::init(unsigned width, unsigned height, unsigned mipLevels)
+bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 {
 	if (!initialized) {
-		auto& devcon = DXDeviceInstance::get().getDevCon();
-		auto& dev = DXDeviceInstance::get().getDev();
+		auto& devcon = DXDeviceInstance::Get().GetDevCon();
+		auto& dev = DXDeviceInstance::Get().GetDev();
 
 		this->mipLevels = mipLevels;
 		this->width = width;
@@ -45,11 +45,11 @@ bool DXCubemap::init(unsigned width, unsigned height, unsigned mipLevels)
 		srd.SysMemPitch = width * 4;
 		srd.SysMemSlicePitch = 0;
 
-		HRESULT hr = DXDeviceInstance::get().getDev()->CreateTexture2D(&tdesc, NULL, this->cubemap.ReleaseAndGetAddressOf());
+		HRESULT hr = DXDeviceInstance::Get().GetDev()->CreateTexture2D(&tdesc, NULL, this->cubemap.ReleaseAndGetAddressOf());
 
 
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create texture2D\n");
+			LOG_ERROR("Failed to create texture2D");
 			return false;
 		}
 
@@ -60,9 +60,9 @@ bool DXCubemap::init(unsigned width, unsigned height, unsigned mipLevels)
 		srDesc.Texture2D.MostDetailedMip = 0;
 		srDesc.Texture2D.MipLevels = tdesc.MipLevels;
 
-		hr = DXDeviceInstance::get().getDev()->CreateShaderResourceView(this->cubemap.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
+		hr = DXDeviceInstance::Get().GetDev()->CreateShaderResourceView(this->cubemap.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create shader resource view\n");
+			LOG_ERROR("Failed to create shader resource view");
 			return false;
 		}
 
@@ -94,7 +94,7 @@ bool DXCubemap::init(unsigned width, unsigned height, unsigned mipLevels)
 			srDesc.Texture2DArray.ArraySize = 1;
 			srDesc.Texture2DArray.FirstArraySlice = i;
 
-			ANK_ASSERT(SUCCEEDED(DXDeviceInstance::get().getDev()->CreateShaderResourceView(this->cubemap.Get(), &srDesc, this->resourceViews[i].ReleaseAndGetAddressOf())),
+			ANK_ASSERT(SUCCEEDED(DXDeviceInstance::Get().GetDev()->CreateShaderResourceView(this->cubemap.Get(), &srDesc, this->resourceViews[i].ReleaseAndGetAddressOf())),
 				"Failed to create resource views for cubemap");
 
 		}
@@ -102,7 +102,7 @@ bool DXCubemap::init(unsigned width, unsigned height, unsigned mipLevels)
 	}
 	else
 	{
-		ANK_WARNING("Cubemap already initilized\n");
+		LOG_WARNING("Cubemap already initilized");
 	}
 
 	return true;

@@ -13,7 +13,7 @@ DXSampler::~DXSampler()
 	//	this->samplerState->Release();
 }
 
-bool DXSampler::init(D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE addressMode)
+bool DXSampler::Init(D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE addressMode)
 {
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = filter; //D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -24,10 +24,10 @@ bool DXSampler::init(D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE addressMode
 	sampDesc.MaxAnisotropy = 0;
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	HRESULT hr = DXDeviceInstance::get().getDev()->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf());
+	HRESULT hr = DXDeviceInstance::Get().GetDev()->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf());
 
 	if (FAILED(hr)) {
-		ANK_ERROR("Failed to create SamplerState\n");
+		LOG_ERROR("Failed to create SamplerState");
 		return false;
 	}
 

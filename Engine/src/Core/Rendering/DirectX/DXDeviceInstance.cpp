@@ -21,7 +21,7 @@ DXDeviceInstance::~DXDeviceInstance()
 {
 }
 
-bool DXDeviceInstance::init(HWND hWnd)
+bool DXDeviceInstance::Init(HWND hWnd)
 {
 	hWnd = hWnd;
 
@@ -36,17 +36,26 @@ bool DXDeviceInstance::init(HWND hWnd)
 	D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0 };
 
 	// Swapchain description
-	DXGI_SWAP_CHAIN_DESC scd = { 0 };
-	scd.BufferCount = 1; 
-	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	scd.BufferDesc.Width = SCREEN_WIDTH;
-	scd.BufferDesc.Height = SCREEN_HEIGHT;
-	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	scd.OutputWindow = hWnd;
-	scd.SampleDesc.Count = 1;           
-	scd.SampleDesc.Quality = 0;
-	scd.Windowed = TRUE;                             
-	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	DXGI_SWAP_CHAIN_DESC swapChainDesc = { 0 };
+
+	swapChainDesc.BufferDesc.Width = SCREEN_WIDTH;
+	swapChainDesc.BufferDesc.Height = SCREEN_HEIGHT;
+	swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
+	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+
+	// Default
+	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.SampleDesc.Quality = 0;
+
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferCount = 2;
+	swapChainDesc.OutputWindow = hWnd;
+	swapChainDesc.Windowed = true;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	D3D11CreateDeviceAndSwapChain(NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
@@ -55,7 +64,7 @@ bool DXDeviceInstance::init(HWND hWnd)
 		featureLevels,
 		2,
 		D3D11_SDK_VERSION,
-		&scd,
+		&swapChainDesc,
 		s_Swapchain.GetAddressOf(),
 		s_Device.GetAddressOf(),
 		NULL,
@@ -66,12 +75,13 @@ bool DXDeviceInstance::init(HWND hWnd)
 
 	// Create InfoQueue interface
 #if ANK_DEBUG
-	ANK_ASSERT(SUCCEEDED(s_Device->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)s_InfoQueue.GetAddressOf())), "Failed to query infoQueue from device!\n");
+	ANK_ASSERT(SUCCEEDED(s_Device->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)s_InfoQueue.GetAddressOf
+	())), "Failed to query infoQueue from device!");
 #endif
 
 	HRESULT hr = s_Device->CreateRenderTargetView(pBackBuffer.Get(), NULL, s_Backbuffer.GetAddressOf());
 	if (FAILED(hr)) {
-		ANK_ERROR("Failed to create render target view");
+		LOG_ERROR("Failed to create render target view");
 		return false;
 	}
 
@@ -91,7 +101,7 @@ bool DXDeviceInstance::init(HWND hWnd)
 
 	hr = s_Device->CreateTexture2D(&texDesc, NULL, s_DepthStencilBuffer.GetAddressOf());
 	if (FAILED(hr)) {
-		ANK_ERROR("Failed to create depth stencil buffer");
+		LOG_ERROR("Failed to create depth stencil buffer");
 		return false;
 	}
 
@@ -103,16 +113,16 @@ bool DXDeviceInstance::init(HWND hWnd)
 
 	hr = s_Device->CreateDepthStencilView(s_DepthStencilBuffer.Get(), NULL, s_DepthStencilView.GetAddressOf());
 	if (FAILED(hr)) {
-		ANK_ERROR("Failed to create depth stencil view");
+		LOG_ERROR("Failed to create depth stencil view");
 		return false;
 	}
 
-	setViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	SetViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	return true;
 }
 
-bool DXDeviceInstance::release()
+bool DXDeviceInstance::Release()
 {
 	free(errorMsg);
 	if(!SUCCEEDED(s_Swapchain->SetFullscreenState(FALSE, NULL)));
@@ -121,7 +131,7 @@ bool DXDeviceInstance::release()
 	return true;
 }
 
-void DXDeviceInstance::setViewport(unsigned x, unsigned y, unsigned width, unsigned height)
+void DXDeviceInstance::SetViewport(unsigned x, unsigned y, unsigned width, unsigned height)
 {
 	D3D11_VIEWPORT viewport = {};
 
@@ -135,7 +145,7 @@ void DXDeviceInstance::setViewport(unsigned x, unsigned y, unsigned width, unsig
 	s_Devcon->RSSetViewports(1, &viewport);
 }
 
-void DXDeviceInstance::handleErrorMessage()
+void DXDeviceInstance::HandleErrorMessage()
 {
 	if (SUCCEEDED(s_InfoQueue->PushEmptyStorageFilter())) 
 	{
@@ -158,16 +168,16 @@ void DXDeviceInstance::handleErrorMessage()
 			{
 				HRESULT hr = s_InfoQueue->GetMessage(i, errorMsg, &msgSize);
 				if (FAILED(hr))
-					ANK_ERROR("Failed to retrieve message from ID3D11InfoQueue\n");
+					LOG_ERROR("Failed to retrieve message from ID3D11InfoQueue");
 
-				ANK_INFO(": %.*s\n", errorMsg->DescriptionByteLength, errorMsg->pDescription);
+				LOG_INFO(": %.*s", errorMsg->DescriptionByteLength, errorMsg->pDescription);
 			}
 		}
 		s_InfoQueue->ClearStoredMessages();
 	}
 }
 
-HWND DXDeviceInstance::getHWND()
+HWND DXDeviceInstance::GetHWND()
 {
 	return hWnd;
 }

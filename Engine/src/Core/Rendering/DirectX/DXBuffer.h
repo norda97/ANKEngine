@@ -8,7 +8,7 @@ public:
 	DXBuffer();
 	~DXBuffer();
 
-	bool init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t bufferType, uint32_t accessFlag);
+	bool Init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t bufferType, uint32_t accessFlag);
 	void update(void* data, uint32_t size, uint32_t offset, D3D11_MAP mapType = D3D11_MAP_WRITE_DISCARD);
 
 	/*

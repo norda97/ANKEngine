@@ -24,16 +24,16 @@ MainScene::~MainScene()
 {
 }
 
-bool MainScene::init()
+bool MainScene::Init()
 {
 
-	this->renderer.init();
+	this->renderer.Init();
 	
 	// Init camera
-	this->camera.init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f, 8.f, 0.f), Vector3(-30.f, 8.f, 0.0f), 0.1f, 1000.0f);
+	this->camera.Init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f, 8.f, 0.f), Vector3(-30.f, 8.f, 0.0f), 0.1f, 1000.0f);
 	this->renderer.setCamera(&camera);
 
-	ecs.init();
+	ecs.Init();
 
 	ecs.registerComponent<Transform>();
 	ecs.registerComponent<Drawable>();
@@ -70,7 +70,7 @@ bool MainScene::init()
 
 	
 
-	this->renderSystem->init(&this->ecs);
+	this->renderSystem->Init(&this->ecs);
 
 
 	// Material Showcase

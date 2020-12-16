@@ -24,12 +24,12 @@ bool DXTexture::isInitilized() const
 	return this->initialized;
 }
 
-bool DXTexture::init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& tdesc)
+bool DXTexture::Init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& tdesc)
 {
-	HRESULT hr = DXDeviceInstance::get().getDev()->CreateTexture2D(&tdesc, pData, this->texture.ReleaseAndGetAddressOf());
+	HRESULT hr = DXDeviceInstance::Get().GetDev()->CreateTexture2D(&tdesc, pData, this->texture.ReleaseAndGetAddressOf());
 
 	if (FAILED(hr)) {
-		ANK_ERROR("Failed to create texture2D\n");
+		LOG_ERROR("Failed to create texture2D");
 		return false;
 	}
 	D3D11_SRV_DIMENSION viewDim = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -44,9 +44,9 @@ bool DXTexture::init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& 
 	srDesc.Texture2D.MostDetailedMip = 0;
 	srDesc.Texture2D.MipLevels = 1;
 
-	hr = DXDeviceInstance::get().getDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
+	hr = DXDeviceInstance::Get().GetDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
 	if (FAILED(hr)) {
-		ANK_ERROR("Failed to create shader resource view\n");
+		LOG_ERROR("Failed to create shader resource view");
 		return false;
 	}
 
@@ -65,11 +65,11 @@ bool DXTexture::loadTexture(const std::string& path)
 
 	if(!image)
 	{ 
-		ANK_ERROR("Failed to load texture from file: %s\n", path.c_str());
+		LOG_ERROR("Failed to load texture from file: %s", path.c_str());
 		return false;
 	}
 
-	//DXDeviceInstance::get().getDev()->CheckMultisampleQualityLevels()
+	//DXDeviceInstance::Get().GetDev()->CheckMultisampleQualityLevels()
 
 	
 	D3D11_TEXTURE2D_DESC tdesc = { 0 };
@@ -90,12 +90,12 @@ bool DXTexture::loadTexture(const std::string& path)
 	srd.SysMemPitch = width * 4;
 	srd.SysMemSlicePitch = 0;
 
-	HRESULT hr = DXDeviceInstance::get().getDev()->CreateTexture2D(&tdesc, &srd, this->texture.ReleaseAndGetAddressOf());
+	HRESULT hr = DXDeviceInstance::Get().GetDev()->CreateTexture2D(&tdesc, &srd, this->texture.ReleaseAndGetAddressOf());
 
 	stbi_image_free(image);
 
 	if (FAILED(hr)) {
-		ANK_ERROR("Failed to create texture2D\n");
+		LOG_ERROR("Failed to create texture2D");
 		return false;
 	}
 
@@ -106,9 +106,9 @@ bool DXTexture::loadTexture(const std::string& path)
 	srDesc.Texture2D.MostDetailedMip = 0;
 	srDesc.Texture2D.MipLevels = 1;
 
-	hr = DXDeviceInstance::get().getDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
+	hr = DXDeviceInstance::Get().GetDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
 	if(FAILED(hr)) {
-		ANK_ERROR("Failed to create shader resource view\n");
+		LOG_ERROR("Failed to create shader resource view");
 		return false;
 	}
 

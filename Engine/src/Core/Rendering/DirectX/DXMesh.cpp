@@ -71,7 +71,7 @@ void DXMesh::setIndices(DXBuffer* buffer)
 //			}
 //		}
 //
-//		this->vertexBuffer.init(this->vertices.data(), this->vertices.size() * sizeof(float), D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
+//		this->vertexBuffer.Init(this->vertices.data(), this->vertices.size() * sizeof(float), D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
 //	}
 //}
 //
@@ -86,6 +86,6 @@ void DXMesh::setIndices(DXBuffer* buffer)
 //			this->indices[i] = indices[i];
 //		}
 //
-//		this->indexBuffer.init(indices.data(), indices.size() * sizeof(unsigned int), D3D11_USAGE_DEFAULT, D3D11_BIND_INDEX_BUFFER, 0);
+//		this->indexBuffer.Init(indices.data(), indices.size() * sizeof(unsigned int), D3D11_USAGE_DEFAULT, D3D11_BIND_INDEX_BUFFER, 0);
 //	}
 //}

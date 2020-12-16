@@ -17,7 +17,7 @@ public:
 	MainScene();
 	~MainScene();
 
-	bool init();
+	bool Init();
 	bool update(float dt);
 	bool render();
 	void shutdown();

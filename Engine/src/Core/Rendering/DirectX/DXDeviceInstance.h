@@ -5,22 +5,22 @@ class DXDeviceInstance
 public:
 	~DXDeviceInstance();
 
-	static DXDeviceInstance& get() { return s_Instance; }
+	static DXDeviceInstance& Get() { return s_Instance; }
 
-	static bool init(HWND hWnd);
-	static bool release();
+	static bool Init(HWND hWnd);
+	static bool Release();
 
-	static void setViewport(unsigned x, unsigned y, unsigned width, unsigned height);
+	static void SetViewport(unsigned x, unsigned y, unsigned width, unsigned height);
 
-	static const ComPtr<ID3D11Device>&				getDev() { return s_Device;};
-	static const ComPtr<ID3D11DeviceContext>&		getDevCon() { return s_Devcon; };
-	static const ComPtr<IDXGISwapChain>&			getSwapchain() { return s_Swapchain; };
-	static const ComPtr<ID3D11RenderTargetView>&	getBackbuffer() { return s_Backbuffer; };
-	static const ComPtr<ID3D11DepthStencilView>&	getDepthStencilView() { return s_DepthStencilView; };
+	static const ComPtr<ID3D11Device>&				GetDev() { return s_Device;};
+	static const ComPtr<ID3D11DeviceContext>&		GetDevCon() { return s_Devcon; };
+	static const ComPtr<IDXGISwapChain>&			GetSwapchain() { return s_Swapchain; };
+	static const ComPtr<ID3D11RenderTargetView>&	GetBackbuffer() { return s_Backbuffer; };
+	static const ComPtr<ID3D11DepthStencilView>&	GetDepthStencilView() { return s_DepthStencilView; };
 	
-	static void handleErrorMessage();
+	static void HandleErrorMessage();
 
-	static HWND getHWND();
+	static HWND GetHWND();
 private:
 	DXDeviceInstance() {};
 	DXDeviceInstance(const DXDeviceInstance& other) = delete;

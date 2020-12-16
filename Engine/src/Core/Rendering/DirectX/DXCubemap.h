@@ -10,8 +10,8 @@ public:
 	DXCubemap();
 	~DXCubemap();
 
-	//bool init(unsigned width, unsigned height);
-	bool init(unsigned width, unsigned height, unsigned mipLevels);
+	//bool Init(unsigned width, unsigned height);
+	bool Init(unsigned width, unsigned height, unsigned mipLevels);
 
 	unsigned getMipLevels() const;
 

@@ -9,8 +9,8 @@
 
 DXDeferred::DXDeferred()
 {
-	auto& devcon = DXDeviceInstance::get().getDevCon();
-	auto& dev = DXDeviceInstance::get().getDev();
+	auto& devcon = DXDeviceInstance::Get().GetDevCon();
+	auto& dev = DXDeviceInstance::Get().GetDev();
 
 	this->gBuffers.resize(this->GBUFFER_COUNT);
 	this->renderTargets.resize(this->GBUFFER_COUNT);
@@ -55,20 +55,20 @@ DXDeferred::DXDeferred()
 		// Create textures
 		HRESULT hr = dev->CreateTexture2D(&texDesc, NULL, this->gBuffers[i].GetAddressOf());
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create depth stencil buffer");
+			LOG_ERROR("Failed to create depth stencil buffer");
 		}
 
 		// Create render target
 		hr = dev->CreateRenderTargetView(this->gBuffers[i].Get(), &rtvDesc, this->renderTargets[i].GetAddressOf());
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create render target view");
+			LOG_ERROR("Failed to create render target view");
 		}
 		this->ptrRenderTargets[i] = this->renderTargets[i].Get();
 
 		// Create resource view
 		hr = dev->CreateShaderResourceView(this->gBuffers[i].Get(), &srvDesc, this->resourceView[i].GetAddressOf());
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create resource view");
+			LOG_ERROR("Failed to create resource view");
 		}
 		this->ptrResourceViews[i] = this->resourceView[i].Get();
 	}
@@ -83,7 +83,7 @@ DXDeferred::~DXDeferred()
 
 void DXDeferred::clearRenderTargets()
 {
-	auto& devcon = DXDeviceInstance::get().getDevCon();
+	auto& devcon = DXDeviceInstance::Get().GetDevCon();
 	Color clearColor = Color(0.01f, 0.01f, 0.01f, 0.0f);
 
 	devcon->ClearRenderTargetView(this->ptrRenderTargets[0], &clearColor[0]);
@@ -94,7 +94,7 @@ void DXDeferred::clearRenderTargets()
 
 void DXDeferred::bindRenderTargets(ID3D11DepthStencilView* depthStencil)
 {
-	DXDeviceInstance::get().getDevCon()->OMSetRenderTargets(this->GBUFFER_COUNT, this->ptrRenderTargets.data(), depthStencil);
+	DXDeviceInstance::Get().GetDevCon()->OMSetRenderTargets(this->GBUFFER_COUNT, this->ptrRenderTargets.data(), depthStencil);
 }
 
 const std::array<ID3D11RenderTargetView*, 4>& DXDeferred::getRenderTargets()
@@ -114,7 +114,7 @@ const std::array<ID3D11ShaderResourceView*, 4>& DXDeferred::getResourceViews() c
 
 void DXDeferred::renderComplete(ID3D11RenderTargetView* const* renderTarget)
 {
-	auto& devcon = DXDeviceInstance::get().getDevCon();
+	auto& devcon = DXDeviceInstance::Get().GetDevCon();
 
 	this->fullscreenShader.prepare();
 
@@ -150,8 +150,8 @@ bool DXDeferred::initShaders()
 		{"INSTANCE_WORLD", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, sizeof(Vector4) * 3, D3D11_INPUT_PER_INSTANCE_DATA, 1}
 	};
 
-	if (!this->shader.init("Deferred/Prerendering_V.hlsl", "Deferred/Prerendering_P.hlsl", ied)) {
-		ANK_WARNING("Failed to load deferred prerendering shader!");
+	if (!this->shader.Init("Deferred/Prerendering_V.hlsl", "Deferred/Prerendering_P.hlsl", ied)) {
+		LOG_WARNING("Failed to load deferred prerendering shader!");
 		return false;
 	}
 
@@ -161,7 +161,7 @@ bool DXDeferred::initShaders()
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(Vector3) * 1, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
-	if (!this->fullscreenShader.init("UtilShaders/FullscreenQuad_V.hlsl", "Deferred/DeferredPBR_IBL_P.hlsl", ied))
+	if (!this->fullscreenShader.Init("UtilShaders/FullscreenQuad_V.hlsl", "Deferred/DeferredPBR_IBL_P.hlsl", ied))
 		return false;
 
 	return true;
@@ -177,5 +177,5 @@ void DXDeferred::initFullscreenTri()
 		3.f, -1.f, 0.f,		2.f, 0.f
 	};
 
-	this->fullscreenTri.init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
+	this->fullscreenTri.Init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
 }

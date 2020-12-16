@@ -12,9 +12,9 @@
 #include "examples/imgui_impl_win32.h"
 
 // function prototypes
-bool initWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int height, LPCWSTR title); // Initilise window
-void run(HWND hWnd);
-void shutdown();
+bool InitWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int height, LPCWSTR title); // Initilise window
+void Run(HWND hWnd);
+void Release();
 
 #ifdef ANK_USE_IMGUI
 	extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -63,7 +63,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-bool setupConsole() 
+bool SetupConsole() 
 {
 	if (!AllocConsole())
 		return false;
@@ -72,8 +72,8 @@ bool setupConsole()
 	if (input == INVALID_HANDLE_VALUE)
 		return false;
 
-	HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-	if (output == INVALID_HANDLE_VALUE)
+	g_ConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (g_ConsoleHandle == INVALID_HANDLE_VALUE)
 		return false;
 
 	HANDLE error = GetStdHandle(STD_ERROR_HANDLE);
@@ -98,25 +98,25 @@ int WINAPI WinMain(HINSTANCE hInstance,
 #endif
 	HWND hWnd;
 
-	if (!setupConsole())
+	if (!SetupConsole())
 		return 1;
 
-	if (!initWindow(hInstance, nCmdShow, &hWnd, SCREEN_WIDTH * WINDOW_SIZE_FACTOR, SCREEN_HEIGHT * WINDOW_SIZE_FACTOR, L"Sandbox"))
+	if (!InitWindow(hInstance, nCmdShow, &hWnd, SCREEN_WIDTH * WINDOW_SIZE_FACTOR, SCREEN_HEIGHT * WINDOW_SIZE_FACTOR, L"Sandbox"))
 		return 1;
 
-	DXDeviceInstance::get().init(hWnd);
-	run(hWnd);
-	shutdown();
+	DXDeviceInstance::Get().Init(hWnd);
+	Run(hWnd);
+	Release();
 
 	return 0;
 }
 
-void shutdown() {
+void Release() {
 	FreeConsole();
 }
 
 
-void run(HWND hWnd)
+void Run(HWND hWnd)
 {
 	// Used for delta time
 	auto currentTime = std::chrono::high_resolution_clock::now();
@@ -146,7 +146,7 @@ void run(HWND hWnd)
 
 			// Handle DirectX error output messages
 #if ANK_DEBUG
-			DXDeviceInstance::get().handleErrorMessage();
+			DXDeviceInstance::Get().HandleErrorMessage();
 #endif
 			currentTime = std::chrono::high_resolution_clock::now();
 			dt = std::chrono::duration<double>(currentTime - prevTime).count();
@@ -165,7 +165,7 @@ void run(HWND hWnd)
 	}
 }
 
-bool initWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int height, LPCWSTR title) {
+bool InitWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int height, LPCWSTR title) {
 	RECT wr = { 0, 0, width, height };
 	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
 

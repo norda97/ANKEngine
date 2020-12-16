@@ -13,17 +13,17 @@ DXShader::~DXShader()
 {
 }
 
-bool DXShader::init(const std::string& vFilename, const std::string& pFilename, std::vector<D3D11_INPUT_ELEMENT_DESC>& ied)
+bool DXShader::Init(const std::string& vFilename, const std::string& pFilename, std::vector<D3D11_INPUT_ELEMENT_DESC>& ied)
 {
 
 #if LOAD_PRECOMPILED_SHADERS
 	auto vertexData = loadShaderFile(vFilename);
 	auto pixelData = loadShaderFile(pFilename);
 
-	DXDeviceInstance::get().getDev()->CreateVertexShader(vertexData.data(), vertexData.size(), NULL, &this->vertexShader);
-	DXDeviceInstance::get().getDev()->CreatePixelShader(pixelData.data(), pixelData.size(), NULL, &this->pixelShader);
+	DXDeviceInstance::Get().GetDev()->CreateVertexShader(vertexData.data(), vertexData.size(), NULL, &this->vertexShader);
+	DXDeviceInstance::Get().GetDev()->CreatePixelShader(pixelData.data(), pixelData.size(), NULL, &this->pixelShader);
 
-	DXDeviceInstance::get().getDev()->CreateInputLayout(ied.data(), 1, vertexData.data(), vertexData.size(), &this->layout);
+	DXDeviceInstance::Get().GetDev()->CreateInputLayout(ied.data(), 1, vertexData.data(), vertexData.size(), &this->layout);
 #else // LOAD_PRECOMPILED_SHADERS
 
 	ComPtr<ID3DBlob> vsBlob, psBlob;
@@ -31,10 +31,10 @@ bool DXShader::init(const std::string& vFilename, const std::string& pFilename, 
 	assert(compileShader(ANK_SHADER_PATH + vFilename, "VSMain", "vs_5_0", vsBlob));
 	assert(compileShader(ANK_SHADER_PATH + pFilename, "PSMain", "ps_5_0", psBlob));
 
-	DXDeviceInstance::get().getDev()->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, this->vertexShader.ReleaseAndGetAddressOf());
-	DXDeviceInstance::get().getDev()->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), NULL, this->pixelShader.ReleaseAndGetAddressOf());
+	DXDeviceInstance::Get().GetDev()->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, this->vertexShader.ReleaseAndGetAddressOf());
+	DXDeviceInstance::Get().GetDev()->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), NULL, this->pixelShader.ReleaseAndGetAddressOf());
 	
-	DXDeviceInstance::get().getDev()->CreateInputLayout(ied.data(), ied.size(), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), this->layout.ReleaseAndGetAddressOf());
+	DXDeviceInstance::Get().GetDev()->CreateInputLayout(ied.data(), ied.size(), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), this->layout.ReleaseAndGetAddressOf());
 
 #endif
 
@@ -43,9 +43,9 @@ bool DXShader::init(const std::string& vFilename, const std::string& pFilename, 
 
 void DXShader::prepare()
 {
-	DXDeviceInstance::get().getDevCon()->VSSetShader(this->vertexShader.Get(), 0, 0);
-	DXDeviceInstance::get().getDevCon()->PSSetShader(this->pixelShader.Get(), 0, 0);
-	DXDeviceInstance::get().getDevCon()->IASetInputLayout(this->layout.Get());
+	DXDeviceInstance::Get().GetDevCon()->VSSetShader(this->vertexShader.Get(), 0, 0);
+	DXDeviceInstance::Get().GetDevCon()->PSSetShader(this->pixelShader.Get(), 0, 0);
+	DXDeviceInstance::Get().GetDevCon()->IASetInputLayout(this->layout.Get());
 }
 
 bool DXShader::compileShader(const std::string& file, const std::string& entry, const std::string& profile, ComPtr<ID3DBlob>& blob)
@@ -71,7 +71,7 @@ bool DXShader::compileShader(const std::string& file, const std::string& entry, 
 			// Print error message and return
 			std::string errMsg((char*)blobError->GetBufferPointer());
 
-			ANK_ERROR(std::string(file + " - " + errMsg).c_str());
+			LOG_ERROR(std::string(file + " - " + errMsg).c_str());
 			blobError->Release();
 			return false;
 		}

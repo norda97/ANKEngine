@@ -7,7 +7,7 @@ class ECS;
 class PhysicsSystem : public System
 {
 public:
-	void init();
+	void Init();
 
 	void update(ECS& ecs, float dt);
 

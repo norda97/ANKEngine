@@ -105,7 +105,7 @@ Model& ModelHandler::getModel(const std::string& name)
 {
 	auto it = this->nameToIndex.find(name);
 	if (it == this->nameToIndex.end()) {
-		ANK_WARNING("Model is not accessible with name: %s", name);
+		LOG_WARNING("Model is not accessible with name: %s", name);
 		ANK_ASSERT(false, "FIX default model!")
 	}
 
@@ -116,7 +116,7 @@ Model& ModelHandler::getModel(ModelID id)
 {
 	auto it = this->modelMap.find(id);
 	if (it == this->modelMap.end()) {
-		ANK_WARNING("Model is not accessible with modelID: %s", id);
+		LOG_WARNING("Model is not accessible with modelID: %s", id);
 		ANK_ASSERT(false, "FIX default model!")
 	}
 	return this->modelMap[id];
@@ -151,7 +151,7 @@ Model& ModelHandler::loadModel(const std::string& path, const std::string& file,
 {
 
 	if (this->nameToIndex.find(name) != this->nameToIndex.end()) {
-		ANK_WARNING("A model has already been loaded with that name!");
+		LOG_WARNING("A model has already been loaded with that name!");
 		
 		// Temporary assert
 		ANK_ASSERT(true, "FAILED TO LOAD MODEL");
@@ -162,7 +162,7 @@ Model& ModelHandler::loadModel(const std::string& path, const std::string& file,
 	Model model(modelID);
 
 	std::string filepath = path + file;
-	ANK_INFO("Loading Model %s\n", filepath.c_str());
+	LOG_INFO("Loading Model %s", filepath.c_str());
 	const aiScene* modelScene = this->importer.ReadFile(filepath,
 		aiProcess_MakeLeftHanded | aiProcess_FlipUVs | aiProcess_PreTransformVertices |
 		aiProcess_CalcTangentSpace |
@@ -172,7 +172,7 @@ Model& ModelHandler::loadModel(const std::string& path, const std::string& file,
 		aiProcess_FindInvalidData |
 		aiProcess_ValidateDataStructure | 0);
 
-	ANK_ASSERT(modelScene, "Failed to load model: %s\n", filepath.c_str());
+	ANK_ASSERT(modelScene, "Failed to load model: %", filepath.c_str());
 
 	processScene(path, modelScene, model);
 
@@ -185,7 +185,7 @@ Model& ModelHandler::loadModel(const std::string& path, const std::string& file,
 
 void ModelHandler::shutdown()
 {
-	ANK_WARNING("Shutting down ModelHandler");
+	LOG_WARNING("Shutting down ModelHandler");
 
 	// Clear meshes
 	for (Mesh* mesh : this->meshes)
@@ -265,7 +265,7 @@ bool ModelHandler::processScene(const std::string& path, const aiScene* modelSce
 
 			this->materials[prevTotalMats + i] = mat;
 		}
-		ANK_INFO("Loaded %d materials\n", sceneMatCount);
+		LOG_INFO("Loaded %d materials", sceneMatCount);
 	}
 
 	// Load mesh
@@ -294,19 +294,19 @@ bool ModelHandler::processMaterial(const std::string& path, const aiMaterial* ai
 {
 	// Diffuse texture
 	if (!processMaterialTexture(aiTextureType_DIFFUSE, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find diffuse texture for model, Opting for default diffuse\n");
+		LOG_WARNING("\tFailed to find diffuse texture for model, Opting for default diffuse");
 	}
 
 	if (!processMaterialTexture(aiTextureType_AMBIENT, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find metallic texture for model, Opting for default metallic\n");
+		LOG_WARNING("\tFailed to find metallic texture for model, Opting for default metallic");
 	}
 
 	if (!processMaterialTexture(aiTextureType_SHININESS, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find roughness texture for model, Opting for default roughness\n");
+		LOG_WARNING("\tFailed to find roughness texture for model, Opting for default roughness");
 	}
 
 	if (!processMaterialTexture(aiTextureType_HEIGHT, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find normal texture for model, Opting for default normal\n");
+		LOG_WARNING("\tFailed to find normal texture for model, Opting for default normal");
 	}
 
 	mat->setAmbientOcclusionMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
@@ -419,13 +419,13 @@ bool ModelHandler::processMesh(const aiMesh* aiMesh, Mesh* mesh)
 		}
 	}
 
-	ANK_INFO("Added mesh\t [Vertices: %d\t Indices: %d]\n", static_cast<int>(vertices.size()), (int)indices.size());
+	LOG_INFO("Added mesh\t [Vertices: %d\t Indices: %d]", static_cast<int>(vertices.size()), (int)indices.size());
 
 	DXBuffer* vertexBuffer = new DXBuffer();
-	vertexBuffer->init(vertices.data(), vertices.size() * sizeof(VertexData), D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
+	vertexBuffer->Init(vertices.data(), vertices.size() * sizeof(VertexData), D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
 
 	DXBuffer* indexBuffer = new DXBuffer();
-	indexBuffer->init(indices.data(), indices.size() * sizeof(unsigned int), D3D11_USAGE_DEFAULT, D3D11_BIND_INDEX_BUFFER, 0);
+	indexBuffer->Init(indices.data(), indices.size() * sizeof(unsigned int), D3D11_USAGE_DEFAULT, D3D11_BIND_INDEX_BUFFER, 0);
 
 	mesh->setVertexBuffer(static_cast<Buffer*>(vertexBuffer));
 	mesh->setIndexBuffer(static_cast<Buffer*>(indexBuffer));

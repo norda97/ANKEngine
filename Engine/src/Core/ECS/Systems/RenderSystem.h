@@ -70,7 +70,7 @@ private:
 class RenderSystem : public System
 {
 public:
-	void init(ECS* ecs);
+	void Init(ECS* ecs);
 
 	void update(DXRenderer& renderer);
 

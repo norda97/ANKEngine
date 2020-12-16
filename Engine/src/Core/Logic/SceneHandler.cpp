@@ -19,7 +19,7 @@ bool SceneHandler::setCurrentScene(Scene* scene)
 
 	if (scene) {
 		this->currentScene = scene;
-		this->currentScene->init();
+		this->currentScene->Init();
 		return true;
 	}
 
@@ -35,7 +35,7 @@ void SceneHandler::tick(double dt)
 		this->currentScene->render();
 	}
 	else {
-		ANK_ERROR("No scene set as current in scene handler!\n");
+		LOG_ERROR("No scene set as current in scene handler!");
 	}
 
 }

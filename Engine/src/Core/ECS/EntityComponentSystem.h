@@ -9,7 +9,7 @@
 class ECS
 {
 public:
-	void init()
+	void Init()
 	{
 		this->entityManager = std::make_unique<EntityManager>();
 		this->componentManager = std::make_unique<ComponentManager>();

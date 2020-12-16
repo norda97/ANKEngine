@@ -9,7 +9,7 @@
 #include "Core/ECS/Components/Gravity.h"
 #include "Core/ECS/Components/RigidBody.h"
 
-void HoverSystem::init()
+void HoverSystem::Init()
 {
 	this->timer = 0;
 }

@@ -7,7 +7,7 @@
 #include "Core/ECS/Components/RigidBody.h"
 #include "Core/ECS/Components/Gravity.h"
 
-void PhysicsSystem::init()
+void PhysicsSystem::Init()
 {
 }
 

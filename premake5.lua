@@ -87,6 +87,11 @@ project "Engine"
     pchheader "pch.h"
     pchsource "%{prj.name}/src/pch.cpp"
 
+    forceincludes
+    {
+        "pch.h"
+    }
+
     targetdir ("build/bin/" .. OUTPUT_DIR .. "/%{prj.name}")
     objdir ("build/obj/" .. OUTPUT_DIR .. "/%{prj.name}")
 

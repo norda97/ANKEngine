@@ -32,7 +32,7 @@ public:
 	DXRenderer();
 	~DXRenderer();
 
-	bool init();
+	bool Init();
 
 	void setCamera(Camera* camera);
 	void prepare();

@@ -13,7 +13,7 @@ DXBuffer::~DXBuffer()
 	//	this->buffer->Release();
 }
 
-bool DXBuffer::init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t bufferType, uint32_t accessFlag)
+bool DXBuffer::Init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t bufferType, uint32_t accessFlag)
 {
 	if (!initilized)
 	{
@@ -36,17 +36,17 @@ bool DXBuffer::init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t
 		if (data) {
 			D3D11_SUBRESOURCE_DATA bufferData = { 0 };
 			bufferData.pSysMem = data;
-			hr = DXDeviceInstance::get().getDev()->CreateBuffer(&this->desc, &bufferData, this->buffer.ReleaseAndGetAddressOf());
+			hr = DXDeviceInstance::Get().GetDev()->CreateBuffer(&this->desc, &bufferData, this->buffer.ReleaseAndGetAddressOf());
 		}
 		else
-			hr = DXDeviceInstance::get().getDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
+			hr = DXDeviceInstance::Get().GetDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
 
 		if (FAILED(hr))
 			return false;
 
 	return true;
 	}
-	ANK_ERROR("Buffer already initilized!");
+	LOG_ERROR("Buffer already initilized!");
 	return false;
 }
 
@@ -54,9 +54,9 @@ void DXBuffer::update(void* data, uint32_t size, uint32_t offset, D3D11_MAP mapT
 {
 	D3D11_MAPPED_SUBRESOURCE ms = { 0 };
 	const D3D11_BOX sDstBox = { offset, 0U, 0U, offset+size, 1U, 1U };
-	DXDeviceInstance::get().getDevCon()->Map(this->buffer.Get(), NULL, mapType, NULL, &ms);
+	DXDeviceInstance::Get().GetDevCon()->Map(this->buffer.Get(), NULL, mapType, NULL, &ms);
 	memcpy((char*)ms.pData + offset, data, size);
-	DXDeviceInstance::get().getDevCon()->Unmap(this->buffer.Get(), NULL);
+	DXDeviceInstance::Get().GetDevCon()->Unmap(this->buffer.Get(), NULL);
 }
 
 const ComPtr<ID3D11Buffer>& DXBuffer::getBuffer() const
@@ -78,7 +78,7 @@ void DXBuffer::resize(uint32_t size)
 
 	// Vertex buffer
 	HRESULT hr;
-	hr = DXDeviceInstance::get().getDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
+	hr = DXDeviceInstance::Get().GetDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
 
 	ANK_ASSERT(FAILED(hr), "Failed to resize DXBuffer");
 }
