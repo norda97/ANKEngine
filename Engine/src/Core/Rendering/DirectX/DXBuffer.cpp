@@ -55,7 +55,7 @@ void DXBuffer::update(void* data, uint32_t size, uint32_t offset, D3D11_MAP mapT
 	D3D11_MAPPED_SUBRESOURCE ms = { 0 };
 	const D3D11_BOX sDstBox = { offset, 0U, 0U, offset+size, 1U, 1U };
 	DXDeviceInstance::get().getDevCon()->Map(this->buffer.Get(), NULL, mapType, NULL, &ms);
-	memcpy(ms.pData, data, size);	
+	memcpy((char*)ms.pData + offset, data, size);
 	DXDeviceInstance::get().getDevCon()->Unmap(this->buffer.Get(), NULL);
 }
 
