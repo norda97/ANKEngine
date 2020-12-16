@@ -20,10 +20,10 @@ bool DXShader::Init(const std::string& vFilename, const std::string& pFilename, 
 	auto vertexData = loadShaderFile(vFilename);
 	auto pixelData = loadShaderFile(pFilename);
 
-	DXDeviceInstance::Get().GetDev()->CreateVertexShader(vertexData.data(), vertexData.size(), NULL, &this->vertexShader);
-	DXDeviceInstance::Get().GetDev()->CreatePixelShader(pixelData.data(), pixelData.size(), NULL, &this->pixelShader);
+	DXDeviceInstance::GetDev()->CreateVertexShader(vertexData.data(), vertexData.size(), NULL, &this->vertexShader);
+	DXDeviceInstance::GetDev()->CreatePixelShader(pixelData.data(), pixelData.size(), NULL, &this->pixelShader);
 
-	DXDeviceInstance::Get().GetDev()->CreateInputLayout(ied.data(), 1, vertexData.data(), vertexData.size(), &this->layout);
+	DXDeviceInstance::GetDev()->CreateInputLayout(ied.data(), 1, vertexData.data(), vertexData.size(), &this->layout);
 #else // LOAD_PRECOMPILED_SHADERS
 
 	ComPtr<ID3DBlob> vsBlob, psBlob;
@@ -31,10 +31,10 @@ bool DXShader::Init(const std::string& vFilename, const std::string& pFilename, 
 	assert(compileShader(ANK_SHADER_PATH + vFilename, "VSMain", "vs_5_0", vsBlob));
 	assert(compileShader(ANK_SHADER_PATH + pFilename, "PSMain", "ps_5_0", psBlob));
 
-	DXDeviceInstance::Get().GetDev()->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, this->vertexShader.ReleaseAndGetAddressOf());
-	DXDeviceInstance::Get().GetDev()->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), NULL, this->pixelShader.ReleaseAndGetAddressOf());
+	DXDeviceInstance::GetDev()->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, this->vertexShader.ReleaseAndGetAddressOf());
+	DXDeviceInstance::GetDev()->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), NULL, this->pixelShader.ReleaseAndGetAddressOf());
 	
-	DXDeviceInstance::Get().GetDev()->CreateInputLayout(ied.data(), ied.size(), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), this->layout.ReleaseAndGetAddressOf());
+	DXDeviceInstance::GetDev()->CreateInputLayout(ied.data(), ied.size(), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), this->layout.ReleaseAndGetAddressOf());
 
 #endif
 

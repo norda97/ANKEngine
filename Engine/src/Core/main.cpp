@@ -104,7 +104,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	if (!InitWindow(hInstance, nCmdShow, &hWnd, SCREEN_WIDTH * WINDOW_SIZE_FACTOR, SCREEN_HEIGHT * WINDOW_SIZE_FACTOR, L"Sandbox"))
 		return 1;
 
-	DXDeviceInstance::Get().Init(hWnd);
+	DXDeviceInstance::Init(hWnd);
 	Run(hWnd);
 	Release();
 

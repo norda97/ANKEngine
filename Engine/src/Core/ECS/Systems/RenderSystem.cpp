@@ -20,17 +20,27 @@
 
 void RenderSystem::Init(ECS* ecs)
 {
-	this->ecs = ecs;
-	this->instanceCount = entities.size();
+	this->m_pEcs = ecs;
+	this->m_InstanceCount = entities.size();
 
 	ANK_ASSERT(
-		this->transformBuffer.Init(
+		this->m_TransformBuffer.Init(
 			NULL,
 			sizeof(Instance) * MAX_MESH_INSTANCES,
-			D3D11_USAGE_DYNAMIC,
+			D3D11_USAGE_DEFAULT,
 			D3D11_BIND_VERTEX_BUFFER,
-			D3D11_CPU_ACCESS_WRITE),
+			0),
 		"Failed to init constant buffer for transforms."
+	);
+
+	ANK_ASSERT(
+		this->m_TransformStagingBuffer.Init(
+			NULL,
+			sizeof(Instance) * MAX_MESH_INSTANCES,
+			D3D11_USAGE_STAGING,
+			0,
+			D3D11_CPU_ACCESS_WRITE),
+		"Failed to init staging constant buffer for transforms."
 	);
 
 	ANK_ASSERT(ecs != nullptr, "ECS must be a valid pointer in renderSystem");
@@ -44,8 +54,8 @@ void RenderSystem::update(DXRenderer& renderer)
 
 	for (auto const& entity : this->entities)
 	{
-		auto & transform = this->ecs->getComponent<Transform>(entity);
-		auto const& drawable = this->ecs->getComponent<Drawable>(entity);
+		auto & transform = this->m_pEcs->getComponent<Transform>(entity);
+		auto const& drawable = this->m_pEcs->getComponent<Drawable>(entity);
 
 		const Model& model = modelMap.at(drawable.modelID);
 		for (auto const& meshInstance : model.getMeshInstances())
@@ -66,11 +76,11 @@ void RenderSystem::update(DXRenderer& renderer)
 
 	auto& devcon = DXDeviceInstance::GetDevCon();
 
-	//devcon->VSSetConstantBuffers(1, 1, transformBuffer.getBuffer().GetAddressOf());
+	//devcon->VSSetConstantBuffers(1, 1, m_TransformBuffer.GetBuffer().GetAddressOf());
 
 	unsigned int strides[1] = { sizeof(InstanceData) };
 	unsigned int offsets[1] = { 0 };
-	devcon->IASetVertexBuffers(1, 1, transformBuffer.getBuffer().GetAddressOf(), strides, offsets);
+	devcon->IASetVertexBuffers(1, 1, m_TransformBuffer.GetBuffer().GetAddressOf(), strides, offsets);
 
 	unsigned instanceOffset = 0;
 	for (auto& materialID : this->instanceData)
@@ -88,10 +98,10 @@ void RenderSystem::update(DXRenderer& renderer)
 
 			Mesh& mesh = *ModelHandler::get().getMesh(meshID.first);
 
-			ID3D11Buffer* bufferPointers[1] = { static_cast<const DXBuffer*>(mesh.getVertexBuffer())->getBuffer().Get() };
+			ID3D11Buffer* bufferPointers[1] = { static_cast<const DXBuffer*>(mesh.getVertexBuffer())->GetBuffer().Get() };
 
 			devcon->IASetVertexBuffers(0, 1, bufferPointers, strides, offsets);
-			devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->getBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
+			devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->GetBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
 			devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 			//DXDeviceInstance::GetDevCon()->RSSetState(rsWireframe);
@@ -105,7 +115,7 @@ void RenderSystem::update(DXRenderer& renderer)
 
 void RenderSystem::insertEntityEvent(Entity entity)
 {
-	auto const& drawable = this->ecs->getComponent<Drawable>(entity);
+	auto const& drawable = this->m_pEcs->getComponent<Drawable>(entity);
 
 	auto const& modelMap = ModelHandler::get().getModels();
 
@@ -120,7 +130,7 @@ void RenderSystem::insertEntityEvent(Entity entity)
 
 void RenderSystem::eraseEntityEvent(Entity entity)
 {
-	auto const& drawable = this->ecs->getComponent<Drawable>(entity);
+	auto const& drawable = this->m_pEcs->getComponent<Drawable>(entity);
 
 	auto const& modelMap = ModelHandler::get().getModels();
 
@@ -135,8 +145,10 @@ void RenderSystem::eraseEntityEvent(Entity entity)
 
 void RenderSystem::updateTransformBuffer()
 {
+	auto devCon = DXDeviceInstance::GetDevCon();
+
 	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-	HRESULT hr = DXDeviceInstance::GetDevCon()->Map(this->transformBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	HRESULT hr = devCon->Map(this->m_TransformStagingBuffer.GetBuffer().Get(), 0, D3D11_MAP_WRITE, 0, &mappedResource);
 	
 	if (SUCCEEDED(hr))
 	{ 
@@ -153,5 +165,7 @@ void RenderSystem::updateTransformBuffer()
 			}
 		}
 	}
-	DXDeviceInstance::GetDevCon()->Unmap(this->transformBuffer.getBuffer().Get(), 0);
+	devCon->Unmap(this->m_TransformStagingBuffer.GetBuffer().Get(), 0);
+
+	devCon->CopyResource(m_TransformBuffer.GetBuffer().Get(), m_TransformStagingBuffer.GetBuffer().Get());
 }

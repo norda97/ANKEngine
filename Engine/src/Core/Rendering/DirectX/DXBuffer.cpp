@@ -36,10 +36,10 @@ bool DXBuffer::Init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t
 		if (data) {
 			D3D11_SUBRESOURCE_DATA bufferData = { 0 };
 			bufferData.pSysMem = data;
-			hr = DXDeviceInstance::Get().GetDev()->CreateBuffer(&this->desc, &bufferData, this->buffer.ReleaseAndGetAddressOf());
+			hr = DXDeviceInstance::GetDev()->CreateBuffer(&this->desc, &bufferData, this->buffer.ReleaseAndGetAddressOf());
 		}
 		else
-			hr = DXDeviceInstance::Get().GetDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
+			hr = DXDeviceInstance::GetDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
 
 		if (FAILED(hr))
 			return false;
@@ -50,7 +50,7 @@ bool DXBuffer::Init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t
 	return false;
 }
 
-void DXBuffer::update(void* data, uint32_t size, uint32_t offset, D3D11_MAP mapType)
+void DXBuffer::Update(void* data, uint32_t size, uint32_t offset, D3D11_MAP mapType)
 {
 	D3D11_MAPPED_SUBRESOURCE ms = { 0 };
 	const D3D11_BOX sDstBox = { offset, 0U, 0U, offset+size, 1U, 1U };
@@ -59,12 +59,12 @@ void DXBuffer::update(void* data, uint32_t size, uint32_t offset, D3D11_MAP mapT
 	DXDeviceInstance::Get().GetDevCon()->Unmap(this->buffer.Get(), NULL);
 }
 
-const ComPtr<ID3D11Buffer>& DXBuffer::getBuffer() const
+const ComPtr<ID3D11Buffer>& DXBuffer::GetBuffer() const
 {
 	return this->buffer;
 }
 
-const uint32_t DXBuffer::getSize() const
+const uint32_t DXBuffer::GetSize() const
 {
 	return this->size;
 }
@@ -78,7 +78,7 @@ void DXBuffer::resize(uint32_t size)
 
 	// Vertex buffer
 	HRESULT hr;
-	hr = DXDeviceInstance::Get().GetDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
+	hr = DXDeviceInstance::GetDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
 
 	ANK_ASSERT(FAILED(hr), "Failed to resize DXBuffer");
 }

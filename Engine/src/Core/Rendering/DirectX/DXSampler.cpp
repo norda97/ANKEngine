@@ -24,7 +24,7 @@ bool DXSampler::Init(D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE addressMode
 	sampDesc.MaxAnisotropy = 0;
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	HRESULT hr = DXDeviceInstance::Get().GetDev()->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf());
+	HRESULT hr = DXDeviceInstance::GetDev()->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf());
 
 	if (FAILED(hr)) {
 		LOG_ERROR("Failed to create SamplerState");

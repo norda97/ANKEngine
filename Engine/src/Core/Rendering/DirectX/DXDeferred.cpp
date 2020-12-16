@@ -10,7 +10,7 @@
 DXDeferred::DXDeferred()
 {
 	auto& devcon = DXDeviceInstance::Get().GetDevCon();
-	auto& dev = DXDeviceInstance::Get().GetDev();
+	auto& dev = DXDeviceInstance::GetDev();
 
 	this->gBuffers.resize(this->GBUFFER_COUNT);
 	this->renderTargets.resize(this->GBUFFER_COUNT);
@@ -125,7 +125,7 @@ void DXDeferred::renderComplete(ID3D11RenderTargetView* const* renderTarget)
 	unsigned int strides[1] = { sizeof(float) * 5 };
 	unsigned int offsets[1] = { 0 };
 
-	devcon->IASetVertexBuffers(0, 1, fullscreenTri.getBuffer().GetAddressOf(), strides, offsets);
+	devcon->IASetVertexBuffers(0, 1, fullscreenTri.GetBuffer().GetAddressOf(), strides, offsets);
 
 	devcon->Draw(3, 0);
 

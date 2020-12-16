@@ -26,7 +26,7 @@ bool DXTexture::isInitilized() const
 
 bool DXTexture::Init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& tdesc)
 {
-	HRESULT hr = DXDeviceInstance::Get().GetDev()->CreateTexture2D(&tdesc, pData, this->texture.ReleaseAndGetAddressOf());
+	HRESULT hr = DXDeviceInstance::GetDev()->CreateTexture2D(&tdesc, pData, this->texture.ReleaseAndGetAddressOf());
 
 	if (FAILED(hr)) {
 		LOG_ERROR("Failed to create texture2D");
@@ -44,7 +44,7 @@ bool DXTexture::Init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& 
 	srDesc.Texture2D.MostDetailedMip = 0;
 	srDesc.Texture2D.MipLevels = 1;
 
-	hr = DXDeviceInstance::Get().GetDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
+	hr = DXDeviceInstance::GetDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
 	if (FAILED(hr)) {
 		LOG_ERROR("Failed to create shader resource view");
 		return false;
@@ -69,7 +69,7 @@ bool DXTexture::loadTexture(const std::string& path)
 		return false;
 	}
 
-	//DXDeviceInstance::Get().GetDev()->CheckMultisampleQualityLevels()
+	//DXDeviceInstance::GetDev()->CheckMultisampleQualityLevels()
 
 	
 	D3D11_TEXTURE2D_DESC tdesc = { 0 };
@@ -90,7 +90,7 @@ bool DXTexture::loadTexture(const std::string& path)
 	srd.SysMemPitch = width * 4;
 	srd.SysMemSlicePitch = 0;
 
-	HRESULT hr = DXDeviceInstance::Get().GetDev()->CreateTexture2D(&tdesc, &srd, this->texture.ReleaseAndGetAddressOf());
+	HRESULT hr = DXDeviceInstance::GetDev()->CreateTexture2D(&tdesc, &srd, this->texture.ReleaseAndGetAddressOf());
 
 	stbi_image_free(image);
 
@@ -106,7 +106,7 @@ bool DXTexture::loadTexture(const std::string& path)
 	srDesc.Texture2D.MostDetailedMip = 0;
 	srDesc.Texture2D.MipLevels = 1;
 
-	hr = DXDeviceInstance::Get().GetDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
+	hr = DXDeviceInstance::GetDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
 	if(FAILED(hr)) {
 		LOG_ERROR("Failed to create shader resource view");
 		return false;

@@ -55,7 +55,7 @@ private:
 	void createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
 	void createCubemapMip(DXCubemap& cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
 	void renderBRDFLutTex();
-	//void renderModel(DXModel& model, unsigned instanceCount, unsigned instanceOffset);
+	//void renderModel(DXModel& model, unsigned m_InstanceCount, unsigned instanceOffset);
 	
 	const unsigned maxPointLights;
 	unsigned pointLightCount;

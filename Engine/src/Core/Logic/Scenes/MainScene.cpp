@@ -84,7 +84,7 @@ bool MainScene::Init()
 	{
 		for (unsigned j = 0; j < sphereCount; j++)
 		{
-			Entity entity = ecs.createEntity();
+			Entity entity = m_pEcs.createEntity();
 			this->entities[index] = entity;
 			Model& newSphere = mh.duplicateModel(sphere, "redSphere");
 			MaterialID newMatID = mh.createMaterial(Vector4(1.0f, 0.0f, 0.0f, 1.0f), 1.0f - (float)(j * (1.0f / sphereCount)), (float)(i * (1.0f / sphereCount)));
@@ -93,14 +93,14 @@ bool MainScene::Init()
 			Vec3 startPos = { 0.0f, offset, offset * sphereCount * 0.5f };
 			startPos += { 0.f, j * offset, i * -offset};
 
-			ecs.addComponent<Transform>(entity,
+			m_pEcs.addComponent<Transform>(entity,
 				Transform{
 					startPos,
 					{0.f, 0.f, 0.f},
 					{ scale, scale, scale }
 				});
 
-			ecs.addComponent<Drawable>(entity,
+			m_pEcs.addComponent<Drawable>(entity,
 				Drawable{
 					newSphere.getModelID()
 				});

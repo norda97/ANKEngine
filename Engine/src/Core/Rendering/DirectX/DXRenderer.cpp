@@ -129,9 +129,9 @@ void DXRenderer::prepare()
 	deferredRenderer.clearRenderTargets();
 
 	// Set constant buffers
-	ID3D11Buffer* cBuffers[1] = { this->sceneBuffer.getBuffer().Get() };
+	ID3D11Buffer* cBuffers[1] = { this->sceneBuffer.GetBuffer().Get() };
 	devcon->VSSetConstantBuffers(0, 1, cBuffers);
-	devcon->PSSetConstantBuffers(0, 1, this->materialProperties.getBuffer().GetAddressOf());
+	devcon->PSSetConstantBuffers(0, 1, this->materialProperties.GetBuffer().GetAddressOf());
 
 	// Set gbuffers as rendertargets
 	devcon->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
@@ -146,7 +146,7 @@ void DXRenderer::setMaterial(MaterialID materialID)
 {
 	auto material = ModelHandler::get().getMaterial(materialID);
 
-	this->materialProperties.update((void*)& material->getProperties(), sizeof(MaterialProperties), 0, D3D11_MAP_WRITE_DISCARD);
+	this->materialProperties.Update((void*)& material->getProperties(), sizeof(MaterialProperties), 0, D3D11_MAP_WRITE_DISCARD);
 
 #define TEX_COUNT 5
 	ID3D11ShaderResourceView* textures[TEX_COUNT] = {
@@ -167,7 +167,7 @@ void DXRenderer::finishFrame()
 	devcon->OMSetDepthStencilState(this->noDepthStencilState.Get(), 0);
 	devcon->RSSetState(this->rsBackCull.Get());
 
-	ID3D11Buffer* cBuffers[2] = { this->scenePBRBuffer.getBuffer().Get(), this->lightBuffer.getBuffer().Get() };
+	ID3D11Buffer* cBuffers[2] = { this->scenePBRBuffer.GetBuffer().Get(), this->lightBuffer.GetBuffer().Get() };
 	devcon->PSSetConstantBuffers(0, 2, cBuffers);
 	// Set irrandiance map
 	devcon->PSSetShaderResources(4, 1, this->irradianceMap.getResourceView().GetAddressOf());
@@ -182,7 +182,7 @@ void DXRenderer::finishFrame()
 	// Render skybox last to cull fragments and avoid shading
 	// Update camera for skybox
 	SceneVariables sv = { this->camera->getRotation() * this->camera->getProjection() };
-	this->sceneBuffer.update(static_cast<void*>(&sv), sizeof(sv), 0);
+	this->sceneBuffer.Update(static_cast<void*>(&sv), sizeof(sv), 0);
 
 	devcon->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
 	devcon->OMSetRenderTargets(1, DXDeviceInstance::Get().GetBackbuffer().GetAddressOf(), DXDeviceInstance::Get().GetDepthStencilView().Get());
@@ -200,7 +200,7 @@ void DXRenderer::finishFrame()
 
 bool DXRenderer::initStates()
 {
-	auto& device = DXDeviceInstance::Get().GetDev();
+	auto& device = DXDeviceInstance::GetDev();
 
 	// Render state
 	D3D11_RASTERIZER_DESC rDesc;
@@ -317,7 +317,7 @@ void DXRenderer::setupImgui()
 	ImGui::StyleColorsDark();
 
 	ImGui_ImplWin32_Init(DXDeviceInstance::Get().GetHWND());
-	ImGui_ImplDX11_Init(DXDeviceInstance::Get().GetDev().Get(), DXDeviceInstance::Get().GetDevCon().Get());
+	ImGui_ImplDX11_Init(DXDeviceInstance::GetDev().Get(), DXDeviceInstance::Get().GetDevCon().Get());
 #endif
 }
 
@@ -383,11 +383,11 @@ void DXRenderer::updateSceneConstants(float dt)
 
 	// Update camera for PreRendering
 	SceneVariables sv = { this->camera->getViewProjection()};
-	this->sceneBuffer.update(static_cast<void*>(&sv), sizeof(sv), 0);
+	this->sceneBuffer.Update(static_cast<void*>(&sv), sizeof(sv), 0);
 
 	// Update campos for deferred
 	Vector3 camPos = this->camera->getPosition();
-	this->scenePBRBuffer.update(&camPos, sizeof(Vector3), 0);
+	this->scenePBRBuffer.Update(&camPos, sizeof(Vector3), 0);
 }
 
 void DXRenderer::renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap)
@@ -407,10 +407,10 @@ void DXRenderer::renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11Shade
 
 	unsigned int strides[1] = { sizeof(VertexData) };
 	unsigned int offsets[1] = { 0 };
-	ID3D11Buffer* bufferPointers[1] = { static_cast<const DXBuffer*>(mesh.getVertexBuffer())->getBuffer().Get() };
+	ID3D11Buffer* bufferPointers[1] = { static_cast<const DXBuffer*>(mesh.getVertexBuffer())->GetBuffer().Get() };
 
 	devcon->IASetVertexBuffers(0, 1, bufferPointers, strides, offsets);
-	devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->getBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
+	devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->GetBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
 	devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//DXDeviceInstance::Get().GetDevCon()->RSSetState(rsWireframe);
@@ -421,7 +421,7 @@ void DXRenderer::renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11Shade
 void DXRenderer::createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap)
 {
 	auto& devcon = DXDeviceInstance::Get().GetDevCon();
-	auto& dev = DXDeviceInstance::Get().GetDev();
+	auto& dev = DXDeviceInstance::GetDev();
 
 	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
 
@@ -438,7 +438,7 @@ void DXRenderer::createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPt
 	// Set Sampler
 	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
 
-	ID3D11Buffer* cBuffers[1] = { this->sceneBuffer.getBuffer().Get() };
+	ID3D11Buffer* cBuffers[1] = { this->sceneBuffer.GetBuffer().Get() };
 	devcon->VSSetConstantBuffers(0, 1, cBuffers);
 	devcon->RSSetState(this->rsFrontCull.Get());
 	devcon->OMSetDepthStencilState(this->noDepthStencilState.Get(), 0);
@@ -451,7 +451,7 @@ void DXRenderer::createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPt
 
 		// Update camera for PreRendering
 		SceneVariables sv = {  mat[i] * proj };
-		this->sceneBuffer.update(static_cast<void*>(&sv), sizeof(sv), 0);
+		this->sceneBuffer.Update(static_cast<void*>(&sv), sizeof(sv), 0);
 
 		// Render skybox last to cull fragments
 		renderEnvironmentMap(shader, envMap);
@@ -462,7 +462,7 @@ void DXRenderer::createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPt
 void DXRenderer::createCubemapMip(DXCubemap& cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap)
 {
 	auto& devcon = DXDeviceInstance::Get().GetDevCon();
-	auto& dev = DXDeviceInstance::Get().GetDev();
+	auto& dev = DXDeviceInstance::GetDev();
 
 	DXBuffer roughnessBuffer;
 	if (!roughnessBuffer.Init(NULL, sizeof(float), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
@@ -483,8 +483,8 @@ void DXRenderer::createCubemapMip(DXCubemap& cubemap, DXShader& shader, const Co
 	// Set Sampler
 	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
 
-	devcon->VSSetConstantBuffers(0, 1, this->sceneBuffer.getBuffer().GetAddressOf());
-	devcon->PSSetConstantBuffers(0, 1, roughnessBuffer.getBuffer().GetAddressOf());
+	devcon->VSSetConstantBuffers(0, 1, this->sceneBuffer.GetBuffer().GetAddressOf());
+	devcon->PSSetConstantBuffers(0, 1, roughnessBuffer.GetBuffer().GetAddressOf());
 	devcon->RSSetState(this->rsFrontCull.Get());
 	devcon->OMSetDepthStencilState(this->noDepthStencilState.Get(), 0);
 
@@ -503,9 +503,9 @@ void DXRenderer::createCubemapMip(DXCubemap& cubemap, DXShader& shader, const Co
 
 			// Update camera for PreRendering
 			SceneVariables sv = { mat[i] * proj };
-			this->sceneBuffer.update(static_cast<void*>(&sv), sizeof(sv), 0);
+			this->sceneBuffer.Update(static_cast<void*>(&sv), sizeof(sv), 0);
 			float roughness = (float)mip / (float)(maxMipLevels - 1);
-			roughnessBuffer.update((void*)&roughness, sizeof(float), 0);
+			roughnessBuffer.Update((void*)&roughness, sizeof(float), 0);
 
 			// Render skybox last to cull fragments
 			renderEnvironmentMap(shader, envMap);
@@ -553,7 +553,7 @@ void DXRenderer::renderBRDFLutTex()
 	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Texture2D.MipSlice = 0;
 
-	ANK_ASSERT(SUCCEEDED(DXDeviceInstance::Get().GetDev()->CreateRenderTargetView(this->BRDFLutTexture.getTexture().Get(), &rtvDesc, rtv.ReleaseAndGetAddressOf())),
+	ANK_ASSERT(SUCCEEDED(DXDeviceInstance::GetDev()->CreateRenderTargetView(this->BRDFLutTexture.getTexture().Get(), &rtvDesc, rtv.ReleaseAndGetAddressOf())),
 		"Failed to create render target view for BRDF LUT");
 
 	auto& devcon = DXDeviceInstance::Get().GetDevCon();
@@ -570,7 +570,7 @@ void DXRenderer::renderBRDFLutTex()
 	unsigned int strides[1] = { sizeof(float) * 5 };
 	unsigned int offsets[1] = { 0 };
 
-	devcon->IASetVertexBuffers(0, 1, fullscreenTri.getBuffer().GetAddressOf(), strides, offsets);
+	devcon->IASetVertexBuffers(0, 1, fullscreenTri.GetBuffer().GetAddressOf(), strides, offsets);
 	devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	devcon->Draw(3, 0);

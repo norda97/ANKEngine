@@ -79,10 +79,11 @@ public:
 private:
 	void updateTransformBuffer();
 
-	ECS* ecs;
+	ECS* m_pEcs;
 
 	std::map <MaterialID, std::unordered_map<MeshID, InstanceDataContainer<Mat4>>>	instanceData;
 
-	DXBuffer transformBuffer;
-	size_t instanceCount;
+	DXBuffer m_TransformStagingBuffer;
+	DXBuffer m_TransformBuffer;
+	size_t m_InstanceCount;
 };
