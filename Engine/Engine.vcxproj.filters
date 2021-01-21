@@ -7,6 +7,12 @@
     <Filter Include="Core\ECS">
       <UniqueIdentifier>{780F99C2-64DC-F3CD-8DF5-E1757921295C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\ECS\Components">
+      <UniqueIdentifier>{8D59B2E2-F9BA-8FF0-8228-D6A2EE88C6AF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\ECS\Systems">
+      <UniqueIdentifier>{7F5D67A8-6B56-86FA-9488-6B7F80E06506}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\IO">
       <UniqueIdentifier>{153F7134-811E-F0CF-8A36-7BA6F6945631}</UniqueIdentifier>
     </Filter>
@@ -16,11 +22,11 @@
     <Filter Include="Core\Logic\Scenes">
       <UniqueIdentifier>{7BBFDDE4-E7D5-DB7A-304D-679C9CA2AC02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Math">
+      <UniqueIdentifier>{C7E5BF15-3350-748C-7C8E-2532E83752E1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Model">
       <UniqueIdentifier>{EE07C4CD-DABF-051B-43C7-DE762F9EA00B}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Model\Shapes">
-      <UniqueIdentifier>{E1726886-4D89-661C-9600-F23D025637A4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Rendering">
       <UniqueIdentifier>{FB0E51AA-E7DC-44B0-D070-B5D6BCDD2015}</UniqueIdentifier>
@@ -39,6 +45,48 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\ECS\ComponentArray.h">
+      <Filter>Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\ComponentManager.h">
+      <Filter>Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Components\Drawable.h">
+      <Filter>Core\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Components\Gravity.h">
+      <Filter>Core\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Components\RigidBody.h">
+      <Filter>Core\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Components\Transform.h">
+      <Filter>Core\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\ECSTypes.h">
+      <Filter>Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\EntityComponentSystem.h">
+      <Filter>Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\EntityManager.h">
+      <Filter>Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\System.h">
+      <Filter>Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\SystemManager.h">
+      <Filter>Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Systems\HoverSystem.h">
+      <Filter>Core\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Systems\PhysicsSystem.h">
+      <Filter>Core\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Systems\RenderSystem.h">
+      <Filter>Core\ECS\Systems</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\IO\Input.h">
       <Filter>Core\IO</Filter>
     </ClInclude>
@@ -54,7 +102,22 @@
     <ClInclude Include="src\Core\Logic\Scenes\Scene.h">
       <Filter>Core\Logic\Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Math\AnkMath.h">
+      <Filter>Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Math\Vec2.h">
+      <Filter>Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Math\Vec3.h">
+      <Filter>Core\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Math\Vec4.h">
+      <Filter>Core\Math</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Model\Material.h">
+      <Filter>Core\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Model\MaterialProperties.h">
       <Filter>Core\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Model\Mesh.h">
@@ -67,6 +130,9 @@
       <Filter>Core\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Model\ModelHandler.h">
+      <Filter>Core\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Model\ModelTypes.h">
       <Filter>Core\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Rendering\DirectX\DXBuffer.h">
@@ -109,28 +175,20 @@
       <Filter>Core\Utils\Cameras</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\ECS\ECSTypes.h" />
-    <ClInclude Include="src\Core\ECS\EntityManager.h" />
-    <ClInclude Include="src\Core\ECS\ComponentArray.h" />
-    <ClInclude Include="src\Core\ECS\ComponentManager.h" />
-    <ClInclude Include="src\Core\ECS\SystemManager.h" />
-    <ClInclude Include="src\Core\ECS\System.h" />
-    <ClInclude Include="src\Core\ECS\EntityComponentSystem.h" />
-    <ClInclude Include="src\Core\Math\Vec4.h" />
-    <ClInclude Include="src\Core\Math\AnkMath.h" />
-    <ClInclude Include="src\Core\Math\Vec3.h" />
-    <ClInclude Include="src\Core\Math\Vec2.h" />
-    <ClInclude Include="src\Core\ECS\Systems\RenderSystem.h" />
-    <ClInclude Include="src\Core\Model\ModelTypes.h" />
-    <ClInclude Include="src\Core\ECS\Systems\HoverSystem.h" />
-    <ClInclude Include="src\Core\ECS\Systems\PhysicsSystem.h" />
-    <ClInclude Include="src\Core\Model\MaterialProperties.h" />
-    <ClInclude Include="src\Core\ECS\Components\Drawable.h" />
-    <ClInclude Include="src\Core\ECS\Components\Gravity.h" />
-    <ClInclude Include="src\Core\ECS\Components\RigidBody.h" />
-    <ClInclude Include="src\Core\ECS\Components\Transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\ECS\EntityManager.cpp">
+      <Filter>Core\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\ECS\Systems\HoverSystem.cpp">
+      <Filter>Core\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\ECS\Systems\PhysicsSystem.cpp">
+      <Filter>Core\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\ECS\Systems\RenderSystem.cpp">
+      <Filter>Core\ECS\Systems</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\IO\Input.cpp">
       <Filter>Core\IO</Filter>
     </ClCompile>
@@ -138,9 +196,6 @@
       <Filter>Core\Logic</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Logic\Scenes\MainScene.cpp">
-      <Filter>Core\Logic\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Logic\Scenes\Scene.cpp">
       <Filter>Core\Logic\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Model\Material.cpp">
@@ -195,9 +250,5 @@
       <Filter>Core\Utils\Cameras</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\ECS\EntityManager.cpp" />
-    <ClCompile Include="src\Core\ECS\Systems\RenderSystem.cpp" />
-    <ClCompile Include="src\Core\ECS\Systems\HoverSystem.cpp" />
-    <ClCompile Include="src\Core\ECS\Systems\PhysicsSystem.cpp" />
   </ItemGroup>
 </Project>

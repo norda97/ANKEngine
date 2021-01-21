@@ -1,8 +1,8 @@
 # ANKEngine
-This is a Game/3D editor engine used for learning about 3D techniques and DX11.
+This is a 3D graphics engine used for learning about 3D techniques and DX11.
 
 # Work in progress:
-* Directx 11 optimization
+* Instanced rendering optimization
 * Basic engine editor interface
 
 # Completed
