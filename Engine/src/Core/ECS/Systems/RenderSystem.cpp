@@ -47,12 +47,12 @@ void RenderSystem::update(DXRenderer& renderer)
 		auto & transform = this->ecs->getComponent<Transform>(entity);
 		auto const& drawable = this->ecs->getComponent<Drawable>(entity);
 
-		const Model& model = modelMap.at(drawable.modelID);
+		const Model& model = modelMap.at(drawable.ModelID);
 		for (auto const& meshInstance : model.getMeshInstances())
 		{
-			Matrix matrix = Matrix::CreateScale(transform.scale);
-			matrix *= Matrix::CreateFromYawPitchRoll(transform.rotation.y, transform.rotation.x, transform.rotation.z);
-			matrix *= Matrix::CreateTranslation(transform.position);
+			Matrix matrix = Matrix::CreateScale(transform.Scale);
+			matrix *= Matrix::CreateFromYawPitchRoll(transform.Rotation.y, transform.Rotation.x, transform.Rotation.z);
+			matrix *= Matrix::CreateTranslation(transform.Position);
 
 			this->instanceData[meshInstance.materialID][meshInstance.meshID].updateEntity(entity, matrix);
 		}
@@ -109,7 +109,7 @@ void RenderSystem::insertEntityEvent(Entity entity)
 
 	auto const& modelMap = ModelHandler::get().getModels();
 
-	const Model& model = modelMap.at(drawable.modelID);
+	const Model& model = modelMap.at(drawable.ModelID);
 	for (auto const& meshInstance : model.getMeshInstances())
 	{
 		auto& transformContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
@@ -124,7 +124,7 @@ void RenderSystem::eraseEntityEvent(Entity entity)
 
 	auto const& modelMap = ModelHandler::get().getModels();
 
-	const Model & model = modelMap.at(drawable.modelID);
+	const Model & model = modelMap.at(drawable.ModelID);
 	for (auto const& meshInstance : model.getMeshInstances())
 	{
 		auto& transformContainer = instanceData[meshInstance.materialID][meshInstance.meshID];

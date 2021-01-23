@@ -15,8 +15,8 @@ DXTexture::~DXTexture()
 	//if (this->texture)
 	//	this->texture->Release();
 
-	//if (this->resourceView)
-	//	this->resourceView->Release();
+	//if (this->m_ResourceView)
+	//	this->m_ResourceView->Release();
 }
 
 bool DXTexture::isInitilized() const
@@ -44,7 +44,7 @@ bool DXTexture::init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& 
 	srDesc.Texture2D.MostDetailedMip = 0;
 	srDesc.Texture2D.MipLevels = 1;
 
-	hr = DXDeviceInstance::get().getDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
+	hr = DXDeviceInstance::get().getDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->m_ResourceView.ReleaseAndGetAddressOf());
 	if (FAILED(hr)) {
 		ANK_ERROR("Failed to create shader resource view\n");
 		return false;
@@ -106,7 +106,7 @@ bool DXTexture::loadTexture(const std::string& path)
 	srDesc.Texture2D.MostDetailedMip = 0;
 	srDesc.Texture2D.MipLevels = 1;
 
-	hr = DXDeviceInstance::get().getDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
+	hr = DXDeviceInstance::get().getDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->m_ResourceView.ReleaseAndGetAddressOf());
 	if(FAILED(hr)) {
 		ANK_ERROR("Failed to create shader resource view\n");
 		return false;
@@ -119,7 +119,7 @@ bool DXTexture::loadTexture(const std::string& path)
 
 const ComPtr<ID3D11ShaderResourceView>& DXTexture::getShaderResource() const
 {
-	return this->resourceView;
+	return this->m_ResourceView;
 }
 
 const ComPtr<ID3D11Texture2D>& DXTexture::getTexture() const

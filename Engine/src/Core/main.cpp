@@ -16,25 +16,41 @@ bool initWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int he
 void run(HWND hWnd);
 void shutdown();
 
-#ifdef ANK_USE_IMGUI
+#if ANK_USE_IMGUI
 	extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif
 // Windows message callback 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-#ifdef ANK_USE_IMGUI
+#if ANK_USE_IMGUI
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
 		return true;
 #endif
 
 	switch (message)
 	{
-	case WM_SIZE:
-		if (wParam != SIZE_MINIMIZED)
+		case WM_SIZE:
 		{
-			//g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
+			if (wParam != SIZE_MINIMIZED)
+			{
+				UINT width = LOWORD(lParam);
+				UINT height = HIWORD(lParam);
+
+				auto swapchain = DXDeviceInstance::get().getSwapchain();
+
+				if (swapchain != nullptr)
+				{
+					HRESULT hr = swapchain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
+					if (FAILED(hr))
+					{
+						ANK_ERROR("Failed to resize swapchain buffers!");
+					}
+				}
+
+				ANKDebugInterface::Get().Resize(width, height);
+			}
+			return 0;
 		}
-		return 0;
 
 		case WM_KEYDOWN:
 		{
@@ -101,7 +117,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	if (!setupConsole())
 		return 1;
 
-	if (!initWindow(hInstance, nCmdShow, &hWnd, SCREEN_WIDTH * WINDOW_SIZE_FACTOR, SCREEN_HEIGHT * WINDOW_SIZE_FACTOR, L"Sandbox"))
+	if (!initWindow(hInstance, nCmdShow, &hWnd, SCREEN_WIDTH, SCREEN_HEIGHT, L"Sandbox"))
 		return 1;
 
 	DXDeviceInstance::get().init(hWnd);
@@ -113,6 +129,11 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 void shutdown() {
 	FreeConsole();
+
+#if ANK_DEBUG_INTERFACE
+	ANKDebugInterface::Get().Release();
+#endif
+
 }
 
 
@@ -184,8 +205,8 @@ bool initWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int he
 		L"WindowClass1",
 		title,
 		WS_OVERLAPPEDWINDOW,
-		300,    // x-position of the window
-		300,    // y-position of the window
+		0,    // x-position of the window
+		0,    // y-position of the window
 		wr.right - wr.left,    // width of the window
 		wr.bottom - wr.top,    // height of the window
 		NULL,

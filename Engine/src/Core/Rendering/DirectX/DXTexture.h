@@ -18,6 +18,6 @@ private:
 	bool initialized;
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> resourceView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ResourceView;
 };
 

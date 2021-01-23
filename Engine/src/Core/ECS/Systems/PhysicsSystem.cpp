@@ -19,34 +19,34 @@ void PhysicsSystem::update(ECS& ecs, float dt)
 		auto & rigidBody	= ecs.getComponent<RigidBody>(entity);
 		auto const& gravity = ecs.getComponent<Gravity>(entity);
 
-		transform.position += rigidBody.velocity * dt;
+		transform.Position += rigidBody.Velocity * dt;
 
-		rigidBody.velocity += gravity.force * dt;
+		rigidBody.Velocity += gravity.Force * dt;
 
 		const float boundary = 10.0f;
 		const float lossFactor = 0.6f;
 
-		bool outX = abs(transform.position.x) > boundary;
-		bool outY = transform.position.y < 0.f;
-		bool outZ = abs(transform.position.z) > boundary;
+		bool outX = abs(transform.Position.x) > boundary;
+		bool outY = transform.Position.y < 0.f;
+		bool outZ = abs(transform.Position.z) > boundary;
 
 		if (outX)
 		{
-			float direction = (transform.position.x / abs(transform.position.x));
-			transform.position.x = boundary * direction;
-			rigidBody.velocity = Vector3::Reflect(rigidBody.velocity, { direction, 0.f, 0.f }) * lossFactor;
+			float direction = (transform.Position.x / abs(transform.Position.x));
+			transform.Position.x = boundary * direction;
+			rigidBody.Velocity = Vector3::Reflect(rigidBody.Velocity, { direction, 0.f, 0.f }) * lossFactor;
 		}
 		if (outZ)
 		{
-			float direction = (transform.position.z / abs(transform.position.z));
-			transform.position.z = boundary * direction;
-			rigidBody.velocity = Vector3::Reflect(rigidBody.velocity, { 0.f, 0.f, direction }) * lossFactor;
+			float direction = (transform.Position.z / abs(transform.Position.z));
+			transform.Position.z = boundary * direction;
+			rigidBody.Velocity = Vector3::Reflect(rigidBody.Velocity, { 0.f, 0.f, direction }) * lossFactor;
 		}
 
 		if (outY)
 		{
-			rigidBody.velocity = Vector3::Reflect(rigidBody.velocity, { 0.f, 1.f, 0.f }) * lossFactor;
-			transform.position.y = 0.f;
+			rigidBody.Velocity = Vector3::Reflect(rigidBody.Velocity, { 0.f, 1.f, 0.f }) * lossFactor;
+			transform.Position.y = 0.f;
 		}
 	}
 }

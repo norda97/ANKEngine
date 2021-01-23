@@ -19,7 +19,7 @@
 
 #include "stbi/stb_image.h"
 
-#ifdef ANK_USE_IMGUI
+#if ANK_USE_IMGUI
 	#include "imgui.h"
 	#include "examples/imgui_impl_win32.h"
 	#include "examples/imgui_impl_dx11.h"
@@ -32,7 +32,7 @@ DXRenderer::DXRenderer() : camera(nullptr), maxPointLights(10), pointLightCount(
 
 DXRenderer::~DXRenderer()
 {
-#ifdef ANK_USE_IMGUI
+#if ANK_USE_IMGUI
 	// Cleanup
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
@@ -44,7 +44,7 @@ bool DXRenderer::init()
 {
 	if (!initStates())
 		return false;
-	if (!initShaders())
+	if (!InitShaders())
 		return false;
 	if (!initBuffers())
 		return false;
@@ -113,6 +113,11 @@ bool DXRenderer::init()
 	return true;
 }
 
+void DXRenderer::ResizeGBuffers(float width, float height)
+{
+	m_DeferredRenderer.ResizeGBuffers(width, height);
+}
+
 
 void DXRenderer::prepare()
 {
@@ -124,9 +129,9 @@ void DXRenderer::prepare()
 	// Set linear sampler
 	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
 
-	// Clear depth-stencil and gBuffers
+	// Clear depth-stencil and m_GeomBuffers
 	devcon->ClearDepthStencilView(DXDeviceInstance::get().getDepthStencilView().Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	deferredRenderer.clearRenderTargets();
+	m_DeferredRenderer.ClearRenderTargets();
 
 	// Set constant buffers
 	ID3D11Buffer* cBuffers[1] = { this->sceneBuffer.getBuffer().Get() };
@@ -135,11 +140,11 @@ void DXRenderer::prepare()
 
 	// Set gbuffers as rendertargets
 	devcon->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
-	deferredRenderer.bindRenderTargets(DXDeviceInstance::get().getDepthStencilView().Get());
+	m_DeferredRenderer.BindRenderTargets(DXDeviceInstance::get().getDepthStencilView().Get());
 
 	devcon->RSSetState(this->rsBackCull.Get());
 
-	deferredRenderer.bindShaders();
+	m_DeferredRenderer.bindShaders();
 }
 
 void DXRenderer::setMaterial(MaterialID materialID)
@@ -177,7 +182,7 @@ void DXRenderer::finishFrame()
 	// Used to sample BRDF Lut
 	devcon->PSSetSamplers(1, 1, this->samplerPoint.getSampler().GetAddressOf());
 
-	this->deferredRenderer.renderComplete(DXDeviceInstance::get().getBackbuffer().GetAddressOf());
+	this->m_DeferredRenderer.RenderComplete(DXDeviceInstance::get().getBackbuffer().GetAddressOf());
 
 	// Render skybox last to cull fragments and avoid shading
 	// Update camera for skybox
@@ -190,7 +195,7 @@ void DXRenderer::finishFrame()
 
 	renderEnvironmentMap(this->skyboxShader, this->environmentMap.getResourceView());
 
-#ifdef ANK_USE_IMGUI
+#if ANK_USE_IMGUI
 	drawImgui();
 	renderImgui();
 #endif
@@ -256,7 +261,7 @@ bool DXRenderer::initStates()
 	return true;
 }
 
-bool DXRenderer::initShaders()
+bool DXRenderer::InitShaders()
 {
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
@@ -309,7 +314,7 @@ bool DXRenderer::initBuffers()
 
 void DXRenderer::setupImgui()
 {
-#ifdef ANK_USE_IMGUI
+#if ANK_USE_IMGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -323,45 +328,22 @@ void DXRenderer::setupImgui()
 
 void DXRenderer::drawImgui()
 {
-#ifdef ANK_USE_IMGUI
+#if ANK_USE_IMGUI
 	// Create new frame for imgui
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+
+#if ANK_DEBUG_INTERFACE
+	ANKDebugInterface::Get().Display();
 #endif
 
-	static bool show = true;
-	if (show)
-	{
-
-		//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	/*	{
-			ImGui::Begin("BRDF LUT textures");
-			ImGui::Image((void*)BRDFLutTexture.getShaderResource().Get(), ImVec2(256, 256));
-			ImGui::End();
-		}
-*/
-	/*	{
-			ImGui::Begin("Convulution");
-			ImGui::BeginGroup();
-
-			auto& resViews = this->radianceMap.getResourceViews();
-			for (unsigned i = 0; i < 6; i++)
-			{
-				ImGui::Image((void*)resViews[i].Get(), ImVec2(256, 256));
-			}
-
-			ImGui::EndGroup();
-			ImGui::End();
-		}*/
-
-	
-	}
+#endif
 }
 
 void DXRenderer::renderImgui()
 {
-#ifdef ANK_USE_IMGUI
+#if ANK_USE_IMGUI
 	auto& devcon = DXDeviceInstance::get().getDevCon();
 	ImGui::Render();
 	devcon->OMSetBlendState(this->blendState.Get(), NULL, 0xFFFFFF);
@@ -418,7 +400,7 @@ void DXRenderer::renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11Shade
 
 }
 
-void DXRenderer::createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap)
+void DXRenderer::createCubemap(DXCubemap& m_Cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap)
 {
 	auto& devcon = DXDeviceInstance::get().getDevCon();
 	auto& dev = DXDeviceInstance::get().getDev();
@@ -443,8 +425,8 @@ void DXRenderer::createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPt
 	devcon->RSSetState(this->rsFrontCull.Get());
 	devcon->OMSetDepthStencilState(this->noDepthStencilState.Get(), 0);
 
-	auto& RTs = cubemap.getRenderTargets();
-	DXDeviceInstance::get().setViewport(0, 0, cubemap.width, cubemap.height);
+	auto& RTs = m_Cubemap.GetRenderTargets();
+	DXDeviceInstance::get().setViewport(0, 0, m_Cubemap.m_Width, m_Cubemap.m_Height);
 	for (unsigned i = 0; i < 6; i++)
 	{
 		devcon->OMSetRenderTargets(1, RTs[i][0].GetAddressOf(), NULL);
@@ -459,7 +441,7 @@ void DXRenderer::createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPt
 	DXDeviceInstance::get().setViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
-void DXRenderer::createCubemapMip(DXCubemap& cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap)
+void DXRenderer::createCubemapMip(DXCubemap& m_Cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap)
 {
 	auto& devcon = DXDeviceInstance::get().getDevCon();
 	auto& dev = DXDeviceInstance::get().getDev();
@@ -488,8 +470,8 @@ void DXRenderer::createCubemapMip(DXCubemap& cubemap, DXShader& shader, const Co
 	devcon->RSSetState(this->rsFrontCull.Get());
 	devcon->OMSetDepthStencilState(this->noDepthStencilState.Get(), 0);
 
-	unsigned int maxMipLevels = cubemap.getMipLevels();
-	auto& RTs = cubemap.getRenderTargets();
+	unsigned int maxMipLevels = m_Cubemap.getMipLevels();
+	auto& RTs = m_Cubemap.GetRenderTargets();
 
 	for (unsigned mip = 0; mip < maxMipLevels; mip++)
 	{
@@ -517,7 +499,7 @@ void DXRenderer::createCubemapMip(DXCubemap& cubemap, DXShader& shader, const Co
 
 void DXRenderer::renderBRDFLutTex()
 {
-	DXBuffer fullscreenTri;
+	DXBuffer m_FullscreenTri;
 
 	float vertices[]
 	{
@@ -527,7 +509,7 @@ void DXRenderer::renderBRDFLutTex()
 		3.f, -1.f, 0.f,		2.f, 0.f
 	};
 
-	fullscreenTri.init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
+	m_FullscreenTri.init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
 
 	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
@@ -570,7 +552,7 @@ void DXRenderer::renderBRDFLutTex()
 	unsigned int strides[1] = { sizeof(float) * 5 };
 	unsigned int offsets[1] = { 0 };
 
-	devcon->IASetVertexBuffers(0, 1, fullscreenTri.getBuffer().GetAddressOf(), strides, offsets);
+	devcon->IASetVertexBuffers(0, 1, m_FullscreenTri.getBuffer().GetAddressOf(), strides, offsets);
 	devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	devcon->Draw(3, 0);

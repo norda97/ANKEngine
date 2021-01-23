@@ -26,7 +26,6 @@ MainScene::~MainScene()
 
 bool MainScene::init()
 {
-
 	this->renderer.init();
 	
 	// Init camera
@@ -125,7 +124,7 @@ bool MainScene::init()
 		std::uniform_real_distribution<float> randPos(-8.f, 8.f);
 		std::uniform_real_distribution<float> randScale(0.5f, 1.f);
 
-		ModelID materials[3] = { sphere.getModelID(), redSphere.getModelID(), blueSphere.getModelID() };
+		ANKModelID materials[3] = { sphere.getModelID(), redSphere.getModelID(), blueSphere.getModelID() };
 		unsigned index = 0;
 		for (auto& entity : entities) {
 			entity = ecs.createEntity();

@@ -2,6 +2,11 @@
 
 class DXDeviceInstance 
 {
+private:
+	DXDeviceInstance() = default;
+	DXDeviceInstance(const DXDeviceInstance& other) = delete;
+	DXDeviceInstance(DXDeviceInstance&& other) = delete;
+
 public:
 	~DXDeviceInstance();
 
@@ -21,10 +26,6 @@ public:
 
 	HWND getHWND();
 private:
-	DXDeviceInstance() {};
-	DXDeviceInstance(const DXDeviceInstance& other) = delete;
-	DXDeviceInstance(DXDeviceInstance&& other) = delete;
-
 	D3D11_MESSAGE* errorMsg = nullptr;
 
 	HWND hWnd = NULL;

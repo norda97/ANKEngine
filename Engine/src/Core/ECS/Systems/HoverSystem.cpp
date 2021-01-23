@@ -23,13 +23,13 @@ void HoverSystem::update(ECS& ecs, float dt)
 		
 		this->timer += dt;
 
-		float r = transform.position.Length();
+		float r = transform.Position.Length();
 		float force = 2.f / (r * r);
 
-		Vec3 direction = Vec3(0.f, 3.f, 0.f) - transform.position;
+		Vec3 direction = Vec3(0.f, 3.f, 0.f) - transform.Position;
 		direction.Normalize();
 
-		rigidBody.velocity += direction * force;
+		rigidBody.Velocity += direction * force;
 	}
 
 }

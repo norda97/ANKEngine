@@ -5,7 +5,7 @@
 class DXCubemap
 {
 public:
-	unsigned width, height;
+	unsigned m_Width, m_Height;
 public:
 	DXCubemap();
 	~DXCubemap();
@@ -15,17 +15,17 @@ public:
 
 	unsigned getMipLevels() const;
 
-	const std::vector<std::vector<ComPtr<ID3D11RenderTargetView>>>& getRenderTargets();
+	const std::vector<std::vector<ComPtr<ID3D11RenderTargetView>>>& GetRenderTargets();
 	const ComPtr<ID3D11ShaderResourceView>& getResourceView();
-	const std::vector<ComPtr<ID3D11ShaderResourceView>>& getResourceViews();
+	const std::vector<ComPtr<ID3D11ShaderResourceView>>& GetResourceViews();
 
 private:
 	bool initialized;
 
-	unsigned mipLevels;
+	unsigned m_MipLevels;
 
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> cubemap;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> resourceView;
-	std::vector<ComPtr<ID3D11ShaderResourceView>> resourceViews;
-	std::vector<std::vector<ComPtr<ID3D11RenderTargetView>>> renderTargets;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_Cubemap;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ResourceView;
+	std::vector<ComPtr<ID3D11ShaderResourceView>> m_ResourceViews;
+	std::vector<std::vector<ComPtr<ID3D11RenderTargetView>>> m_RenderTargets;
 };

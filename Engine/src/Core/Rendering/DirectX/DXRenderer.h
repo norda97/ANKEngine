@@ -21,11 +21,6 @@ struct Light
 	float intensity;
 };
 
-struct deferredPBR
-{
-
-};
-
 class DXRenderer
 {
 public:
@@ -33,6 +28,8 @@ public:
 	~DXRenderer();
 
 	bool init();
+
+	void ResizeGBuffers(float width, float height);
 
 	void setCamera(Camera* camera);
 	void prepare();
@@ -42,7 +39,7 @@ public:
 
 private:
 	bool initStates();
-	bool initShaders();
+	bool InitShaders();
 	bool initBuffers();
 
 	void setupImgui();
@@ -52,8 +49,8 @@ private:
 	void updateSceneConstants(float dt);
 
 	void renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
-	void createCubemap(DXCubemap& cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
-	void createCubemapMip(DXCubemap& cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
+	void createCubemap(DXCubemap& m_Cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
+	void createCubemapMip(DXCubemap& m_Cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
 	void renderBRDFLutTex();
 	//void renderModel(DXModel& model, unsigned instanceCount, unsigned instanceOffset);
 	
@@ -63,7 +60,7 @@ private:
 	Camera* camera;
 
 	// Deferred rendering
-	DXDeferred deferredRenderer;
+	DXDeferred m_DeferredRenderer;
 	
 	// Other
 	DXShader equirectangularShader;

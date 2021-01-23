@@ -13,27 +13,29 @@ public:
 	DXDeferred();
 	~DXDeferred();
 
-	void clearRenderTargets();
-	void bindRenderTargets(ID3D11DepthStencilView* depthStencil);
-	const std::array<ID3D11RenderTargetView*, GBUFFER_COUNT>& getRenderTargets();
-	void bindShaders();
-	const std::array<ID3D11ShaderResourceView*, GBUFFER_COUNT>& getResourceViews() const;
+	bool ResizeGBuffers(float width, float height);
 
-	void renderComplete(ID3D11RenderTargetView* const* renderTarget);
+	void ClearRenderTargets();
+	void BindRenderTargets(ID3D11DepthStencilView* depthStencil);
+	const std::array<ID3D11RenderTargetView*, GBUFFER_COUNT>& GetRenderTargets();
+	void bindShaders();
+	const std::array<ID3D11ShaderResourceView*, GBUFFER_COUNT>& GetResourceViews() const;
+
+	void RenderComplete(ID3D11RenderTargetView* const* renderTarget);
 
 private:
-	bool initShaders();
-	void initFullscreenTri();
+	bool InitShaders();
+	void InitFullscreenTri();
 
-	DXShader fullscreenShader;
-	DXBuffer fullscreenTri;
+	DXShader m_FullscreenShader;
+	DXBuffer m_FullscreenTri;
 
 	DXShader shader;
 
-	std::vector<ComPtr<ID3D11Texture2D>>					gBuffers;
-	std::vector<ComPtr<ID3D11RenderTargetView>>				renderTargets;
-	std::vector<ComPtr<ID3D11ShaderResourceView>>			resourceView;
+	std::vector<ComPtr<ID3D11Texture2D>>					m_GeomBuffers;
+	std::vector<ComPtr<ID3D11RenderTargetView>>				m_RenderTargets;
+	std::vector<ComPtr<ID3D11ShaderResourceView>>			m_ResourceView;
 
-	std::array<ID3D11RenderTargetView*, GBUFFER_COUNT>		ptrRenderTargets;
-	std::array<ID3D11ShaderResourceView*, GBUFFER_COUNT>	ptrResourceViews;
+	std::array<ID3D11RenderTargetView*, GBUFFER_COUNT>		m_pRenderTargets;
+	std::array<ID3D11ShaderResourceView*, GBUFFER_COUNT>	m_pResourceViews;
 };

@@ -3,7 +3,7 @@
 
 #include "Core/Model/MeshInstance.h"
 
-Model::Model(ModelID modelID) : id(modelID)
+Model::Model(ANKModelID modelID) : id(modelID)
 {
 }
 
@@ -32,12 +32,12 @@ void Model::changeMeshMaterial(uint32_t index, MaterialID matID)
 		ANK_WARNING("Change Mesh Material: Index out of range");
 }
 
-ModelID Model::getModelID() const
+ANKModelID Model::getModelID() const
 {
 	return this->id;
 }
 
-void Model::setModelID(ModelID id)
+void Model::setModelID(ANKModelID id)
 {
 	this->id = id;
 }

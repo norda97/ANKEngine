@@ -79,8 +79,8 @@ Model& ModelHandler::duplicateModel(const std::string& modelKey, const std::stri
 	Model& model = getModel(modelKey);
 	Model newModel(model);
 
-	// Store model and create modelID
-	ModelID newModelID = modelCount++;
+	// Store model and create ModelID
+	ANKModelID newModelID = modelCount++;
 	newModel.setModelID(newModelID);
 	this->nameToIndex[newKey] = newModelID;
 	this->modelMap[newModelID] = newModel;
@@ -92,8 +92,8 @@ Model& ModelHandler::duplicateModel(const Model& model, const std::string& newKe
 {
 	Model newModel(model);
 
-	// Store model and create modelID
-	ModelID newModelID = modelCount++;
+	// Store model and create ModelID
+	ANKModelID newModelID = modelCount++;
 	newModel.setModelID(newModelID);
 	this->nameToIndex[newKey] = newModelID;
 	this->modelMap[newModelID] = newModel;
@@ -112,11 +112,11 @@ Model& ModelHandler::getModel(const std::string& name)
 	return getModel(it->second);
 }
 
-Model& ModelHandler::getModel(ModelID id)
+Model& ModelHandler::getModel(ANKModelID id)
 {
 	auto it = this->modelMap.find(id);
 	if (it == this->modelMap.end()) {
-		ANK_WARNING("Model is not accessible with modelID: %s", id);
+		ANK_WARNING("Model is not accessible with ModelID: %s", id);
 		ANK_ASSERT(false, "FIX default model!")
 	}
 	return this->modelMap[id];
@@ -132,7 +132,7 @@ Mesh* ModelHandler::getMesh(MeshID meshID)
 	return this->meshes[meshID];
 }
 
-const std::unordered_map<ModelID, Model>& ModelHandler::getModels()
+const std::unordered_map<ANKModelID, Model>& ModelHandler::getModels()
 {
 	return this->modelMap;
 }
@@ -158,7 +158,7 @@ Model& ModelHandler::loadModel(const std::string& path, const std::string& file,
 
 		// Return default model
 	}
-	ModelID modelID = modelCount++;
+	ANKModelID modelID = modelCount++;
 	Model model(modelID);
 
 	std::string filepath = path + file;
@@ -176,7 +176,7 @@ Model& ModelHandler::loadModel(const std::string& path, const std::string& file,
 
 	processScene(path, modelScene, model);
 
-	// Store model and create modelID
+	// Store model and create ModelID
 	this->nameToIndex[name] = modelID;
 	this->modelMap[modelID] = model;
 
