@@ -7,6 +7,8 @@
 #include "Core/Model/MeshInstance.h"
 #include "Core/Model/Mesh.h"
 
+#include "Core/Utils/ANKWindowHandler.h"
+
 DXDeferred::DXDeferred()
 {
 	auto& devcon = DXDeviceInstance::get().getDevCon();
@@ -55,7 +57,7 @@ DXDeferred::DXDeferred()
 		// Create textures
 		HRESULT hr = dev->CreateTexture2D(&texDesc, NULL, this->m_GeomBuffers[i].GetAddressOf());
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create depth stencil buffer");
+			ANK_ERROR("Failed to create Geometry buffer");
 		}
 
 		// Create render target
@@ -75,13 +77,20 @@ DXDeferred::DXDeferred()
 
 	InitShaders();
 	InitFullscreenTri();
+
+	// Register resize callback
+	ANKWindowHandler::RegisterResizeCallback(
+		[&](uint32_t width, uint32_t height)
+		{
+			ResizeGBuffers(width, height);
+		});
 }
 
 DXDeferred::~DXDeferred()
 {
 }
 
-bool DXDeferred::ResizeGBuffers(float width, float height)
+void DXDeferred::ResizeGBuffers(uint32_t width, uint32_t height)
 {
 	auto& devcon = DXDeviceInstance::get().getDevCon();
 	auto& dev = DXDeviceInstance::get().getDev();
@@ -125,15 +134,13 @@ bool DXDeferred::ResizeGBuffers(float width, float height)
 		// Create textures
 		HRESULT hr = dev->CreateTexture2D(&texDesc, NULL, this->m_GeomBuffers[i].ReleaseAndGetAddressOf());
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create depth stencil buffer");
-			return false;
+			ANK_ERROR("Failed to create geometry buffer");
 		}
 
 		// Create render target
 		hr = dev->CreateRenderTargetView(this->m_GeomBuffers[i].Get(), &rtvDesc, this->m_RenderTargets[i].ReleaseAndGetAddressOf());
 		if (FAILED(hr)) {
 			ANK_ERROR("Failed to create render target view");
-			return false;
 		}
 		this->m_pRenderTargets[i] = this->m_RenderTargets[i].Get();
 
@@ -141,12 +148,9 @@ bool DXDeferred::ResizeGBuffers(float width, float height)
 		hr = dev->CreateShaderResourceView(this->m_GeomBuffers[i].Get(), &srvDesc, this->m_ResourceView[i].ReleaseAndGetAddressOf());
 		if (FAILED(hr)) {
 			ANK_ERROR("Failed to create resource view");
-			return false;
 		}
 		this->m_pResourceViews[i] = this->m_ResourceView[i].Get();
 	}
-
-	return true;
 }
 
 void DXDeferred::ClearRenderTargets()
@@ -187,6 +191,7 @@ void DXDeferred::RenderComplete(ID3D11RenderTargetView* const* renderTarget)
 	this->m_FullscreenShader.prepare();
 
 	// Render fullscreen tri to backbuffer
+	DXDeviceInstance::get().setViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowHeight);
 	devcon->OMSetRenderTargets(1, renderTarget, NULL);
 	devcon->PSSetShaderResources(0, this->GBUFFER_COUNT, this->m_pResourceViews.data());
 

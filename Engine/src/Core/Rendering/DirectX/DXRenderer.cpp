@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "DXRenderer.h"
 
-#include "Core/Model/ModelHandler.h"
 
 #include "Core/Rendering/DirectX/DXDeviceInstance.h"
 #include "Core/Rendering/DirectX/DXShader.h"
@@ -9,6 +8,9 @@
 #include "Core/Rendering/DirectX/DXMaterial.h"
 #include "Core/Rendering/DirectX/DXTexture.h"
 
+#include "Core/Utils/ANKWindowHandler.h"
+
+#include "Core/Model/ModelHandler.h"
 #include "Core/Model/Model.h"
 #include "Core/Model/Mesh.h"
 #include "Core/Model/MeshInstance.h"
@@ -113,15 +115,11 @@ bool DXRenderer::init()
 	return true;
 }
 
-void DXRenderer::ResizeGBuffers(float width, float height)
-{
-	m_DeferredRenderer.ResizeGBuffers(width, height);
-}
-
-
 void DXRenderer::prepare()
 {
 	auto& devcon = DXDeviceInstance::get().getDevCon();
+
+	DXDeviceInstance::get().setViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowHeight);
 
 	// Update scene constant buffers
 	updateSceneConstants(0.0f);
@@ -438,7 +436,7 @@ void DXRenderer::createCubemap(DXCubemap& m_Cubemap, DXShader& shader, const Com
 		// Render skybox last to cull fragments
 		renderEnvironmentMap(shader, envMap);
 	}
-	DXDeviceInstance::get().setViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	DXDeviceInstance::get().setViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowWidth);
 }
 
 void DXRenderer::createCubemapMip(DXCubemap& m_Cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap)
@@ -494,7 +492,7 @@ void DXRenderer::createCubemapMip(DXCubemap& m_Cubemap, DXShader& shader, const 
 		}
 	}
 
-	DXDeviceInstance::get().setViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	DXDeviceInstance::get().setViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowWidth);
 }
 
 void DXRenderer::renderBRDFLutTex()
@@ -557,5 +555,5 @@ void DXRenderer::renderBRDFLutTex()
 
 	devcon->Draw(3, 0);
 
-	DXDeviceInstance::get().setViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	DXDeviceInstance::get().setViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowWidth);
 }

@@ -145,6 +145,7 @@
     <ClInclude Include="src\Core\Rendering\DirectX\DXTexture.h" />
     <ClInclude Include="src\Core\Rendering\General\Buffer.h" />
     <ClInclude Include="src\Core\Rendering\General\Renderer.h" />
+    <ClInclude Include="src\Core\Utils\ANKWindowHandler.h" />
     <ClInclude Include="src\Core\Utils\Cameras\Camera.h" />
     <ClInclude Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterface.h" />
     <ClInclude Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterfaceInclude.h" />
@@ -174,6 +175,7 @@
     <ClCompile Include="src\Core\Rendering\DirectX\DXTexture.cpp" />
     <ClCompile Include="src\Core\Rendering\General\Buffer.cpp" />
     <ClCompile Include="src\Core\Rendering\General\Renderer.cpp" />
+    <ClCompile Include="src\Core\Utils\ANKWindowHandler.cpp" />
     <ClCompile Include="src\Core\Utils\Cameras\Camera.cpp" />
     <ClCompile Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterface.cpp" />
     <ClCompile Include="src\pch.cpp">

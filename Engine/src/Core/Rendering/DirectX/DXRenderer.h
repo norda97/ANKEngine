@@ -29,8 +29,6 @@ public:
 
 	bool init();
 
-	void ResizeGBuffers(float width, float height);
-
 	void setCamera(Camera* camera);
 	void prepare();
 	void setMaterial(MaterialID materialID);

@@ -13,7 +13,7 @@ public:
 	DXDeferred();
 	~DXDeferred();
 
-	bool ResizeGBuffers(float width, float height);
+	void ResizeGBuffers(uint32_t width, uint32_t height);
 
 	void ClearRenderTargets();
 	void BindRenderTargets(ID3D11DepthStencilView* depthStencil);

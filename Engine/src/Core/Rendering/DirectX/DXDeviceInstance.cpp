@@ -1,11 +1,14 @@
 #include "pch.h"
 #include "DXDeviceInstance.h"
 
+#include "Core/Utils/ANKWindowHandler.h"
+
 DXDeviceInstance::~DXDeviceInstance()
 {
-	free(this->errorMsg);
+	free(errorMsg);
 
-	this->swapchain->SetFullscreenState(FALSE, NULL);
+	if (m_Swapchain)
+		m_Swapchain->SetFullscreenState(FALSE, NULL);
 
 //#ifdef ANK_DEBUG
 //	{
@@ -58,20 +61,20 @@ void DXDeviceInstance::init(HWND hWnd)
 		2,
 		D3D11_SDK_VERSION,
 		&scd,
-		this->swapchain.GetAddressOf(),
-		this->device.GetAddressOf(),
+		m_Swapchain.GetAddressOf(),
+		m_Device.GetAddressOf(),
 		NULL,
-		this->devcon.GetAddressOf());
-
-	ComPtr<ID3D11Texture2D> pBackBuffer;
-	this->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)pBackBuffer.GetAddressOf());
+		m_Devcon.GetAddressOf());
 
 	// Create InfoQueue interface
 #if ANK_DEBUG
-	ANK_ASSERT(SUCCEEDED(this->device->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)this->infoQueue.GetAddressOf())), "Failed to query infoQueue from device!\n");
+	ANK_ASSERT(SUCCEEDED(m_Device->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)infoQueue.GetAddressOf())), "Failed to query infoQueue from device!\n");
 #endif
 
-	HRESULT hr = this->device->CreateRenderTargetView(pBackBuffer.Get(), NULL, this->backbuffer.GetAddressOf());
+	ComPtr<ID3D11Texture2D> pBackBuffer;
+	m_Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)pBackBuffer.GetAddressOf());
+
+	HRESULT hr = m_Device->CreateRenderTargetView(pBackBuffer.Get(), NULL, m_Backbuffer.GetAddressOf());
 	if (FAILED(hr)) {
 		ANK_ERROR("Failed to create render target view");
 	}
@@ -90,23 +93,72 @@ void DXDeviceInstance::init(HWND hWnd)
 	texDesc.CPUAccessFlags = 0;
 	texDesc.MiscFlags = 0;
 
-	hr = this->device->CreateTexture2D(&texDesc, NULL, this->depthStencilBuffer.GetAddressOf());
+	hr = m_Device->CreateTexture2D(&texDesc, NULL, m_DepthStencilBuffer.GetAddressOf());
 	if (FAILED(hr)) {
 		ANK_ERROR("Failed to create depth stencil buffer");
 	}
 
-	//D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	//ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
-	//depthStencilViewDesc.Format = texDesc.Format;
-	//depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-	//depthStencilViewDesc.Texture2D.MipSlice = 0;
-
-	hr = this->device->CreateDepthStencilView(this->depthStencilBuffer.Get(), NULL, this->depthStencilView.GetAddressOf());
+	hr = m_Device->CreateDepthStencilView(m_DepthStencilBuffer.Get(), NULL, m_DepthStencilView.GetAddressOf());
 	if (FAILED(hr)) {
 		ANK_ERROR("Failed to create depth stencil view");
 	}
 
 	setViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	// Register resize callback
+	ANKWindowHandler::RegisterResizeCallback(
+	[&](uint32_t width, uint32_t height) 
+		{
+			/*
+				Resize backbuffers
+			*/
+			
+			// Release old backbuffer ref
+			m_Backbuffer->Release();
+
+			// Resize backbuffers
+			if (m_Swapchain != nullptr)
+			{
+				HRESULT hr = m_Swapchain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
+				if (FAILED(hr))
+				{
+					ANK_ERROR("Failed to resize swapchain buffers!");
+				}
+			}
+
+			// Retrieve backbuffers
+			ComPtr<ID3D11Texture2D> pBackBuffer;
+			m_Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)pBackBuffer.GetAddressOf());
+
+			HRESULT hr = m_Device->CreateRenderTargetView(pBackBuffer.Get(), NULL, m_Backbuffer.GetAddressOf());
+			if (FAILED(hr)) {
+				ANK_ERROR("Failed to create render target view");
+			}
+
+			// Depth testing setup
+			D3D11_TEXTURE2D_DESC texDesc = { 0 };
+			texDesc.Width = width;
+			texDesc.Height = height;
+			texDesc.MipLevels = 1;
+			texDesc.ArraySize = 1;
+			texDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+			texDesc.SampleDesc.Count = 1;
+			texDesc.SampleDesc.Quality = 0;
+			texDesc.Usage = D3D11_USAGE_DEFAULT;
+			texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+			texDesc.CPUAccessFlags = 0;
+			texDesc.MiscFlags = 0;
+
+			hr = m_Device->CreateTexture2D(&texDesc, NULL, m_DepthStencilBuffer.ReleaseAndGetAddressOf());
+			if (FAILED(hr)) {
+				ANK_ERROR("Failed to create depth stencil buffer");
+			}
+
+			hr = m_Device->CreateDepthStencilView(m_DepthStencilBuffer.Get(), NULL, m_DepthStencilView.ReleaseAndGetAddressOf());
+			if (FAILED(hr)) {
+				ANK_ERROR("Failed to create depth stencil view");
+			}
+		});
 }
 
 void DXDeviceInstance::setViewport(unsigned x, unsigned y, unsigned width, unsigned height)
@@ -120,70 +172,70 @@ void DXDeviceInstance::setViewport(unsigned x, unsigned y, unsigned width, unsig
 	viewport.Width = width;
 	viewport.Height = height;
 
-	this->devcon->RSSetViewports(1, &viewport);
+	m_Devcon->RSSetViewports(1, &viewport);
 }
 
 void DXDeviceInstance::handleErrorMessage()
 {
-	if (SUCCEEDED(this->infoQueue->PushEmptyStorageFilter())) 
+	if (SUCCEEDED(infoQueue->PushEmptyStorageFilter())) 
 	{
-		UINT64 msgCount = this->infoQueue->GetNumStoredMessages();
+		UINT64 msgCount = infoQueue->GetNumStoredMessages();
 
 		for (UINT64 i = 0; i < msgCount; i++)
 		{
 			static SIZE_T msgSize = 0;
 			SIZE_T newMsgSize = 0;
-			this->infoQueue->GetMessage(i, NULL, &newMsgSize);
+			infoQueue->GetMessage(i, NULL, &newMsgSize);
 
 			if (newMsgSize > msgSize) 
 			{
-				free(this->errorMsg);
+				free(errorMsg);
 				msgSize = newMsgSize;
-				this->errorMsg = (D3D11_MESSAGE*)malloc(msgSize);
+				errorMsg = (D3D11_MESSAGE*)malloc(msgSize);
 			}
 
 			if (msgSize > 0)
 			{
-				HRESULT hr = this->infoQueue->GetMessage(i, this->errorMsg, &msgSize);
+				HRESULT hr = infoQueue->GetMessage(i, errorMsg, &msgSize);
 				if (FAILED(hr))
 					ANK_ERROR("Failed to retrieve message from ID3D11InfoQueue\n");
 
-				ANK_INFO(": %.*s\n", this->errorMsg->DescriptionByteLength, this->errorMsg->pDescription);
+				ANK_INFO(": %.*s\n", errorMsg->DescriptionByteLength, errorMsg->pDescription);
 			}
 		}
-		this->infoQueue->ClearStoredMessages();
+		infoQueue->ClearStoredMessages();
 	}
 }
 
 const ComPtr<ID3D11Device>& DXDeviceInstance::getDev()
 {
-	return this->device;
+	return m_Device;
 }
 
 const ComPtr<ID3D11DeviceContext>& DXDeviceInstance::getDevCon()
 {
-	return this->devcon;
+	return m_Devcon;
 }
 
 const ComPtr<IDXGISwapChain>& DXDeviceInstance::getSwapchain()
 {
-	return this->swapchain;
+	return m_Swapchain;
 }
 
 const ComPtr<ID3D11RenderTargetView>& DXDeviceInstance::getBackbuffer()
 {
-	return this->backbuffer;
+	return m_Backbuffer;
 }
 
 const ComPtr<ID3D11DepthStencilView>& DXDeviceInstance::getDepthStencilView()
 {
-	return this->depthStencilView;
+	return m_DepthStencilView;
 }
 
 
 HWND DXDeviceInstance::getHWND()
 {
-	return this->hWnd;
+	return hWnd;
 }
 
 

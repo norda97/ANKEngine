@@ -29,13 +29,13 @@ private:
 	D3D11_MESSAGE* errorMsg = nullptr;
 
 	HWND hWnd = NULL;
-	Microsoft::WRL::ComPtr<ID3D11Device>				device				= nullptr;           
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext>			devcon				= nullptr;
-	Microsoft::WRL::ComPtr<IDXGISwapChain>				swapchain			= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Device>				m_Device				= nullptr;           
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_Devcon				= nullptr;
+	Microsoft::WRL::ComPtr<IDXGISwapChain>				m_Swapchain			= nullptr;
 	Microsoft::WRL::ComPtr<ID3D11InfoQueue>				infoQueue			= nullptr;
 		
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		backbuffer			= nullptr;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		depthStencilView	= nullptr;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D>				depthStencilBuffer	= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_Backbuffer			= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_DepthStencilView	= nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_DepthStencilBuffer	= nullptr;
 
 };

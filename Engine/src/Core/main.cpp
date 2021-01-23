@@ -1,85 +1,17 @@
 #include "pch.h"
-#include <windows.h>
-
 #include "Rendering/DirectX/DXDeviceInstance.h"
+#include "Utils/ANKWindowHandler.h"
 #include "Core/Logic/SceneHandler.h"
 
 // Scenes
 #include "Core/Logic/Scenes/MainScene.h"
 
-#include "IO/Input.h"
-
-#include "examples/imgui_impl_win32.h"
-
 // function prototypes
-bool initWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int height, LPCWSTR title); // Initilise window
-void run(HWND hWnd);
-void shutdown();
+//bool initWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int height, LPCWSTR title); // Initilise window
+void Run();
+void Shutdown();
 
-#if ANK_USE_IMGUI
-	extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-#endif
-// Windows message callback 
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-#if ANK_USE_IMGUI
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
-		return true;
-#endif
-
-	switch (message)
-	{
-		case WM_SIZE:
-		{
-			if (wParam != SIZE_MINIMIZED)
-			{
-				UINT width = LOWORD(lParam);
-				UINT height = HIWORD(lParam);
-
-				auto swapchain = DXDeviceInstance::get().getSwapchain();
-
-				if (swapchain != nullptr)
-				{
-					HRESULT hr = swapchain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-					if (FAILED(hr))
-					{
-						ANK_ERROR("Failed to resize swapchain buffers!");
-					}
-				}
-
-				ANKDebugInterface::Get().Resize(width, height);
-			}
-			return 0;
-		}
-
-		case WM_KEYDOWN:
-		{
-			Input::get().registerKeyDown(wParam, lParam);
-		
-			if (Input::get().keyPressed(KEY_ESC)) {
-				PostQuitMessage(0);
-				return 0;
-			}
-
-		} break;
-
-		case WM_KEYUP:
-		{
-			Input::get().registerKeyUp(wParam, lParam);
-		} break;
-
-		case WM_DESTROY:
-		{
-			PostQuitMessage(0);
-			return 0;
-		} break;
-	}
-
-	// Handle any messages the switch statement didn't
-	return DefWindowProc(hWnd, message, wParam, lParam);
-}
-
-bool setupConsole() 
+bool SetupConsole() 
 {
 	if (!AllocConsole())
 		return false;
@@ -112,32 +44,28 @@ int WINAPI WinMain(HINSTANCE hInstance,
 #ifdef ANK_DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-	HWND hWnd;
-
-	if (!setupConsole())
+	if (!SetupConsole())
+	{
+		Shutdown();
 		return 1;
+	}
 
-	if (!initWindow(hInstance, nCmdShow, &hWnd, SCREEN_WIDTH, SCREEN_HEIGHT, L"Sandbox"))
+	if (!ANKWindowHandler::SetUpWindow(hInstance, nCmdShow, SCREEN_WIDTH, SCREEN_HEIGHT, L"Sandbox"))
+	{
+		ANK_ERROR("Failed to set up window!");
+		Shutdown();
 		return 1;
+	}
 
-	DXDeviceInstance::get().init(hWnd);
-	run(hWnd);
-	shutdown();
+	DXDeviceInstance::get().init(ANKWindowHandler::s_hWnd);
+	Run();
+	
+	Shutdown();
 
 	return 0;
 }
 
-void shutdown() {
-	FreeConsole();
-
-#if ANK_DEBUG_INTERFACE
-	ANKDebugInterface::Get().Release();
-#endif
-
-}
-
-
-void run(HWND hWnd)
+void Run()
 {
 	// Used for delta time
 	auto currentTime = std::chrono::high_resolution_clock::now();
@@ -176,7 +104,7 @@ void run(HWND hWnd)
 			frames++;
 
 			if (elapsedTime >= 1.0) {
-				SetWindowTextA(hWnd, ("Sandbox (FPS: " + std::to_string(frames) + ", dt: " + std::to_string((elapsedTime / frames) * 1000.f) + " ms)").c_str());
+				SetWindowTextA(ANKWindowHandler::s_hWnd, ("Sandbox (FPS: " + std::to_string(frames) + ", dt: " + std::to_string((elapsedTime / frames) * 1000.f) + " ms)").c_str());
 				elapsedTime = 0;
 				frames = 0;
 			}
@@ -186,34 +114,11 @@ void run(HWND hWnd)
 	}
 }
 
-bool initWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int height, LPCWSTR title) {
-	RECT wr = { 0, 0, width, height };
-	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
+void Shutdown() {
+	FreeConsole();
 
-	WNDCLASSEX wc = {};
-	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = WindowProc;
-	wc.hInstance = hInstance;
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	//wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-	wc.lpszClassName = L"WindowClass1";
+#if ANK_DEBUG_INTERFACE
+	ANKDebugInterface::Get().Release();
+#endif
 
-	RegisterClassEx(&wc);
-
-	*hWnd = CreateWindowEx(NULL,
-		L"WindowClass1",
-		title,
-		WS_OVERLAPPEDWINDOW,
-		0,    // x-position of the window
-		0,    // y-position of the window
-		wr.right - wr.left,    // width of the window
-		wr.bottom - wr.top,    // height of the window
-		NULL,
-		NULL,
-		hInstance,
-		NULL);
-
-	ShowWindow(*hWnd, nCmdShow);
-	return true;
 }

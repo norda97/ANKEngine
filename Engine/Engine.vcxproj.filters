@@ -187,6 +187,7 @@
       <Filter>Core\Utils\InterfaceGfxDbg</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\Utils\ANKWindowHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\ECS\EntityManager.cpp">
@@ -265,5 +266,6 @@
       <Filter>Core\Utils\InterfaceGfxDbg</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Core\Utils\ANKWindowHandler.cpp" />
   </ItemGroup>
 </Project>
