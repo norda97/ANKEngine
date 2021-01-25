@@ -211,17 +211,17 @@ bool DXRenderer::initStates()
 	// Solid renderstate
 	rDesc.FillMode = D3D11_FILL_SOLID;
 	rDesc.CullMode = D3D11_CULL_BACK;
-	ANK_ASSERT(SUCCEEDED(device->CreateRasterizerState(&rDesc, rsBackCull.GetAddressOf())), "Failed to create render state\n");
+	ANK_ASSERT(SUCCEEDED(device->CreateRasterizerState(&rDesc, rsBackCull.GetAddressOf())), "Failed to create render state");
 
 	// Solid renderstate
 	rDesc.FillMode = D3D11_FILL_SOLID;
 	rDesc.CullMode = D3D11_CULL_FRONT;
-	ANK_ASSERT(SUCCEEDED(device->CreateRasterizerState(&rDesc, rsFrontCull.GetAddressOf())), "Failed to create render state\n");
+	ANK_ASSERT(SUCCEEDED(device->CreateRasterizerState(&rDesc, rsFrontCull.GetAddressOf())), "Failed to create render state");
 
 	// Wireframe
 	rDesc.FillMode = D3D11_FILL_WIREFRAME;
 	rDesc.CullMode = D3D11_CULL_NONE;
-	ANK_ASSERT(SUCCEEDED(device->CreateRasterizerState(&rDesc, rsWireframe.GetAddressOf())), "Failed to create wireframe render state\n");
+	ANK_ASSERT(SUCCEEDED(device->CreateRasterizerState(&rDesc, rsWireframe.GetAddressOf())), "Failed to create wireframe render state");
 
 	// Blend state
 	D3D11_BLEND_DESC blendStateDesc;
@@ -237,7 +237,7 @@ bool DXRenderer::initStates()
 	blendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-	ANK_ASSERT(SUCCEEDED(device->CreateBlendState(&blendStateDesc, &this->blendState)), "Failed To Create Blend State\n");
+	ANK_ASSERT(SUCCEEDED(device->CreateBlendState(&blendStateDesc, &this->blendState)), "Failed To Create Blend State");
 
 	auto& devcon = DXDeviceInstance::get().getDevCon();
 	devcon->OMSetBlendState(this->blendState.Get(), NULL, 0xFFFFFF);
@@ -333,7 +333,7 @@ void DXRenderer::drawImgui()
 	ImGui::NewFrame();
 
 #if ANK_DEBUG_INTERFACE
-	ANKDebugInterface::Get().Display();
+	ANKDebugInterface::Display();
 #endif
 
 #endif

@@ -21,7 +21,6 @@ bool ANKWindowHandler::SetUpWindow(HINSTANCE hInstance, int nCmdShow, int width,
 {
 	RECT wr = { 0, 0, width, height };
 	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
-
 	WNDCLASSEX wc = {};
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -33,14 +32,23 @@ bool ANKWindowHandler::SetUpWindow(HINSTANCE hInstance, int nCmdShow, int width,
 
 	RegisterClassEx(&wc);
 
+	// Retrieve Screen resolution
+	const HWND hDesktop = GetDesktopWindow();
+	RECT desktop;
+	GetWindowRect(hDesktop, &desktop);
+	const uint32_t desktopWidth		= desktop.right;
+	const uint32_t desktopHeight	= desktop.bottom;
+	const uint32_t windowWidth		= wr.right - wr.left;
+	const uint32_t windowHeight		= wr.bottom - wr.top;
+
 	s_hWnd = CreateWindowEx(NULL,
 		L"WindowClass1",
 		title,
 		WS_OVERLAPPEDWINDOW,
-		0,    // x-position of the window
-		0,    // y-position of the window
-		wr.right - wr.left,    // width of the window
-		wr.bottom - wr.top,    // height of the window
+		(desktopWidth - windowWidth) * 0.5,		// x-position of the window
+		(desktopHeight - windowHeight) * 0.5,	// y-position of the window
+		windowWidth,							// width of the window
+		windowHeight,							// height of the window
 		NULL,
 		NULL,
 		hInstance,
@@ -73,7 +81,7 @@ LRESULT ANKWindowHandler::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 
 			HandleResizeCallbacks(width, height);
 
-			ANKDebugInterface::Get().Resize(width, height);
+			ANKDebugInterface::Resize(width, height);
 		}
 		return 0;
 	}

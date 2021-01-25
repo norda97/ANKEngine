@@ -149,6 +149,7 @@
     <ClInclude Include="src\Core\Utils\Cameras\Camera.h" />
     <ClInclude Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterface.h" />
     <ClInclude Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterfaceInclude.h" />
+    <ClInclude Include="src\Core\Utils\ThreadPool\ANKThreadPool.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +179,7 @@
     <ClCompile Include="src\Core\Utils\ANKWindowHandler.cpp" />
     <ClCompile Include="src\Core\Utils\Cameras\Camera.cpp" />
     <ClCompile Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterface.cpp" />
+    <ClCompile Include="src\Core\Utils\ThreadPool\ANKThreadPool.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

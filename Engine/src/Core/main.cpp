@@ -6,6 +6,8 @@
 // Scenes
 #include "Core/Logic/Scenes/MainScene.h"
 
+#include "Utils/ThreadPool/ANKThreadPool.h"
+
 // function prototypes
 //bool initWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int height, LPCWSTR title); // Initilise window
 void Run();
@@ -27,7 +29,6 @@ bool SetupConsole()
 	HANDLE error = GetStdHandle(STD_ERROR_HANDLE);
 	if (error == INVALID_HANDLE_VALUE)
 		return false;
-
 
 	freopen("CONIN$", "r", stdin);
 	freopen("CONOUT$", "w", stdout);
@@ -60,8 +61,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	DXDeviceInstance::get().init(ANKWindowHandler::s_hWnd);
 	Run();
 	
-	Shutdown();
-
 	return 0;
 }
 
@@ -73,6 +72,8 @@ void Run()
 	double dt = 0;
 	unsigned frames = 0;
 	double elapsedTime = 0;
+
+	ANKThreadPool::Init();
 
 	SceneHandler sceneHandler;
 	sceneHandler.setCurrentScene(new MainScene());
@@ -116,9 +117,5 @@ void Run()
 
 void Shutdown() {
 	FreeConsole();
-
-#if ANK_DEBUG_INTERFACE
-	ANKDebugInterface::Get().Release();
-#endif
-
+	ANKThreadPool::Release();
 }

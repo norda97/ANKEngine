@@ -68,7 +68,7 @@ void DXDeviceInstance::init(HWND hWnd)
 
 	// Create InfoQueue interface
 #if ANK_DEBUG
-	ANK_ASSERT(SUCCEEDED(m_Device->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)infoQueue.GetAddressOf())), "Failed to query infoQueue from device!\n");
+	ANK_ASSERT(SUCCEEDED(m_Device->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)infoQueue.GetAddressOf())), "Failed to query infoQueue from device!");
 #endif
 
 	ComPtr<ID3D11Texture2D> pBackBuffer;
@@ -198,9 +198,9 @@ void DXDeviceInstance::handleErrorMessage()
 			{
 				HRESULT hr = infoQueue->GetMessage(i, errorMsg, &msgSize);
 				if (FAILED(hr))
-					ANK_ERROR("Failed to retrieve message from ID3D11InfoQueue\n");
+					ANK_ERROR("Failed to retrieve message from ID3D11InfoQueue");
 
-				ANK_INFO(": %.*s\n", errorMsg->DescriptionByteLength, errorMsg->pDescription);
+				ANK_INFO(": %.*s", errorMsg->DescriptionByteLength, errorMsg->pDescription);
 			}
 		}
 		infoQueue->ClearStoredMessages();

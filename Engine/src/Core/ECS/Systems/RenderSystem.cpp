@@ -66,13 +66,13 @@ void RenderSystem::update(DXRenderer& renderer)
 
 	auto& devcon = DXDeviceInstance::get().getDevCon();
 
-	//devcon->VSSetConstantBuffers(1, 1, transformBuffer.getBuffer().GetAddressOf());
-
 	unsigned int strides[1] = { sizeof(InstanceData) };
 	unsigned int offsets[1] = { 0 };
 	devcon->IASetVertexBuffers(1, 1, transformBuffer.getBuffer().GetAddressOf(), strides, offsets);
 
 	unsigned instanceOffset = 0;
+	devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	for (auto& materialID : this->instanceData)
 	{
 		renderer.setMaterial(materialID.first);
@@ -81,7 +81,6 @@ void RenderSystem::update(DXRenderer& renderer)
 			auto& instanceVector = meshID.second;
 			unsigned instanceCount = instanceVector.getData().size();
 			//renderer.render(meshID, pair.second.size(), instanceOffset);
-
 
 			unsigned int strides[1] = { sizeof(VertexData) };
 			unsigned int offsets[1] = { 0 };
@@ -92,7 +91,6 @@ void RenderSystem::update(DXRenderer& renderer)
 
 			devcon->IASetVertexBuffers(0, 1, bufferPointers, strides, offsets);
 			devcon->IASetIndexBuffer(static_cast<const DXBuffer*>(mesh.getIndexBuffer())->getBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
-			devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 			//DXDeviceInstance::get().getDevCon()->RSSetState(rsWireframe);
 			devcon->DrawIndexedInstanced(mesh.getIndexCount(), instanceCount, 0, 0, instanceOffset);

@@ -188,6 +188,7 @@
     </ClInclude>
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Core\Utils\ANKWindowHandler.h" />
+    <ClInclude Include="src\Core\Utils\ThreadPool\ANKThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\ECS\EntityManager.cpp">
@@ -267,5 +268,6 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
     <ClCompile Include="src\Core\Utils\ANKWindowHandler.cpp" />
+    <ClCompile Include="src\Core\Utils\ThreadPool\ANKThreadPool.cpp" />
   </ItemGroup>
 </Project>

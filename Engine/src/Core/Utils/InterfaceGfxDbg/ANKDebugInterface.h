@@ -11,27 +11,16 @@ private:
 public:
 	~ANKDebugInterface() = default;
 
-	void Display();
+	static void Display();
 
 	static void Resize(float width, float height);
 
-	static ANKDebugInterface& Get()
-	{
-		if (s_pInstance == nullptr)
-			s_pInstance = new ANKDebugInterface();
 
-		return *s_pInstance;
-	}
+private:
 
-	void Release()
-	{
-		delete s_pInstance;
-	}
 
 private:
 	static ImVec2 s_Pos;
 	static ImVec2 s_Size;
 	static ImVec2 s_CoverFactor;
-
-	static ANKDebugInterface* s_pInstance;
 };

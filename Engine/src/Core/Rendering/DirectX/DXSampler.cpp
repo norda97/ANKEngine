@@ -27,7 +27,7 @@ bool DXSampler::init(D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE addressMode
 	HRESULT hr = DXDeviceInstance::get().getDev()->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf());
 
 	if (FAILED(hr)) {
-		ANK_ERROR("Failed to create SamplerState\n");
+		ANK_ERROR("Failed to create SamplerState");
 		return false;
 	}
 

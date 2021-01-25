@@ -49,7 +49,7 @@ bool DXCubemap::init(unsigned width, unsigned height, unsigned mipLevels)
 
 
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create texture2D\n");
+			ANK_ERROR("Failed to create texture2D");
 			return false;
 		}
 
@@ -62,7 +62,7 @@ bool DXCubemap::init(unsigned width, unsigned height, unsigned mipLevels)
 
 		hr = DXDeviceInstance::get().getDev()->CreateShaderResourceView(m_Cubemap.Get(), &srDesc, m_ResourceView.ReleaseAndGetAddressOf());
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create shader resource view\n");
+			ANK_ERROR("Failed to create shader resource view");
 			return false;
 		}
 
@@ -102,7 +102,7 @@ bool DXCubemap::init(unsigned width, unsigned height, unsigned mipLevels)
 	}
 	else
 	{
-		ANK_WARNING("Cubemap already initilized\n");
+		ANK_WARNING("Cubemap already initilized");
 	}
 
 	return true;

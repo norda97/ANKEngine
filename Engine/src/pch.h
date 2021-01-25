@@ -36,9 +36,9 @@ using namespace SimpleMath;
 
 #ifdef ANK_DEBUG
 #include <crtdbg.h>
-#define ANK_ERROR(...) printf("[ERROR]: ");printf(__VA_ARGS__);
-#define ANK_WARNING(...) printf("[WARNING]: ");printf(__VA_ARGS__);
-#define ANK_INFO(...) printf("[INFO]: ");printf(__VA_ARGS__);
+#define ANK_ERROR(...) printf("[ERROR]: ");printf(__VA_ARGS__);printf("\n");
+#define ANK_WARNING(...) printf("[WARNING]: ");printf(__VA_ARGS__);printf("\n");
+#define ANK_INFO(...) printf("[INFO]: ");printf(__VA_ARGS__);printf("\n");
 #define ANK_ASSERT(exp, ...) assert(exp && __VA_ARGS__);
 #define _CRT_SECURE_NO_WARNINGS
 #else

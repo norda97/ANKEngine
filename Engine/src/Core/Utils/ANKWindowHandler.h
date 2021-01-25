@@ -5,7 +5,6 @@
 class ANKWindowHandler
 {
 private:
-private:
 	ANKWindowHandler() {};
 	ANKWindowHandler(const ANKWindowHandler& other) = delete;
 	ANKWindowHandler(ANKWindowHandler&& other) = delete;

@@ -63,17 +63,15 @@ bool MainScene::init()
 		signature.set(ecs.getComponentType<Drawable>());
 		ecs.setSystemSignature<RenderSystem>(signature);
 	}
+
+	this->renderSystem->init(&this->ecs);
+
 	ModelHandler& mh = ModelHandler::get();
 	Model& sponza = mh.loadModel(std::string(ANK_MODEL_PATH).append("SponzaPBR/"), "sponza.obj", "sponza");
 	Model& sphere = mh.loadModel(std::string(ANK_MODEL_PATH).append("MatTest/"), "lowpoly_sphere_224tris.obj", "sphere");
 
-	
-
-	this->renderSystem->init(&this->ecs);
-
-
 	// Material Showcase
-	/*uint32_t sphereCount = 5;
+	uint32_t sphereCount = 5;
 	uint32_t currEntityCount = entities.size();
 	uint32_t index = currEntityCount;
 	this->entities.resize(currEntityCount + 25);
@@ -104,21 +102,21 @@ bool MainScene::init()
 					newSphere.getModelID()
 				});
 		}
-	}*/
+	}
 
 	// Sphere entities
 	
-	Model& redSphere = mh.duplicateModel(sphere, "redSphere");
-	Model& blueSphere = mh.duplicateModel(sphere, "blueSphere");
-	{
-		MaterialID newMatID = mh.createMaterial(Vector4(1.0f, 1.0f, 0.0f, 1.0f), 0.1f, 0.9f);
-		redSphere.changeMeshMaterial(0, newMatID);
+	//Model& redSphere = mh.duplicateModel(sphere, "redSphere");
+	//Model& blueSphere = mh.duplicateModel(sphere, "blueSphere");
+	//{
+	//	MaterialID newMatID = mh.createMaterial(Vector4(1.0f, 1.0f, 0.0f, 1.0f), 0.1f, 0.9f);
+	//	redSphere.changeMeshMaterial(0, newMatID);
 
-		newMatID = mh.createMaterial(Vector4(0.0f, 0.0f, 1.0f, 1.0f), 0.5f, 0.9f);
-		blueSphere.changeMeshMaterial(0, newMatID);
-	}
+	//	newMatID = mh.createMaterial(Vector4(0.0f, 0.0f, 1.0f, 1.0f), 0.5f, 0.9f);
+	//	blueSphere.changeMeshMaterial(0, newMatID);
+	//}
 
-	this->entities.resize(entities.size() + 30);
+	/*this->entities.resize(entities.size() + 30);
 	{
 		std::default_random_engine generator;
 		std::uniform_real_distribution<float> randPos(-8.f, 8.f);
@@ -155,7 +153,7 @@ bool MainScene::init()
 
 			index++;
 		}
-	}
+	}*/
 
 	// Sponza scene
 	Entity entity = ecs.createEntity();

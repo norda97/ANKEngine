@@ -29,7 +29,7 @@ bool DXTexture::init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& 
 	HRESULT hr = DXDeviceInstance::get().getDev()->CreateTexture2D(&tdesc, pData, this->texture.ReleaseAndGetAddressOf());
 
 	if (FAILED(hr)) {
-		ANK_ERROR("Failed to create texture2D\n");
+		ANK_ERROR("Failed to create texture2D");
 		return false;
 	}
 	D3D11_SRV_DIMENSION viewDim = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -46,7 +46,7 @@ bool DXTexture::init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& 
 
 	hr = DXDeviceInstance::get().getDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->m_ResourceView.ReleaseAndGetAddressOf());
 	if (FAILED(hr)) {
-		ANK_ERROR("Failed to create shader resource view\n");
+		ANK_ERROR("Failed to create shader resource view");
 		return false;
 	}
 
@@ -65,7 +65,7 @@ bool DXTexture::loadTexture(const std::string& path)
 
 	if(!image)
 	{ 
-		ANK_ERROR("Failed to load texture from file: %s\n", path.c_str());
+		ANK_ERROR("Failed to load texture from file: %s", path.c_str());
 		return false;
 	}
 
@@ -95,7 +95,7 @@ bool DXTexture::loadTexture(const std::string& path)
 	stbi_image_free(image);
 
 	if (FAILED(hr)) {
-		ANK_ERROR("Failed to create texture2D\n");
+		ANK_ERROR("Failed to create texture2D");
 		return false;
 	}
 
@@ -108,7 +108,7 @@ bool DXTexture::loadTexture(const std::string& path)
 
 	hr = DXDeviceInstance::get().getDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->m_ResourceView.ReleaseAndGetAddressOf());
 	if(FAILED(hr)) {
-		ANK_ERROR("Failed to create shader resource view\n");
+		ANK_ERROR("Failed to create shader resource view");
 		return false;
 	}
 

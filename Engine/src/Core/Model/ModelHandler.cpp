@@ -162,7 +162,7 @@ Model& ModelHandler::loadModel(const std::string& path, const std::string& file,
 	Model model(modelID);
 
 	std::string filepath = path + file;
-	ANK_INFO("Loading Model %s\n", filepath.c_str());
+	ANK_INFO("Loading Model %s", filepath.c_str());
 	const aiScene* modelScene = this->importer.ReadFile(filepath,
 		aiProcess_MakeLeftHanded | aiProcess_FlipUVs | aiProcess_PreTransformVertices |
 		aiProcess_CalcTangentSpace |
@@ -172,7 +172,7 @@ Model& ModelHandler::loadModel(const std::string& path, const std::string& file,
 		aiProcess_FindInvalidData |
 		aiProcess_ValidateDataStructure | 0);
 
-	ANK_ASSERT(modelScene, "Failed to load model: %s\n", filepath.c_str());
+	ANK_ASSERT(modelScene, "Failed to load model: %s", filepath.c_str());
 
 	processScene(path, modelScene, model);
 
@@ -261,11 +261,14 @@ bool ModelHandler::processScene(const std::string& path, const aiScene* modelSce
 #ifdef ANK_DX11
 			Material* mat = new DXMaterial();
 #endif
-			processMaterial(path, modelScene->mMaterials[i], mat);
 
-			this->materials[prevTotalMats + i] = mat;
+			MaterialID index = prevTotalMats + i;
+			this->materials[index] = mat;
+			m_LoadedMaterials[index] = false;
+			processMaterial(path, modelScene->mMaterials[i], mat);
+			m_LoadedMaterials[index] = true;
 		}
-		ANK_INFO("Loaded %d materials\n", sceneMatCount);
+		ANK_INFO("Loaded %d materials", sceneMatCount);
 	}
 
 	// Load mesh
@@ -276,14 +279,16 @@ bool ModelHandler::processScene(const std::string& path, const aiScene* modelSce
 			MaterialID materialIndex = prevTotalMats + aiMesh->mMaterialIndex;
 			Material* material = this->materials[materialIndex];
 
-			Mesh* mesh = new Mesh();
-			processMesh(aiMesh, mesh);
-
+			MeshID meshIndex = this->meshes.size();
 			MeshInstance meshInstance = { this->meshes.size(), materialIndex };
-
+			Mesh* mesh = new Mesh();
 			this->meshes.push_back(mesh);
 
+			m_LoadedMeshes[meshIndex] = false;
 			model.addMeshInstance(meshInstance);
+
+			processMesh(aiMesh, mesh);
+			m_LoadedMeshes[meshIndex] = true;
 		}
 	}
 
@@ -294,19 +299,19 @@ bool ModelHandler::processMaterial(const std::string& path, const aiMaterial* ai
 {
 	// Diffuse texture
 	if (!processMaterialTexture(aiTextureType_DIFFUSE, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find diffuse texture for model, Opting for default diffuse\n");
+		ANK_WARNING("\tFailed to find diffuse texture for model, Opting for default diffuse");
 	}
 
 	if (!processMaterialTexture(aiTextureType_AMBIENT, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find metallic texture for model, Opting for default metallic\n");
+		ANK_WARNING("\tFailed to find metallic texture for model, Opting for default metallic");
 	}
 
 	if (!processMaterialTexture(aiTextureType_SHININESS, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find roughness texture for model, Opting for default roughness\n");
+		ANK_WARNING("\tFailed to find roughness texture for model, Opting for default roughness");
 	}
 
 	if (!processMaterialTexture(aiTextureType_HEIGHT, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find normal texture for model, Opting for default normal\n");
+		ANK_WARNING("\tFailed to find normal texture for model, Opting for default normal");
 	}
 
 	mat->setAmbientOcclusionMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
@@ -419,7 +424,7 @@ bool ModelHandler::processMesh(const aiMesh* aiMesh, Mesh* mesh)
 		}
 	}
 
-	ANK_INFO("Added mesh\t [Vertices: %d\t Indices: %d]\n", static_cast<int>(vertices.size()), (int)indices.size());
+	ANK_INFO("Added mesh\t [Vertices: %d\t Indices: %d]", static_cast<int>(vertices.size()), (int)indices.size());
 
 	DXBuffer* vertexBuffer = new DXBuffer();
 	vertexBuffer->init(vertices.data(), vertices.size() * sizeof(VertexData), D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
