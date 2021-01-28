@@ -58,9 +58,34 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		return 1;
 	}
 
+
+	ANKThreadPool::Init();
 	DXDeviceInstance::get().init(ANKWindowHandler::s_hWnd);
-	Run();
+
+	ANKThreadPool::QueueJob([]() {
+		for (size_t i = 0; i < 10; i++)
+		{
+			std::cout << "aaaaaaaaaaaaaaaa" << std::endl;
+		}
+		});
+
+	ANKThreadPool::QueueJob([]() {
+		for (size_t i = 0; i < 10; i++)
+		{
+			std::cout << "bbbbbbbbbbbbbbbb" << std::endl;
+		}
+		});
+
+	ANKThreadPool::QueueJob([]() {
+		for (size_t i = 0; i < 10; i++)
+		{
+			std::cout << "ccccccccccccc" << std::endl;
+		}
+		});
 	
+	Run();
+	Shutdown();
+
 	return 0;
 }
 
@@ -77,7 +102,6 @@ void Run()
 
 	SceneHandler sceneHandler;
 	sceneHandler.setCurrentScene(new MainScene());
-	
 
 	MSG msg = { 0 };
 	while (true)
