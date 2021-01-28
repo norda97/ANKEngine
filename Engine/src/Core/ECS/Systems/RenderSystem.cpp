@@ -24,12 +24,22 @@ void RenderSystem::init(ECS* ecs)
 	this->instanceCount = entities.size();
 
 	ANK_ASSERT(
-		this->transformBuffer.init(
+		this->m_StagingTransformBuffer.init(
 			NULL,
 			sizeof(Instance) * MAX_MESH_INSTANCES,
-			D3D11_USAGE_DYNAMIC,
-			D3D11_BIND_VERTEX_BUFFER,
+			D3D11_USAGE_STAGING,
+			0,
 			D3D11_CPU_ACCESS_WRITE),
+		"Failed to init staging buffer for transforms."
+	);
+
+	ANK_ASSERT(
+		this->m_TransformBuffer.init(
+			NULL,
+			sizeof(Instance) * MAX_MESH_INSTANCES,
+			D3D11_USAGE_DEFAULT,
+			D3D11_BIND_VERTEX_BUFFER,
+			0),
 		"Failed to init constant buffer for transforms."
 	);
 
@@ -38,7 +48,6 @@ void RenderSystem::init(ECS* ecs)
 
 void RenderSystem::update(DXRenderer& renderer)
 {
-
 	// Update instance buffers
 	auto const& modelMap = ModelHandler::get().getModels();
 
@@ -68,7 +77,7 @@ void RenderSystem::update(DXRenderer& renderer)
 
 	unsigned int strides[1] = { sizeof(InstanceData) };
 	unsigned int offsets[1] = { 0 };
-	devcon->IASetVertexBuffers(1, 1, transformBuffer.getBuffer().GetAddressOf(), strides, offsets);
+	devcon->IASetVertexBuffers(1, 1, m_TransformBuffer.getBuffer().GetAddressOf(), strides, offsets);
 
 	unsigned instanceOffset = 0;
 	devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -98,7 +107,6 @@ void RenderSystem::update(DXRenderer& renderer)
 			instanceOffset += instanceCount;
 		}
 	}
-
 }
 
 void RenderSystem::insertEntityEvent(Entity entity)
@@ -134,8 +142,9 @@ void RenderSystem::eraseEntityEvent(Entity entity)
 void RenderSystem::updateTransformBuffer()
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-	HRESULT hr = DXDeviceInstance::get().getDevCon()->Map(this->transformBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	
+	auto devcon = DXDeviceInstance::get().getDevCon();
+
+	HRESULT hr = devcon->Map(m_StagingTransformBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE, 0, &mappedResource);
 	if (SUCCEEDED(hr))
 	{ 
 		unsigned instanceIndex = 0;
@@ -151,5 +160,9 @@ void RenderSystem::updateTransformBuffer()
 			}
 		}
 	}
-	DXDeviceInstance::get().getDevCon()->Unmap(this->transformBuffer.getBuffer().Get(), 0);
+	devcon->Unmap(m_StagingTransformBuffer.getBuffer().Get(), 0);
+
+	// Prepare copy of staging transform to transform on GPU
+	devcon->CopyResource(m_TransformBuffer.getBuffer().Get(), m_StagingTransformBuffer.getBuffer().Get());
+
 }

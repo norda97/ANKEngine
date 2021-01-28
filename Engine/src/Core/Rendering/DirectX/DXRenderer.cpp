@@ -180,7 +180,7 @@ void DXRenderer::finishFrame()
 	// Used to sample BRDF Lut
 	devcon->PSSetSamplers(1, 1, this->samplerPoint.getSampler().GetAddressOf());
 
-	this->m_DeferredRenderer.RenderComplete(DXDeviceInstance::get().getBackbuffer().GetAddressOf());
+	m_DeferredRenderer.RenderComplete(DXDeviceInstance::get().getBackbuffer().GetAddressOf());
 
 	// Render skybox last to cull fragments and avoid shading
 	// Update camera for skybox
