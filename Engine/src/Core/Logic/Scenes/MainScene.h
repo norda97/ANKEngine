@@ -30,7 +30,7 @@ private:
 	PhysicsSystem* physicsSystem;
 	HoverSystem* hoverSystem;
 
-	ECS ecs;
+	ECS m_Ecs;
 
 	DXRenderer renderer;
 	Camera camera;

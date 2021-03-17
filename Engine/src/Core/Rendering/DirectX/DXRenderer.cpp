@@ -106,7 +106,7 @@ bool DXRenderer::Init()
 	setupImgui();
 	
 	// Create default cube inside modelhandler
-	ModelHandler::get().loadModel(std::string(ANK_MODEL_PATH).append("Cube/"), "cube.obj", "cube");
+	ModelHandler::Get().loadModel(std::string(ANK_MODEL_PATH).append("Cube/"), "cube.obj", "cube");
 
 	createCubemap(environmentMap, this->equirectangularShader, this->equiTexture.getShaderResource());
 	createCubemapMip(irradianceMap, this->irradianceShader, environmentMap.getResourceView());
@@ -119,7 +119,7 @@ void DXRenderer::prepare()
 {
 	auto& devcon = DXDeviceInstance::Get().GetDevCon();
 
-	DXDeviceInstance::get().setViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowHeight);
+	DXDeviceInstance::Get().SetViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowHeight);
 
 	// Update scene constant buffers
 	updateSceneConstants(0.0f);
@@ -128,7 +128,7 @@ void DXRenderer::prepare()
 	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
 
 	// Clear depth-stencil and m_GeomBuffers
-	devcon->ClearDepthStencilView(DXDeviceInstance::get().getDepthStencilView().Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	devcon->ClearDepthStencilView(DXDeviceInstance::Get().GetDepthStencilView().Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	m_DeferredRenderer.ClearRenderTargets();
 
 	// Set constant buffers
@@ -138,7 +138,7 @@ void DXRenderer::prepare()
 
 	// Set gbuffers as rendertargets
 	devcon->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
-	m_DeferredRenderer.BindRenderTargets(DXDeviceInstance::get().getDepthStencilView().Get());
+	m_DeferredRenderer.BindRenderTargets(DXDeviceInstance::Get().GetDepthStencilView().Get());
 
 	devcon->RSSetState(this->rsBackCull.Get());
 
@@ -147,7 +147,7 @@ void DXRenderer::prepare()
 
 void DXRenderer::setMaterial(MaterialID materialID)
 {
-	auto material = ModelHandler::get().getMaterial(materialID);
+	auto material = ModelHandler::Get().getMaterial(materialID);
 
 	this->materialProperties.Update((void*)& material->getProperties(), sizeof(MaterialProperties), 0, D3D11_MAP_WRITE_DISCARD);
 
@@ -180,7 +180,7 @@ void DXRenderer::finishFrame()
 	// Used to sample BRDF Lut
 	devcon->PSSetSamplers(1, 1, this->samplerPoint.getSampler().GetAddressOf());
 
-	m_DeferredRenderer.RenderComplete(DXDeviceInstance::get().getBackbuffer().GetAddressOf());
+	m_DeferredRenderer.RenderComplete(DXDeviceInstance::Get().GetBackbuffer().GetAddressOf());
 
 	// Render skybox last to cull fragments and avoid shading
 	// Update camera for skybox
@@ -375,13 +375,13 @@ void DXRenderer::renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11Shade
 	auto& devcon = DXDeviceInstance::Get().GetDevCon();
 
 	// Render equiMap
-	Model& cube = ModelHandler::get().getModel(0);
+	Model& cube = ModelHandler::Get().getModel(0);
 
 	shader.prepare();
 
 	const std::vector<MeshInstance>& meshes = cube.getMeshInstances();
 
-	const Mesh& mesh = *ModelHandler::get().getMesh(meshes[0].meshID);
+	const Mesh& mesh = *ModelHandler::Get().getMesh(meshes[0].meshID);
 
 	devcon->PSSetShaderResources(0, 1, envMap.GetAddressOf());
 
@@ -424,7 +424,7 @@ void DXRenderer::createCubemap(DXCubemap& m_Cubemap, DXShader& shader, const Com
 	devcon->OMSetDepthStencilState(this->noDepthStencilState.Get(), 0);
 
 	auto& RTs = m_Cubemap.GetRenderTargets();
-	DXDeviceInstance::get().SetViewport(0, 0, m_Cubemap.m_Width, m_Cubemap.m_Height);
+	DXDeviceInstance::Get().SetViewport(0, 0, m_Cubemap.m_Width, m_Cubemap.m_Height);
 	for (unsigned i = 0; i < 6; i++)
 	{
 		devcon->OMSetRenderTargets(1, RTs[i][0].GetAddressOf(), NULL);
@@ -436,7 +436,7 @@ void DXRenderer::createCubemap(DXCubemap& m_Cubemap, DXShader& shader, const Com
 		// Render skybox last to cull fragments
 		renderEnvironmentMap(shader, envMap);
 	}
-	DXDeviceInstance::get().SetViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowWidth);
+	DXDeviceInstance::Get().SetViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowWidth);
 }
 
 void DXRenderer::createCubemapMip(DXCubemap& m_Cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap)
@@ -507,7 +507,7 @@ void DXRenderer::renderBRDFLutTex()
 		3.f, -1.f, 0.f,		2.f, 0.f
 	};
 
-	m_FullscreenTri.init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
+	m_FullscreenTri.Init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
 
 	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
@@ -550,7 +550,7 @@ void DXRenderer::renderBRDFLutTex()
 	unsigned int strides[1] = { sizeof(float) * 5 };
 	unsigned int offsets[1] = { 0 };
 
-	devcon->IASetVertexBuffers(0, 1, m_FullscreenTri.getBuffer().GetAddressOf(), strides, offsets);
+	devcon->IASetVertexBuffers(0, 1, m_FullscreenTri.GetBuffer().GetAddressOf(), strides, offsets);
 	devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	devcon->Draw(3, 0);

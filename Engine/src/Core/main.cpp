@@ -53,14 +53,14 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	if (!ANKWindowHandler::SetUpWindow(hInstance, nCmdShow, SCREEN_WIDTH, SCREEN_HEIGHT, L"Sandbox"))
 	{
-		ANK_ERROR("Failed to set up window!");
+		LOG_ERROR("Failed to set up window!");
 		Shutdown();
 		return 1;
 	}
 
 
 	ANKThreadPool::Init();
-	DXDeviceInstance::get().init(ANKWindowHandler::s_hWnd);
+	DXDeviceInstance::Get().Init(ANKWindowHandler::s_hWnd);
 
 	ANKThreadPool::QueueJob([]() {
 		for (size_t i = 0; i < 10; i++)
@@ -142,4 +142,5 @@ void Run()
 void Shutdown() {
 	FreeConsole();
 	ANKThreadPool::Release();
+	DXDeviceInstance::Release();
 }

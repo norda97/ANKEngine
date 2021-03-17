@@ -37,7 +37,7 @@ ModelHandler::~ModelHandler()
 
 }
 
-ModelHandler& ModelHandler::get()
+ModelHandler& ModelHandler::Get()
 {
 	static ModelHandler instance;
 
@@ -116,7 +116,7 @@ Model& ModelHandler::getModel(ANKModelID id)
 {
 	auto it = this->modelMap.find(id);
 	if (it == this->modelMap.end()) {
-		ANK_WARNING("Model is not accessible with ModelID: %s", id);
+		LOG_WARNING("Model is not accessible with ModelID: %s", id);
 		ANK_ASSERT(false, "FIX default model!")
 	}
 	return this->modelMap[id];
@@ -162,7 +162,7 @@ Model& ModelHandler::loadModel(const std::string& path, const std::string& file,
 	Model model(modelID);
 
 	std::string filepath = path + file;
-	ANK_INFO("Loading Model %s", filepath.c_str());
+	LOG_INFO("Loading Model %s", filepath.c_str());
 	const aiScene* modelScene = this->importer.ReadFile(filepath,
 		aiProcess_MakeLeftHanded | aiProcess_FlipUVs | aiProcess_PreTransformVertices |
 		aiProcess_CalcTangentSpace |
@@ -268,7 +268,7 @@ bool ModelHandler::processScene(const std::string& path, const aiScene* modelSce
 			processMaterial(path, modelScene->mMaterials[i], mat);
 			m_LoadedMaterials[index] = true;
 		}
-		ANK_INFO("Loaded %d materials", sceneMatCount);
+		LOG_INFO("Loaded %d materials", sceneMatCount);
 	}
 
 	// Load mesh
@@ -299,19 +299,19 @@ bool ModelHandler::processMaterial(const std::string& path, const aiMaterial* ai
 {
 	// Diffuse texture
 	if (!processMaterialTexture(aiTextureType_DIFFUSE, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find diffuse texture for model, Opting for default diffuse");
+		LOG_WARNING("\tFailed to find diffuse texture for model, Opting for default diffuse");
 	}
 
 	if (!processMaterialTexture(aiTextureType_AMBIENT, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find metallic texture for model, Opting for default metallic");
+		LOG_WARNING("\tFailed to find metallic texture for model, Opting for default metallic");
 	}
 
 	if (!processMaterialTexture(aiTextureType_SHININESS, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find roughness texture for model, Opting for default roughness");
+		LOG_WARNING("\tFailed to find roughness texture for model, Opting for default roughness");
 	}
 
 	if (!processMaterialTexture(aiTextureType_HEIGHT, path, aiMat, mat)) {
-		ANK_WARNING("\tFailed to find normal texture for model, Opting for default normal");
+		LOG_WARNING("\tFailed to find normal texture for model, Opting for default normal");
 	}
 
 	mat->setAmbientOcclusionMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
@@ -424,7 +424,7 @@ bool ModelHandler::processMesh(const aiMesh* aiMesh, Mesh* mesh)
 		}
 	}
 
-	ANK_INFO("Added mesh\t [Vertices: %d\t Indices: %d]", static_cast<int>(vertices.size()), (int)indices.size());
+	LOG_INFO("Added mesh\t [Vertices: %d\t Indices: %d]", static_cast<int>(vertices.size()), (int)indices.size());
 
 	DXBuffer* vertexBuffer = new DXBuffer();
 	vertexBuffer->Init(vertices.data(), vertices.size() * sizeof(VertexData), D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);

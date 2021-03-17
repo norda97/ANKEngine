@@ -57,7 +57,7 @@ DXDeferred::DXDeferred()
 		// Create textures
 		HRESULT hr = dev->CreateTexture2D(&texDesc, NULL, this->m_GeomBuffers[i].GetAddressOf());
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create Geometry buffer");
+			LOG_ERROR("Failed to create Geometry buffer");
 		}
 
 		// Create render target
@@ -92,8 +92,8 @@ DXDeferred::~DXDeferred()
 
 void DXDeferred::ResizeGBuffers(uint32_t width, uint32_t height)
 {
-	auto& devcon = DXDeviceInstance::get().getDevCon();
-	auto& dev = DXDeviceInstance::get().getDev();
+	auto& devcon = DXDeviceInstance::Get().GetDevCon();
+	auto& dev = DXDeviceInstance::Get().GetDev();
 
 	D3D11_TEXTURE2D_DESC texDesc = { 0 };
 	texDesc.Width = width;
@@ -134,20 +134,20 @@ void DXDeferred::ResizeGBuffers(uint32_t width, uint32_t height)
 		// Create textures
 		HRESULT hr = dev->CreateTexture2D(&texDesc, NULL, this->m_GeomBuffers[i].ReleaseAndGetAddressOf());
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create geometry buffer");
+			LOG_ERROR("Failed to create geometry buffer");
 		}
 
 		// Create render target
 		hr = dev->CreateRenderTargetView(this->m_GeomBuffers[i].Get(), &rtvDesc, this->m_RenderTargets[i].ReleaseAndGetAddressOf());
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create render target view");
+			LOG_ERROR("Failed to create render target view");
 		}
 		this->m_pRenderTargets[i] = this->m_RenderTargets[i].Get();
 
 		// Create resource view
 		hr = dev->CreateShaderResourceView(this->m_GeomBuffers[i].Get(), &srvDesc, this->m_ResourceView[i].ReleaseAndGetAddressOf());
 		if (FAILED(hr)) {
-			ANK_ERROR("Failed to create resource view");
+			LOG_ERROR("Failed to create resource view");
 		}
 		this->m_pResourceViews[i] = this->m_ResourceView[i].Get();
 	}
@@ -155,7 +155,7 @@ void DXDeferred::ResizeGBuffers(uint32_t width, uint32_t height)
 
 void DXDeferred::ClearRenderTargets()
 {
-	auto& devcon = DXDeviceInstance::get().getDevCon();
+	auto& devcon = DXDeviceInstance::Get().GetDevCon();
 	Color clearColor = Color(0.01f, 0.01f, 0.01f, 0.0f);
 
 	devcon->ClearRenderTargetView(this->m_pRenderTargets[0], &clearColor[0]);
@@ -166,7 +166,7 @@ void DXDeferred::ClearRenderTargets()
 
 void DXDeferred::BindRenderTargets(ID3D11DepthStencilView* depthStencil)
 {
-	DXDeviceInstance::get().getDevCon()->OMSetRenderTargets(this->GBUFFER_COUNT, this->m_pRenderTargets.data(), depthStencil);
+	DXDeviceInstance::Get().GetDevCon()->OMSetRenderTargets(this->GBUFFER_COUNT, this->m_pRenderTargets.data(), depthStencil);
 }
 
 const std::array<ID3D11RenderTargetView*, 4>& DXDeferred::GetRenderTargets()
@@ -191,14 +191,14 @@ void DXDeferred::RenderComplete(ID3D11RenderTargetView* const* renderTarget)
 	this->m_FullscreenShader.prepare();
 
 	// Render fullscreen tri to backbuffer
-	DXDeviceInstance::get().setViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowHeight);
+	DXDeviceInstance::Get().SetViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowHeight);
 	devcon->OMSetRenderTargets(1, renderTarget, NULL);
 	devcon->PSSetShaderResources(0, this->GBUFFER_COUNT, this->m_pResourceViews.data());
 
 	unsigned int strides[1] = { sizeof(float) * 5 };
 	unsigned int offsets[1] = { 0 };
 
-	devcon->IASetVertexBuffers(0, 1, m_FullscreenTri.getBuffer().GetAddressOf(), strides, offsets);
+	devcon->IASetVertexBuffers(0, 1, m_FullscreenTri.GetBuffer().GetAddressOf(), strides, offsets);
 
 	devcon->Draw(3, 0);
 
@@ -234,7 +234,7 @@ bool DXDeferred::InitShaders()
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(Vector3) * 1, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
-	if (!this->m_FullscreenShader.init("UtilShaders/FullscreenQuad_V.hlsl", "Deferred/DeferredPBR_IBL_P.hlsl", ied))
+	if (!this->m_FullscreenShader.Init("UtilShaders/FullscreenQuad_V.hlsl", "Deferred/DeferredPBR_IBL_P.hlsl", ied))
 		return false;
 
 	return true;
@@ -250,5 +250,5 @@ void DXDeferred::InitFullscreenTri()
 		3.f, -1.f, 0.f,		2.f, 0.f
 	};
 
-	this->m_FullscreenTri.init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
+	this->m_FullscreenTri.Init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
 }

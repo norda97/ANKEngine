@@ -7,7 +7,7 @@ class Input
 public:
 	~Input();
 
-	static Input& get();
+	static Input& Get();
 
 
 	bool keyPress(int key)		const;

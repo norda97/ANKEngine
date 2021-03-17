@@ -27,21 +27,17 @@ public:
 
 	static HWND GetHWND();
 private:
-	DXDeviceInstance() {};
-	DXDeviceInstance(const DXDeviceInstance& other) = delete;
-	DXDeviceInstance(DXDeviceInstance&& other) = delete;
-
-	static D3D11_MESSAGE* errorMsg;
+	static D3D11_MESSAGE*	errorMsg;
 
 	static HWND hWnd;
-	static Microsoft::WRL::ComPtr<ID3D11Device>					s_Device;
-	static Microsoft::WRL::ComPtr<ID3D11DeviceContext>			s_Devcon;
-	static Microsoft::WRL::ComPtr<IDXGISwapChain>				s_Swapchain;
-	static Microsoft::WRL::ComPtr<ID3D11InfoQueue>				s_InfoQueue;
+	static ComPtr<ID3D11Device>					s_Device;
+	static ComPtr<ID3D11DeviceContext>			s_Devcon;
+	static ComPtr<IDXGISwapChain>				s_Swapchain;
+	static ComPtr<ID3D11InfoQueue>				s_InfoQueue;
 		
-	static Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		s_Backbuffer;
-	static Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		s_DepthStencilView;
-	static Microsoft::WRL::ComPtr<ID3D11Texture2D>				s_DepthStencilBuffer;
+	static ComPtr<ID3D11RenderTargetView>		s_Backbuffer;
+	static ComPtr<ID3D11DepthStencilView>		s_DepthStencilView;
+	static ComPtr<ID3D11Texture2D>				s_DepthStencilBuffer;
 
-	static DXDeviceInstance										s_Instance;
+	static DXDeviceInstance						s_Instance;
 };

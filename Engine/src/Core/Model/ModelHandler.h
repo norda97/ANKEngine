@@ -21,7 +21,7 @@ class ModelHandler
 public:
 	~ModelHandler();
 
-	static ModelHandler& get();
+	static ModelHandler& Get();
 
 	Material* duplicateMaterial(Material* material);
 	MaterialID createMaterial(Vector4& albedo, float roughness, float metallicness);

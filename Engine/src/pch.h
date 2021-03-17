@@ -19,7 +19,6 @@
 
 #pragma comment (lib, "d3d11.lib")
 
-
 // ComPtr
 #include <wrl/client.h>
 
@@ -34,20 +33,6 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 using namespace SimpleMath;
 
-#ifdef ANK_DEBUG
-#include <crtdbg.h>
-#define ANK_ERROR(...) printf("[ERROR]: ");printf(__VA_ARGS__);printf("\n");
-#define ANK_WARNING(...) printf("[WARNING]: ");printf(__VA_ARGS__);printf("\n");
-#define ANK_INFO(...) printf("[INFO]: ");printf(__VA_ARGS__);printf("\n");
-#define ANK_ASSERT(exp, ...) assert(exp && __VA_ARGS__);
-#define _CRT_SECURE_NO_WARNINGS
-#else
-
-#define ANK_ERROR(errorMsg)
-#define ANK_WARNING(warningMsg)
-#define ANK_INFO(warningMsg)
-#define ANK_ASSERT(exp, msg) {exp;}
-#endif
 #include "Core/Utils/Logger.h"
 using namespace Logger;
 

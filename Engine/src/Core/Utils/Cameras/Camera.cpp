@@ -37,18 +37,18 @@ void Camera::update(float dt)
 	float speedFactor = defaultSpeed;
 	float radPerFrame = XM_PI *0.5;
 
-	if (Input::get().keyPressed(KEY_SHIFT)) {
+	if (Input::Get().keyPressed(KEY_SHIFT)) {
 		speedFactor *= 8.0;
 		radPerFrame *= 4.0;
 	}
 
-	if (Input::get().keyPressed(KEY_LEFT))
+	if (Input::Get().keyPressed(KEY_LEFT))
 		this->rotation.y += radPerFrame * dt;
-	if (Input::get().keyPressed(KEY_RIGHT))
+	if (Input::Get().keyPressed(KEY_RIGHT))
 		this->rotation.y -= radPerFrame * dt;
-	if (Input::get().keyPressed(KEY_UP))
+	if (Input::Get().keyPressed(KEY_UP))
 		this->rotation.x = max(this->rotation.x - radPerFrame * dt, -XM_PI * 0.5);
-	if (Input::get().keyPressed(KEY_DOWN))
+	if (Input::Get().keyPressed(KEY_DOWN))
 		this->rotation.x = min(this->rotation.x + radPerFrame * dt, XM_PI * 0.5);
 
 	//Matrix rotationMatrix;
@@ -62,17 +62,17 @@ void Camera::update(float dt)
 	this->up = this->forward.Cross(this->right);
 	this->up.Normalize();
 
-	if (Input::get().keyPressed(KEY_W))
+	if (Input::Get().keyPressed(KEY_W))
 		this->position += this->forward * speedFactor * dt;
-	if (Input::get().keyPressed(KEY_S))
+	if (Input::Get().keyPressed(KEY_S))
 		this->position -= this->forward * speedFactor * dt;
-	if (Input::get().keyPressed(KEY_A))
+	if (Input::Get().keyPressed(KEY_A))
 		this->position += this->right * speedFactor * dt;
-	if(Input::get().keyPressed(KEY_D))
+	if(Input::Get().keyPressed(KEY_D))
 		this->position -= this->right * speedFactor * dt;
-	if (Input::get().keyPressed(KEY_SPACE))
+	if (Input::Get().keyPressed(KEY_SPACE))
 		this->position.y += speedFactor * dt;
-	if (Input::get().keyPressed(KEY_CTRL))
+	if (Input::Get().keyPressed(KEY_CTRL))
 		this->position.y -= speedFactor * dt;
 
 

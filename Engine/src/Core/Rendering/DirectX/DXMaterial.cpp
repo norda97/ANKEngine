@@ -11,11 +11,11 @@ DXMaterial::DXMaterial()
 	normalMap(nullptr)
 {
 #ifdef ANK_DX11
-	setAlbedoMap(ModelHandler::get().getTexture(ANK_TEXTURE_DEFAULT_WHITE_PATH));
-	setMetallicMap(ModelHandler::get().getTexture(ANK_TEXTURE_DEFAULT_WHITE_PATH));
-	setRoughnessMap(ModelHandler::get().getTexture(ANK_TEXTURE_DEFAULT_WHITE_PATH));
-	setAmbientOcclusionMap(ModelHandler::get().getTexture(ANK_TEXTURE_DEFAULT_WHITE_PATH));
-	setNormalMap(ModelHandler::get().getTexture(ANK_TEXTURE_DEFAULT_NORMAL_PATH));
+	setAlbedoMap(ModelHandler::Get().getTexture(ANK_TEXTURE_DEFAULT_WHITE_PATH));
+	setMetallicMap(ModelHandler::Get().getTexture(ANK_TEXTURE_DEFAULT_WHITE_PATH));
+	setRoughnessMap(ModelHandler::Get().getTexture(ANK_TEXTURE_DEFAULT_WHITE_PATH));
+	setAmbientOcclusionMap(ModelHandler::Get().getTexture(ANK_TEXTURE_DEFAULT_WHITE_PATH));
+	setNormalMap(ModelHandler::Get().getTexture(ANK_TEXTURE_DEFAULT_NORMAL_PATH));
 #endif
 }
 

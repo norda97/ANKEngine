@@ -88,9 +88,9 @@ LRESULT ANKWindowHandler::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 
 	case WM_KEYDOWN:
 	{
-		Input::get().registerKeyDown(wParam, lParam);
+		Input::Get().registerKeyDown(wParam, lParam);
 
-		if (Input::get().keyPressed(KEY_ESC)) {
+		if (Input::Get().keyPressed(KEY_ESC)) {
 			PostQuitMessage(0);
 			return 0;
 		}
@@ -99,7 +99,7 @@ LRESULT ANKWindowHandler::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 
 	case WM_KEYUP:
 	{
-		Input::get().registerKeyUp(wParam, lParam);
+		Input::Get().registerKeyUp(wParam, lParam);
 	} break;
 
 	case WM_DESTROY:

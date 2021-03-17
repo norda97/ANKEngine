@@ -16,7 +16,7 @@ std::stack<std::function<void()>>	ANKThreadPool::s_JobQueue;
 bool ANKThreadPool::Init()
 {
 	s_SupportedThreads = std::thread::hardware_concurrency();
-	ANK_INFO("ANKThreadPool: Supported Threads %d", s_SupportedThreads);
+	LOG_INFO("ANKThreadPool: Supported Threads %d", s_SupportedThreads);
 
 	if (s_SupportedThreads == 0)
 		return false;
@@ -79,7 +79,7 @@ void ANKThreadPool::Release()
 	for (std::thread& every_thread : s_ThreadPool)
 	{
 		every_thread.join();
-		ANK_INFO("Joined thread!");
+		LOG_INFO("Joined thread!");
 	}
 
 	s_ThreadPool.clear();

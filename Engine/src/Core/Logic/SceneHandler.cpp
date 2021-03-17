@@ -35,7 +35,7 @@ void SceneHandler::tick(double dt)
 		this->currentScene->render();
 	}
 	else {
-		ANK_ERROR("No scene set as current in scene handler!");
+		LOG_ERROR("No scene set as current in scene handler!");
 	}
 
 }
@@ -44,7 +44,7 @@ void SceneHandler::shutdown()
 {
 	shutdownCurrScene();
 
-	ModelHandler::get().shutdown();
+	ModelHandler::Get().shutdown();
 }
 
 void SceneHandler::shutdownCurrScene()

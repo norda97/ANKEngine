@@ -11,6 +11,7 @@ namespace Logger
 
 	void SetConsoleTextColor(int color);
 
+
 #ifdef ANK_DEBUG
 #include <crtdbg.h>
 #define LOG_ERROR(...) SetConsoleTextColor(RED); printf("[ERROR] "); printf(__VA_ARGS__); printf("\n"); SetConsoleTextColor(WHITE);
@@ -20,9 +21,9 @@ namespace Logger
 #define _CRT_SECURE_NO_WARNINGS
 #else
 
-#define LOG_ERROR(errorMsg)
-#define LOG_WARNING(warningMsg)
-#define LOG_INFO(warningMsg)
-#define ANK_ASSERT(exp, msg) {exp;}
+#define LOG_ERROR(...)
+#define LOG_WARNING(...)
+#define LOG_INFO(...)
+#define ANK_ASSERT(exp, ...) {exp;}
 #endif
 }

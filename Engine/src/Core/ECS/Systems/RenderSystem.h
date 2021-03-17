@@ -85,5 +85,5 @@ private:
 
 	DXBuffer m_TransformBuffer;
 	DXBuffer m_StagingTransformBuffer;
-	size_t instanceCount;
+	size_t m_InstanceCount;
 };
