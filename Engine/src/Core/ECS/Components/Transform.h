@@ -2,9 +2,13 @@
 
 #include "Core/Math/AnkMath.h"
 
+#include "Core/Utils/InterfaceGfxDbg/AnkDebugInterfaceInclude.h"
+
 struct Transform
 {
-	Vec3 position;
-	Vec3 rotation;
-	Vec3 scale;
+	ANK_REG_COMP_INTERFACE(Transform);
+
+	ANK_REG_VAR_INTERFACE(Vec3, Position);
+	ANK_REG_VAR_INTERFACE(Vec3, Rotation);
+	ANK_REG_VAR_INTERFACE(Vec3, Scale);
 };

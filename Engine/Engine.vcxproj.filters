@@ -43,6 +43,9 @@
     <Filter Include="Core\Utils\Cameras">
       <UniqueIdentifier>{F9F18BCA-E5D5-4C20-4E36-47733A3937A2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Utils\InterfaceGfxDbg">
+      <UniqueIdentifier>{C0CF3AE7-ACDF-E6B7-1599-4BD601C8D550}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\ECS\ComponentArray.h">
@@ -50,6 +53,9 @@
     </ClInclude>
     <ClInclude Include="src\Core\ECS\ComponentManager.h">
       <Filter>Core\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ECS\Components\ANKComponent.h">
+      <Filter>Core\ECS\Components</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\ECS\Components\Drawable.h">
       <Filter>Core\ECS\Components</Filter>
@@ -168,13 +174,21 @@
     <ClInclude Include="src\Core\Rendering\General\Buffer.h">
       <Filter>Core\Rendering\General</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Rendering\General\Renderer.h">
+      <Filter>Core\Rendering\General</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Utils\Cameras\Camera.h">
       <Filter>Core\Utils\Cameras</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Utils\Logger.h">
-      <Filter>Core\Utils</Filter>
+    <ClInclude Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterface.h">
+      <Filter>Core\Utils\InterfaceGfxDbg</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterfaceInclude.h">
+      <Filter>Core\Utils\InterfaceGfxDbg</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\Utils\ANKWindowHandler.h" />
+    <ClInclude Include="src\Core\Utils\ThreadPool\ANKThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\ECS\EntityManager.cpp">
@@ -243,12 +257,17 @@
     <ClCompile Include="src\Core\Rendering\General\Buffer.cpp">
       <Filter>Core\Rendering\General</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Rendering\General\Renderer.cpp">
+      <Filter>Core\Rendering\General</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Utils\Cameras\Camera.cpp">
       <Filter>Core\Utils\Cameras</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Utils\Logger.cpp">
-      <Filter>Core\Utils</Filter>
+    <ClCompile Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterface.cpp">
+      <Filter>Core\Utils\InterfaceGfxDbg</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Core\Utils\ANKWindowHandler.cpp" />
+    <ClCompile Include="src\Core\Utils\ThreadPool\ANKThreadPool.cpp" />
   </ItemGroup>
 </Project>

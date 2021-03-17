@@ -15,8 +15,8 @@ DXTexture::~DXTexture()
 	//if (this->texture)
 	//	this->texture->Release();
 
-	//if (this->resourceView)
-	//	this->resourceView->Release();
+	//if (this->m_ResourceView)
+	//	this->m_ResourceView->Release();
 }
 
 bool DXTexture::isInitilized() const
@@ -29,7 +29,7 @@ bool DXTexture::Init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& 
 	HRESULT hr = DXDeviceInstance::GetDev()->CreateTexture2D(&tdesc, pData, this->texture.ReleaseAndGetAddressOf());
 
 	if (FAILED(hr)) {
-		LOG_ERROR("Failed to create texture2D");
+		ANK_ERROR("Failed to create texture2D");
 		return false;
 	}
 	D3D11_SRV_DIMENSION viewDim = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -46,7 +46,7 @@ bool DXTexture::Init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& 
 
 	hr = DXDeviceInstance::GetDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
 	if (FAILED(hr)) {
-		LOG_ERROR("Failed to create shader resource view");
+		ANK_ERROR("Failed to create shader resource view");
 		return false;
 	}
 
@@ -65,7 +65,7 @@ bool DXTexture::loadTexture(const std::string& path)
 
 	if(!image)
 	{ 
-		LOG_ERROR("Failed to load texture from file: %s", path.c_str());
+		ANK_ERROR("Failed to load texture from file: %s", path.c_str());
 		return false;
 	}
 
@@ -95,7 +95,7 @@ bool DXTexture::loadTexture(const std::string& path)
 	stbi_image_free(image);
 
 	if (FAILED(hr)) {
-		LOG_ERROR("Failed to create texture2D");
+		ANK_ERROR("Failed to create texture2D");
 		return false;
 	}
 
@@ -108,7 +108,7 @@ bool DXTexture::loadTexture(const std::string& path)
 
 	hr = DXDeviceInstance::GetDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
 	if(FAILED(hr)) {
-		LOG_ERROR("Failed to create shader resource view");
+		ANK_ERROR("Failed to create shader resource view");
 		return false;
 	}
 
@@ -119,7 +119,7 @@ bool DXTexture::loadTexture(const std::string& path)
 
 const ComPtr<ID3D11ShaderResourceView>& DXTexture::getShaderResource() const
 {
-	return this->resourceView;
+	return this->m_ResourceView;
 }
 
 const ComPtr<ID3D11Texture2D>& DXTexture::getTexture() const

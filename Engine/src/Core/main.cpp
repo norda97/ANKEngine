@@ -1,67 +1,17 @@
 #include "pch.h"
-#include <windows.h>
-
 #include "Rendering/DirectX/DXDeviceInstance.h"
+#include "Utils/ANKWindowHandler.h"
 #include "Core/Logic/SceneHandler.h"
 
 // Scenes
 #include "Core/Logic/Scenes/MainScene.h"
 
-#include "IO/Input.h"
-
-#include "examples/imgui_impl_win32.h"
+#include "Utils/ThreadPool/ANKThreadPool.h"
 
 // function prototypes
-bool InitWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int height, LPCWSTR title); // Initilise window
-void Run(HWND hWnd);
-void Release();
-
-#ifdef ANK_USE_IMGUI
-	extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-#endif
-// Windows message callback 
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-#ifdef ANK_USE_IMGUI
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
-		return true;
-#endif
-
-	switch (message)
-	{
-	case WM_SIZE:
-		if (wParam != SIZE_MINIMIZED)
-		{
-			//g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-		}
-		return 0;
-
-		case WM_KEYDOWN:
-		{
-			Input::get().registerKeyDown(wParam, lParam);
-		
-			if (Input::get().keyPressed(KEY_ESC)) {
-				PostQuitMessage(0);
-				return 0;
-			}
-
-		} break;
-
-		case WM_KEYUP:
-		{
-			Input::get().registerKeyUp(wParam, lParam);
-		} break;
-
-		case WM_DESTROY:
-		{
-			PostQuitMessage(0);
-			return 0;
-		} break;
-	}
-
-	// Handle any messages the switch statement didn't
-	return DefWindowProc(hWnd, message, wParam, lParam);
-}
+//bool initWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int height, LPCWSTR title); // Initilise window
+void Run();
+void Shutdown();
 
 bool SetupConsole() 
 {
@@ -80,7 +30,6 @@ bool SetupConsole()
 	if (error == INVALID_HANDLE_VALUE)
 		return false;
 
-
 	freopen("CONIN$", "r", stdin);
 	freopen("CONOUT$", "w", stdout);
 	freopen("CONOUT$", "w", stderr);
@@ -96,27 +45,51 @@ int WINAPI WinMain(HINSTANCE hInstance,
 #ifdef ANK_DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-	HWND hWnd;
-
 	if (!SetupConsole())
+	{
+		Shutdown();
 		return 1;
+	}
 
-	if (!InitWindow(hInstance, nCmdShow, &hWnd, SCREEN_WIDTH * WINDOW_SIZE_FACTOR, SCREEN_HEIGHT * WINDOW_SIZE_FACTOR, L"Sandbox"))
+	if (!ANKWindowHandler::SetUpWindow(hInstance, nCmdShow, SCREEN_WIDTH, SCREEN_HEIGHT, L"Sandbox"))
+	{
+		ANK_ERROR("Failed to set up window!");
+		Shutdown();
 		return 1;
+	}
 
-	DXDeviceInstance::Init(hWnd);
-	Run(hWnd);
-	Release();
+
+	ANKThreadPool::Init();
+	DXDeviceInstance::get().init(ANKWindowHandler::s_hWnd);
+
+	ANKThreadPool::QueueJob([]() {
+		for (size_t i = 0; i < 10; i++)
+		{
+			std::cout << "aaaaaaaaaaaaaaaa" << std::endl;
+		}
+		});
+
+	ANKThreadPool::QueueJob([]() {
+		for (size_t i = 0; i < 10; i++)
+		{
+			std::cout << "bbbbbbbbbbbbbbbb" << std::endl;
+		}
+		});
+
+	ANKThreadPool::QueueJob([]() {
+		for (size_t i = 0; i < 10; i++)
+		{
+			std::cout << "ccccccccccccc" << std::endl;
+		}
+		});
+	
+	Run();
+	Shutdown();
 
 	return 0;
 }
 
-void Release() {
-	FreeConsole();
-}
-
-
-void Run(HWND hWnd)
+void Run()
 {
 	// Used for delta time
 	auto currentTime = std::chrono::high_resolution_clock::now();
@@ -125,9 +98,10 @@ void Run(HWND hWnd)
 	unsigned frames = 0;
 	double elapsedTime = 0;
 
+	ANKThreadPool::Init();
+
 	SceneHandler sceneHandler;
 	sceneHandler.setCurrentScene(new MainScene());
-	
 
 	MSG msg = { 0 };
 	while (true)
@@ -155,7 +129,7 @@ void Run(HWND hWnd)
 			frames++;
 
 			if (elapsedTime >= 1.0) {
-				SetWindowTextA(hWnd, ("Sandbox (FPS: " + std::to_string(frames) + ", dt: " + std::to_string((elapsedTime / frames) * 1000.f) + " ms)").c_str());
+				SetWindowTextA(ANKWindowHandler::s_hWnd, ("Sandbox (FPS: " + std::to_string(frames) + ", dt: " + std::to_string((elapsedTime / frames) * 1000.f) + " ms)").c_str());
 				elapsedTime = 0;
 				frames = 0;
 			}
@@ -165,34 +139,7 @@ void Run(HWND hWnd)
 	}
 }
 
-bool InitWindow(HINSTANCE hInstance, int nCmdShow, HWND* hWnd, int width, int height, LPCWSTR title) {
-	RECT wr = { 0, 0, width, height };
-	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
-
-	WNDCLASSEX wc = {};
-	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = WindowProc;
-	wc.hInstance = hInstance;
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	//wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-	wc.lpszClassName = L"WindowClass1";
-
-	RegisterClassEx(&wc);
-
-	*hWnd = CreateWindowEx(NULL,
-		L"WindowClass1",
-		title,
-		WS_OVERLAPPEDWINDOW,
-		300,    // x-position of the window
-		300,    // y-position of the window
-		wr.right - wr.left,    // width of the window
-		wr.bottom - wr.top,    // height of the window
-		NULL,
-		NULL,
-		hInstance,
-		NULL);
-
-	ShowWindow(*hWnd, nCmdShow);
-	return true;
+void Shutdown() {
+	FreeConsole();
+	ANKThreadPool::Release();
 }

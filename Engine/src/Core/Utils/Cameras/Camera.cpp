@@ -62,14 +62,19 @@ void Camera::update(float dt)
 	this->up = this->forward.Cross(this->right);
 	this->up.Normalize();
 
-	if(Input::get().keyPressed(KEY_D))
-		this->position -= this->right * speedFactor * dt;
-	if (Input::get().keyPressed(KEY_A))
-		this->position += this->right * speedFactor * dt;
 	if (Input::get().keyPressed(KEY_W))
 		this->position += this->forward * speedFactor * dt;
 	if (Input::get().keyPressed(KEY_S))
 		this->position -= this->forward * speedFactor * dt;
+	if (Input::get().keyPressed(KEY_A))
+		this->position += this->right * speedFactor * dt;
+	if(Input::get().keyPressed(KEY_D))
+		this->position -= this->right * speedFactor * dt;
+	if (Input::get().keyPressed(KEY_SPACE))
+		this->position.y += speedFactor * dt;
+	if (Input::get().keyPressed(KEY_CTRL))
+		this->position.y -= speedFactor * dt;
+
 
 	Vector3 target = this->position + this->forward;
 

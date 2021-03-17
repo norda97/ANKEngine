@@ -35,7 +35,7 @@ void SceneHandler::tick(double dt)
 		this->currentScene->render();
 	}
 	else {
-		LOG_ERROR("No scene set as current in scene handler!");
+		ANK_ERROR("No scene set as current in scene handler!");
 	}
 
 }

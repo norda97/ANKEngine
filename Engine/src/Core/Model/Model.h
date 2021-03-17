@@ -12,7 +12,7 @@ class Model
 {
 public:
 	Model() {};
-	Model(ModelID modelID);
+	Model(ANKModelID ModelID);
 	virtual ~Model();
 	
 	const std::vector<MeshInstance>& getMeshInstances() const;
@@ -20,15 +20,15 @@ public:
 
 	void changeMeshMaterial(MeshID meshID, MaterialID matID);
 
-	ModelID getModelID() const;
+	ANKModelID getModelID() const;
 
 	/*
-		Do not change modelID, without knowing what you are doing
+		Do not change ModelID, without knowing what you are doing
 	*/
-	void setModelID(ModelID id);
+	void setModelID(ANKModelID id);
 
 private:
-	ModelID id;
+	ANKModelID id;
 
 	std::vector<MeshInstance> meshInstances;
 };

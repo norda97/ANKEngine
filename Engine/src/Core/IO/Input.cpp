@@ -21,7 +21,7 @@ bool Input::keyPress(int key) const
 	if (it != this->keyMap.end()) {
 		int64_t presses = (it->second >> 30) & 1;
 		if ((it->second & 0xFFFF) > 0) {
-			printf("Presses: %d\n", presses);
+			ANK_INFO("Presses: %d", presses);
 			return true;
 		}
 	}

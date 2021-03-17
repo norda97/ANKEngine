@@ -24,7 +24,17 @@ void RenderSystem::Init(ECS* ecs)
 	this->m_InstanceCount = entities.size();
 
 	ANK_ASSERT(
-		this->m_TransformBuffer.Init(
+		this->m_StagingTransformBuffer.init(
+			NULL,
+			sizeof(Instance) * MAX_MESH_INSTANCES,
+			D3D11_USAGE_STAGING,
+			0,
+			D3D11_CPU_ACCESS_WRITE),
+		"Failed to init staging buffer for transforms."
+	);
+
+	ANK_ASSERT(
+		this->m_TransformBuffer.init(
 			NULL,
 			sizeof(Instance) * MAX_MESH_INSTANCES,
 			D3D11_USAGE_DEFAULT,
@@ -33,22 +43,11 @@ void RenderSystem::Init(ECS* ecs)
 		"Failed to init constant buffer for transforms."
 	);
 
-	ANK_ASSERT(
-		this->m_TransformStagingBuffer.Init(
-			NULL,
-			sizeof(Instance) * MAX_MESH_INSTANCES,
-			D3D11_USAGE_STAGING,
-			0,
-			D3D11_CPU_ACCESS_WRITE),
-		"Failed to init staging constant buffer for transforms."
-	);
-
 	ANK_ASSERT(ecs != nullptr, "ECS must be a valid pointer in renderSystem");
 }
 
 void RenderSystem::update(DXRenderer& renderer)
 {
-
 	// Update instance buffers
 	auto const& modelMap = ModelHandler::get().getModels();
 
@@ -57,12 +56,12 @@ void RenderSystem::update(DXRenderer& renderer)
 		auto & transform = this->m_pEcs->getComponent<Transform>(entity);
 		auto const& drawable = this->m_pEcs->getComponent<Drawable>(entity);
 
-		const Model& model = modelMap.at(drawable.modelID);
+		const Model& model = modelMap.at(drawable.ModelID);
 		for (auto const& meshInstance : model.getMeshInstances())
 		{
-			Matrix matrix = Matrix::CreateScale(transform.scale);
-			matrix *= Matrix::CreateFromYawPitchRoll(transform.rotation.y, transform.rotation.x, transform.rotation.z);
-			matrix *= Matrix::CreateTranslation(transform.position);
+			Matrix matrix = Matrix::CreateScale(transform.Scale);
+			matrix *= Matrix::CreateFromYawPitchRoll(transform.Rotation.y, transform.Rotation.x, transform.Rotation.z);
+			matrix *= Matrix::CreateTranslation(transform.Position);
 
 			this->instanceData[meshInstance.materialID][meshInstance.meshID].updateEntity(entity, matrix);
 		}
@@ -76,13 +75,13 @@ void RenderSystem::update(DXRenderer& renderer)
 
 	auto& devcon = DXDeviceInstance::GetDevCon();
 
-	//devcon->VSSetConstantBuffers(1, 1, m_TransformBuffer.GetBuffer().GetAddressOf());
-
 	unsigned int strides[1] = { sizeof(InstanceData) };
 	unsigned int offsets[1] = { 0 };
-	devcon->IASetVertexBuffers(1, 1, m_TransformBuffer.GetBuffer().GetAddressOf(), strides, offsets);
+	devcon->IASetVertexBuffers(1, 1, m_TransformBuffer.getBuffer().GetAddressOf(), strides, offsets);
 
 	unsigned instanceOffset = 0;
+	devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	for (auto& materialID : this->instanceData)
 	{
 		renderer.setMaterial(materialID.first);
@@ -91,7 +90,6 @@ void RenderSystem::update(DXRenderer& renderer)
 			auto& instanceVector = meshID.second;
 			unsigned instanceCount = instanceVector.getData().size();
 			//renderer.render(meshID, pair.second.size(), instanceOffset);
-
 
 			unsigned int strides[1] = { sizeof(VertexData) };
 			unsigned int offsets[1] = { 0 };
@@ -110,7 +108,6 @@ void RenderSystem::update(DXRenderer& renderer)
 			instanceOffset += instanceCount;
 		}
 	}
-
 }
 
 void RenderSystem::insertEntityEvent(Entity entity)
@@ -119,7 +116,7 @@ void RenderSystem::insertEntityEvent(Entity entity)
 
 	auto const& modelMap = ModelHandler::get().getModels();
 
-	const Model& model = modelMap.at(drawable.modelID);
+	const Model& model = modelMap.at(drawable.ModelID);
 	for (auto const& meshInstance : model.getMeshInstances())
 	{
 		auto& transformContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
@@ -134,7 +131,7 @@ void RenderSystem::eraseEntityEvent(Entity entity)
 
 	auto const& modelMap = ModelHandler::get().getModels();
 
-	const Model & model = modelMap.at(drawable.modelID);
+	const Model & model = modelMap.at(drawable.ModelID);
 	for (auto const& meshInstance : model.getMeshInstances())
 	{
 		auto& transformContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
@@ -145,11 +142,10 @@ void RenderSystem::eraseEntityEvent(Entity entity)
 
 void RenderSystem::updateTransformBuffer()
 {
-	auto devCon = DXDeviceInstance::GetDevCon();
-
 	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-	HRESULT hr = devCon->Map(this->m_TransformStagingBuffer.GetBuffer().Get(), 0, D3D11_MAP_WRITE, 0, &mappedResource);
-	
+	auto devcon = DXDeviceInstance::get().getDevCon();
+
+	HRESULT hr = devcon->Map(m_StagingTransformBuffer.getBuffer().Get(), 0, D3D11_MAP_WRITE, 0, &mappedResource);
 	if (SUCCEEDED(hr))
 	{ 
 		unsigned instanceIndex = 0;
@@ -165,7 +161,9 @@ void RenderSystem::updateTransformBuffer()
 			}
 		}
 	}
-	devCon->Unmap(this->m_TransformStagingBuffer.GetBuffer().Get(), 0);
+	devcon->Unmap(m_StagingTransformBuffer.getBuffer().Get(), 0);
 
-	devCon->CopyResource(m_TransformBuffer.GetBuffer().Get(), m_TransformStagingBuffer.GetBuffer().Get());
+	// Prepare copy of staging transform to transform on GPU
+	devcon->CopyResource(m_TransformBuffer.getBuffer().Get(), m_StagingTransformBuffer.getBuffer().Get());
+
 }

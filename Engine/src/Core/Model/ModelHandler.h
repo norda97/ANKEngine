@@ -30,11 +30,11 @@ public:
 	Model& duplicateModel(const Model& model, const std::string& newKey);
 
 	Model& getModel(const std::string& name);
-	Model& getModel(ModelID id);
+	Model& getModel(ANKModelID id);
 	Material* getMaterial(MaterialID materialID);
 	Mesh* getMesh(MeshID meshID);
 
-	const std::unordered_map<ModelID, Model>& getModels();
+	const std::unordered_map<ANKModelID, Model>& getModels();
 	const std::vector<Material*>& getMaterials();
 	DXTexture* getTexture(const std::string& key);
 
@@ -64,7 +64,10 @@ private:
 	std::vector<Material*> materials;
 	std::vector<Mesh*> meshes;
 
-	std::unordered_map<ModelID, Model> modelMap;
-	std::unordered_map<std::string, ModelID> nameToIndex;
-	ModelID modelCount;
+	std::unordered_map<MaterialID, bool> m_LoadedMeshes;
+	std::unordered_map<MeshID, bool> m_LoadedMaterials;
+
+	std::unordered_map<ANKModelID, Model> modelMap;
+	std::unordered_map<std::string, ANKModelID> nameToIndex;
+	ANKModelID modelCount;
 };

@@ -4,6 +4,8 @@
 
 struct RigidBody
 {
-	Vec3 velocity;
-	Vec3 acceleration;
+	ANK_REG_COMP_INTERFACE(RigidBody);
+
+	ANK_REG_VAR_INTERFACE(Vec3, Velocity);
+	ANK_REG_VAR_INTERFACE(Vec3, Acceleration);
 };

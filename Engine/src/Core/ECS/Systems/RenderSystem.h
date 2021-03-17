@@ -83,7 +83,7 @@ private:
 
 	std::map <MaterialID, std::unordered_map<MeshID, InstanceDataContainer<Mat4>>>	instanceData;
 
-	DXBuffer m_TransformStagingBuffer;
 	DXBuffer m_TransformBuffer;
-	size_t m_InstanceCount;
+	DXBuffer m_StagingTransformBuffer;
+	size_t instanceCount;
 };

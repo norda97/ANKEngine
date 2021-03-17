@@ -1,9 +1,16 @@
 #include "pch.h"
 #include "DXDeviceInstance.h"
 
+#include "Core/Utils/ANKWindowHandler.h"
+
+DXDeviceInstance::~DXDeviceInstance()
+{
+	free(errorMsg);
 
 // Static variable initilization
 DXDeviceInstance DXDeviceInstance::s_Instance;
+	if (m_Swapchain)
+		m_Swapchain->SetFullscreenState(FALSE, NULL);
 
 Microsoft::WRL::ComPtr<ID3D11Device>				DXDeviceInstance::s_Device;
 Microsoft::WRL::ComPtr<ID3D11DeviceContext>			DXDeviceInstance::s_Devcon;
@@ -75,8 +82,7 @@ bool DXDeviceInstance::Init(HWND hWnd)
 
 	// Create InfoQueue interface
 #if ANK_DEBUG
-	ANK_ASSERT(SUCCEEDED(s_Device->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)s_InfoQueue.GetAddressOf
-	())), "Failed to query infoQueue from device!");
+	ANK_ASSERT(SUCCEEDED(m_Device->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)infoQueue.GetAddressOf())), "Failed to query infoQueue from device!");
 #endif
 
 	HRESULT hr = s_Device->CreateRenderTargetView(pBackBuffer.Get(), NULL, s_Backbuffer.GetAddressOf());
@@ -101,17 +107,11 @@ bool DXDeviceInstance::Init(HWND hWnd)
 
 	hr = s_Device->CreateTexture2D(&texDesc, NULL, s_DepthStencilBuffer.GetAddressOf());
 	if (FAILED(hr)) {
-		LOG_ERROR("Failed to create depth stencil buffer");
+		ANK_ERROR("Failed to create depth stencil buffer");
 		return false;
 	}
 
-	//D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	//ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
-	//depthStencilViewDesc.Format = texDesc.Format;
-	//depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-	//depthStencilViewDesc.Texture2D.MipSlice = 0;
-
-	hr = s_Device->CreateDepthStencilView(s_DepthStencilBuffer.Get(), NULL, s_DepthStencilView.GetAddressOf());
+	hr = m_Device->CreateDepthStencilView(m_DepthStencilBuffer.Get(), NULL, m_DepthStencilView.GetAddressOf());
 	if (FAILED(hr)) {
 		LOG_ERROR("Failed to create depth stencil view");
 		return false;
@@ -122,13 +122,62 @@ bool DXDeviceInstance::Init(HWND hWnd)
 	return true;
 }
 
-bool DXDeviceInstance::Release()
-{
-	free(errorMsg);
-	if(!SUCCEEDED(s_Swapchain->SetFullscreenState(FALSE, NULL)));
-		return false;
+	setViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	return true;
+	// Register resize callback
+	ANKWindowHandler::RegisterResizeCallback(
+	[&](uint32_t width, uint32_t height) 
+		{
+			/*
+				Resize backbuffers
+			*/
+			
+			// Release old backbuffer ref
+			m_Backbuffer->Release();
+
+			// Resize backbuffers
+			if (m_Swapchain != nullptr)
+			{
+				HRESULT hr = m_Swapchain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
+				if (FAILED(hr))
+				{
+					ANK_ERROR("Failed to resize swapchain buffers!");
+				}
+			}
+
+			// Retrieve backbuffers
+			ComPtr<ID3D11Texture2D> pBackBuffer;
+			m_Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)pBackBuffer.GetAddressOf());
+
+			HRESULT hr = m_Device->CreateRenderTargetView(pBackBuffer.Get(), NULL, m_Backbuffer.GetAddressOf());
+			if (FAILED(hr)) {
+				ANK_ERROR("Failed to create render target view");
+			}
+
+			// Depth testing setup
+			D3D11_TEXTURE2D_DESC texDesc = { 0 };
+			texDesc.Width = width;
+			texDesc.Height = height;
+			texDesc.MipLevels = 1;
+			texDesc.ArraySize = 1;
+			texDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+			texDesc.SampleDesc.Count = 1;
+			texDesc.SampleDesc.Quality = 0;
+			texDesc.Usage = D3D11_USAGE_DEFAULT;
+			texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+			texDesc.CPUAccessFlags = 0;
+			texDesc.MiscFlags = 0;
+
+			hr = m_Device->CreateTexture2D(&texDesc, NULL, m_DepthStencilBuffer.ReleaseAndGetAddressOf());
+			if (FAILED(hr)) {
+				ANK_ERROR("Failed to create depth stencil buffer");
+			}
+
+			hr = m_Device->CreateDepthStencilView(m_DepthStencilBuffer.Get(), NULL, m_DepthStencilView.ReleaseAndGetAddressOf());
+			if (FAILED(hr)) {
+				ANK_ERROR("Failed to create depth stencil view");
+			}
+		});
 }
 
 void DXDeviceInstance::SetViewport(unsigned x, unsigned y, unsigned width, unsigned height)
@@ -168,13 +217,38 @@ void DXDeviceInstance::HandleErrorMessage()
 			{
 				HRESULT hr = s_InfoQueue->GetMessage(i, errorMsg, &msgSize);
 				if (FAILED(hr))
-					LOG_ERROR("Failed to retrieve message from ID3D11InfoQueue");
+					ANK_ERROR("Failed to retrieve message from ID3D11InfoQueue");
 
-				LOG_INFO(": %.*s", errorMsg->DescriptionByteLength, errorMsg->pDescription);
+				ANK_INFO(": %.*s", errorMsg->DescriptionByteLength, errorMsg->pDescription);
 			}
 		}
-		s_InfoQueue->ClearStoredMessages();
+		infoQueue->ClearStoredMessages();
 	}
+}
+
+const ComPtr<ID3D11Device>& DXDeviceInstance::getDev()
+{
+	return m_Device;
+}
+
+const ComPtr<ID3D11DeviceContext>& DXDeviceInstance::getDevCon()
+{
+	return m_Devcon;
+}
+
+const ComPtr<IDXGISwapChain>& DXDeviceInstance::getSwapchain()
+{
+	return m_Swapchain;
+}
+
+const ComPtr<ID3D11RenderTargetView>& DXDeviceInstance::getBackbuffer()
+{
+	return m_Backbuffer;
+}
+
+const ComPtr<ID3D11DepthStencilView>& DXDeviceInstance::getDepthStencilView()
+{
+	return m_DepthStencilView;
 }
 
 HWND DXDeviceInstance::GetHWND()

@@ -2,6 +2,11 @@
 
 class DXDeviceInstance 
 {
+private:
+	DXDeviceInstance() = default;
+	DXDeviceInstance(const DXDeviceInstance& other) = delete;
+	DXDeviceInstance(DXDeviceInstance&& other) = delete;
+
 public:
 	~DXDeviceInstance();
 
@@ -38,5 +43,5 @@ private:
 	static Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		s_DepthStencilView;
 	static Microsoft::WRL::ComPtr<ID3D11Texture2D>				s_DepthStencilBuffer;
 
-	static DXDeviceInstance s_Instance;
+	static DXDeviceInstance										s_Instance;
 };

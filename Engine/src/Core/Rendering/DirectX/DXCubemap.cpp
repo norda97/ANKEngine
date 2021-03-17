@@ -7,9 +7,9 @@
 
 DXCubemap::DXCubemap() :
 	initialized(false),
-	width(0),
-	height(0),
-	mipLevels(1)
+	m_Width(0),
+	m_Height(0),
+	m_MipLevels(1)
 {
 }
 
@@ -23,14 +23,14 @@ bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 		auto& devcon = DXDeviceInstance::Get().GetDevCon();
 		auto& dev = DXDeviceInstance::GetDev();
 
-		this->mipLevels = mipLevels;
-		this->width = width;
-		this->height = height;
+		m_MipLevels = mipLevels;
+		m_Width = width;
+		m_Height = height;
 
 		D3D11_TEXTURE2D_DESC tdesc = { 0 };
-		tdesc.Width = width;
-		tdesc.Height = height;
-		tdesc.MipLevels = mipLevels;
+		tdesc.Width = m_Width;
+		tdesc.Height = m_Height;
+		tdesc.MipLevels = m_MipLevels;
 		tdesc.ArraySize = 6;
 		tdesc.SampleDesc.Count = 1;
 		tdesc.SampleDesc.Quality = 0;
@@ -42,14 +42,14 @@ bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 
 		D3D11_SUBRESOURCE_DATA srd = { 0 };
 		srd.pSysMem = NULL;
-		srd.SysMemPitch = width * 4;
+		srd.SysMemPitch = m_Width * 4;
 		srd.SysMemSlicePitch = 0;
 
-		HRESULT hr = DXDeviceInstance::GetDev()->CreateTexture2D(&tdesc, NULL, this->cubemap.ReleaseAndGetAddressOf());
+		HRESULT hr = DXDeviceInstance::get().getDev()->CreateTexture2D(&tdesc, NULL, m_Cubemap.ReleaseAndGetAddressOf());
 
 
 		if (FAILED(hr)) {
-			LOG_ERROR("Failed to create texture2D");
+			ANK_ERROR("Failed to create texture2D");
 			return false;
 		}
 
@@ -60,18 +60,18 @@ bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 		srDesc.Texture2D.MostDetailedMip = 0;
 		srDesc.Texture2D.MipLevels = tdesc.MipLevels;
 
-		hr = DXDeviceInstance::GetDev()->CreateShaderResourceView(this->cubemap.Get(), &srDesc, this->resourceView.ReleaseAndGetAddressOf());
+		hr = DXDeviceInstance::get().getDev()->CreateShaderResourceView(m_Cubemap.Get(), &srDesc, m_ResourceView.ReleaseAndGetAddressOf());
 		if (FAILED(hr)) {
-			LOG_ERROR("Failed to create shader resource view");
+			ANK_ERROR("Failed to create shader resource view");
 			return false;
 		}
 
-		this->renderTargets.resize(6);
-		this->resourceViews.resize(6);
+		m_RenderTargets.resize(6);
+		m_ResourceViews.resize(6);
 		for (unsigned i = 0; i < 6; i++)
 		{
-			this->renderTargets[i].resize(this->mipLevels);
-			for (unsigned j = 0; j < this->mipLevels; j++)
+			m_RenderTargets[i].resize(m_MipLevels);
+			for (unsigned j = 0; j < m_MipLevels; j++)
 			{
 				D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
 				rtvDesc.Format = tdesc.Format;
@@ -81,7 +81,7 @@ bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 				rtvDesc.Texture2DArray.FirstArraySlice = i;
 
 				//.MipSlice = D3D11CalcSubresource(0, 6, tdesc.MipLevels);
-				ANK_ASSERT(SUCCEEDED(dev->CreateRenderTargetView(this->cubemap.Get(), &rtvDesc, this->renderTargets[i][j].ReleaseAndGetAddressOf())),
+				ANK_ASSERT(SUCCEEDED(dev->CreateRenderTargetView(m_Cubemap.Get(), &rtvDesc, m_RenderTargets[i][j].ReleaseAndGetAddressOf())),
 					"Failed to create render target views  for cubemap");
 			}
 
@@ -89,12 +89,12 @@ bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 			ZeroMemory(&srDesc, sizeof(srDesc));
 			srDesc.Format = tdesc.Format;
 			srDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-			srDesc.Texture2DArray.MipLevels = this->mipLevels;
+			srDesc.Texture2DArray.MipLevels = m_MipLevels;
 			srDesc.Texture2DArray.MostDetailedMip = 0;
 			srDesc.Texture2DArray.ArraySize = 1;
 			srDesc.Texture2DArray.FirstArraySlice = i;
 
-			ANK_ASSERT(SUCCEEDED(DXDeviceInstance::GetDev()->CreateShaderResourceView(this->cubemap.Get(), &srDesc, this->resourceViews[i].ReleaseAndGetAddressOf())),
+			ANK_ASSERT(SUCCEEDED(DXDeviceInstance::get().getDev()->CreateShaderResourceView(m_Cubemap.Get(), &srDesc, m_ResourceViews[i].ReleaseAndGetAddressOf())),
 				"Failed to create resource views for cubemap");
 
 		}
@@ -102,7 +102,7 @@ bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 	}
 	else
 	{
-		LOG_WARNING("Cubemap already initilized");
+		ANK_WARNING("Cubemap already initilized");
 	}
 
 	return true;
@@ -110,21 +110,21 @@ bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 
 unsigned DXCubemap::getMipLevels() const
 {
-	return this->mipLevels;
+	return m_MipLevels;
 }
 
-const std::vector<std::vector<ComPtr<ID3D11RenderTargetView>>>& DXCubemap::getRenderTargets()
+const std::vector<std::vector<ComPtr<ID3D11RenderTargetView>>>& DXCubemap::GetRenderTargets()
 {
-	return this->renderTargets;
+	return m_RenderTargets;
 }
 
 const ComPtr<ID3D11ShaderResourceView>& DXCubemap::getResourceView()
 {
-	return this->resourceView;
+	return m_ResourceView;
 }
 
-const std::vector<ComPtr<ID3D11ShaderResourceView>>& DXCubemap::getResourceViews()
+const std::vector<ComPtr<ID3D11ShaderResourceView>>& DXCubemap::GetResourceViews()
 {
-	return this->resourceViews;
+	return m_ResourceViews;
 }
 
