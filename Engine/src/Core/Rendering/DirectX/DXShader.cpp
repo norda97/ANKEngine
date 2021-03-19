@@ -43,9 +43,9 @@ bool DXShader::Init(const std::string& vFilename, const std::string& pFilename, 
 
 void DXShader::prepare()
 {
-	DXDeviceInstance::Get().GetDevCon()->VSSetShader(this->vertexShader.Get(), 0, 0);
-	DXDeviceInstance::Get().GetDevCon()->PSSetShader(this->pixelShader.Get(), 0, 0);
-	DXDeviceInstance::Get().GetDevCon()->IASetInputLayout(this->layout.Get());
+	DXDeviceInstance::GetDevCon()->VSSetShader(this->vertexShader.Get(), 0, 0);
+	DXDeviceInstance::GetDevCon()->PSSetShader(this->pixelShader.Get(), 0, 0);
+	DXDeviceInstance::GetDevCon()->IASetInputLayout(this->layout.Get());
 }
 
 bool DXShader::compileShader(const std::string& file, const std::string& entry, const std::string& profile, ComPtr<ID3DBlob>& blob)

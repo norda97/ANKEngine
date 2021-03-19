@@ -143,7 +143,7 @@ void RenderSystem::eraseEntityEvent(Entity entity)
 void RenderSystem::updateTransformBuffer()
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource = { 0 };
-	auto devcon = DXDeviceInstance::Get().GetDevCon();
+	auto devcon = DXDeviceInstance::GetDevCon();
 
 	HRESULT hr = devcon->Map(m_StagingTransformBuffer.GetBuffer().Get(), 0, D3D11_MAP_WRITE, 0, &mappedResource);
 	if (SUCCEEDED(hr))

@@ -11,7 +11,7 @@
 
 DXDeferred::DXDeferred()
 {
-	auto& devcon = DXDeviceInstance::Get().GetDevCon();
+	auto& devcon = DXDeviceInstance::GetDevCon();
 	auto& dev = DXDeviceInstance::GetDev();
 
 	this->m_GeomBuffers.resize(this->GBUFFER_COUNT);
@@ -92,8 +92,8 @@ DXDeferred::~DXDeferred()
 
 void DXDeferred::ResizeGBuffers(uint32_t width, uint32_t height)
 {
-	auto& devcon = DXDeviceInstance::Get().GetDevCon();
-	auto& dev = DXDeviceInstance::Get().GetDev();
+	auto& devcon = DXDeviceInstance::GetDevCon();
+	auto& dev = DXDeviceInstance::GetDev();
 
 	D3D11_TEXTURE2D_DESC texDesc = { 0 };
 	texDesc.Width = width;
@@ -155,7 +155,7 @@ void DXDeferred::ResizeGBuffers(uint32_t width, uint32_t height)
 
 void DXDeferred::ClearRenderTargets()
 {
-	auto& devcon = DXDeviceInstance::Get().GetDevCon();
+	auto& devcon = DXDeviceInstance::GetDevCon();
 	Color clearColor = Color(0.01f, 0.01f, 0.01f, 0.0f);
 
 	devcon->ClearRenderTargetView(this->m_pRenderTargets[0], &clearColor[0]);
@@ -166,7 +166,7 @@ void DXDeferred::ClearRenderTargets()
 
 void DXDeferred::BindRenderTargets(ID3D11DepthStencilView* depthStencil)
 {
-	DXDeviceInstance::Get().GetDevCon()->OMSetRenderTargets(this->GBUFFER_COUNT, this->m_pRenderTargets.data(), depthStencil);
+	DXDeviceInstance::GetDevCon()->OMSetRenderTargets(this->GBUFFER_COUNT, this->m_pRenderTargets.data(), depthStencil);
 }
 
 const std::array<ID3D11RenderTargetView*, 4>& DXDeferred::GetRenderTargets()
@@ -186,12 +186,12 @@ const std::array<ID3D11ShaderResourceView*, 4>& DXDeferred::GetResourceViews() c
 
 void DXDeferred::RenderComplete(ID3D11RenderTargetView* const* renderTarget)
 {
-	auto& devcon = DXDeviceInstance::Get().GetDevCon();
+	auto& devcon = DXDeviceInstance::GetDevCon();
 
 	this->m_FullscreenShader.prepare();
 
 	// Render fullscreen tri to backbuffer
-	DXDeviceInstance::Get().SetViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowHeight);
+	DXDeviceInstance::SetViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowHeight);
 	devcon->OMSetRenderTargets(1, renderTarget, NULL);
 	devcon->PSSetShaderResources(0, this->GBUFFER_COUNT, this->m_pResourceViews.data());
 

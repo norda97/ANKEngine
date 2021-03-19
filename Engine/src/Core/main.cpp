@@ -58,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		return 1;
 	}
 
-	DXDeviceInstance::Get().Init(ANKWindowHandler::s_hWnd);
+	DXDeviceInstance::Init(ANKWindowHandler::s_hWnd);
 
 	/*ANKThreadPool::Init();
 
@@ -120,7 +120,7 @@ void Run()
 
 			// Handle DirectX error output messages
 #if ANK_DEBUG
-			DXDeviceInstance::Get().HandleErrorMessage();
+			DXDeviceInstance::HandleErrorMessage();
 #endif
 			currentTime = std::chrono::high_resolution_clock::now();
 			dt = std::chrono::duration<double>(currentTime - prevTime).count();

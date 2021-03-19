@@ -20,7 +20,7 @@ DXCubemap::~DXCubemap()
 bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 {
 	if (!initialized) {
-		auto& devcon = DXDeviceInstance::Get().GetDevCon();
+		auto& devcon = DXDeviceInstance::GetDevCon();
 		auto& dev = DXDeviceInstance::GetDev();
 
 		m_MipLevels = mipLevels;
@@ -45,7 +45,7 @@ bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 		srd.SysMemPitch = m_Width * 4;
 		srd.SysMemSlicePitch = 0;
 
-		HRESULT hr = DXDeviceInstance::Get().GetDev()->CreateTexture2D(&tdesc, NULL, m_Cubemap.ReleaseAndGetAddressOf());
+		HRESULT hr = DXDeviceInstance::GetDev()->CreateTexture2D(&tdesc, NULL, m_Cubemap.ReleaseAndGetAddressOf());
 
 
 		if (FAILED(hr)) {
@@ -60,7 +60,7 @@ bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 		srDesc.Texture2D.MostDetailedMip = 0;
 		srDesc.Texture2D.MipLevels = tdesc.MipLevels;
 
-		hr = DXDeviceInstance::Get().GetDev()->CreateShaderResourceView(m_Cubemap.Get(), &srDesc, m_ResourceView.ReleaseAndGetAddressOf());
+		hr = DXDeviceInstance::GetDev()->CreateShaderResourceView(m_Cubemap.Get(), &srDesc, m_ResourceView.ReleaseAndGetAddressOf());
 		if (FAILED(hr)) {
 			LOG_ERROR("Failed to create shader resource view");
 			return false;
@@ -94,7 +94,7 @@ bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 			srDesc.Texture2DArray.ArraySize = 1;
 			srDesc.Texture2DArray.FirstArraySlice = i;
 
-			ANK_ASSERT(SUCCEEDED(DXDeviceInstance::Get().GetDev()->CreateShaderResourceView(m_Cubemap.Get(), &srDesc, m_ResourceViews[i].ReleaseAndGetAddressOf())),
+			ANK_ASSERT(SUCCEEDED(DXDeviceInstance::GetDev()->CreateShaderResourceView(m_Cubemap.Get(), &srDesc, m_ResourceViews[i].ReleaseAndGetAddressOf())),
 				"Failed to create resource views for cubemap");
 
 		}
