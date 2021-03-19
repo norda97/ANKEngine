@@ -7,7 +7,7 @@
 #include "Core/ECS/Components/RigidBody.h"
 #include "Core/ECS/Components/Gravity.h"
 
-void PhysicsSystem::init()
+void PhysicsSystem::Init()
 {
 }
 
@@ -15,9 +15,9 @@ void PhysicsSystem::update(ECS& ecs, float dt)
 {
 	for (auto const& entity : this->entities)
 	{
-		auto & transform	= ecs.getComponent<Transform>(entity);
-		auto & rigidBody	= ecs.getComponent<RigidBody>(entity);
-		auto const& gravity = ecs.getComponent<Gravity>(entity);
+		auto & transform	= ecs.GetComponent<Transform>(entity);
+		auto & rigidBody	= ecs.GetComponent<RigidBody>(entity);
+		auto const& gravity = ecs.GetComponent<Gravity>(entity);
 
 		transform.Position += rigidBody.Velocity * dt;
 

@@ -16,6 +16,7 @@
 #include "Core/ECS/Systems/HoverSystem.h"
 
 
+
 MainScene::MainScene()
 {
 }
@@ -24,47 +25,47 @@ MainScene::~MainScene()
 {
 }
 
-bool MainScene::init()
+bool MainScene::Init()
 {
-	this->renderer.init();
+	this->renderer.Init();
 	
 	// Init camera
-	this->camera.init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f, 8.f, 0.f), Vector3(-30.f, 8.f, 0.0f), 0.1f, 1000.0f);
+	this->camera.Init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f, 8.f, 0.f), Vector3(-30.f, 8.f, 0.0f), 0.1f, 1000.0f);
 	this->renderer.setCamera(&camera);
 
-	ecs.init();
+	ecs.Init();
 
-	ecs.registerComponent<Transform>();
-	ecs.registerComponent<Drawable>();
-	ecs.registerComponent<RigidBody>();
-	ecs.registerComponent<Gravity>();
+	ecs.RegisterComponent<Transform>();
+	ecs.RegisterComponent<Drawable>();
+	ecs.RegisterComponent<RigidBody>();
+	ecs.RegisterComponent<Gravity>();
 
-	this->hoverSystem = ecs.registerSystem<HoverSystem>();
+	this->hoverSystem = ecs.RegisterSystem<HoverSystem>();
 	{
 		Signature signature;
-		signature.set(ecs.getComponentType<Gravity>());
-		signature.set(ecs.getComponentType<Transform>());
-		signature.set(ecs.getComponentType<RigidBody>());
-		ecs.setSystemSignature<HoverSystem>(signature);
+		signature.set(ecs.GetComponentType<Gravity>());
+		signature.set(ecs.GetComponentType<Transform>());
+		signature.set(ecs.GetComponentType<RigidBody>());
+		ecs.SetSystemSignature<HoverSystem>(signature);
 	}
 
-	this->physicsSystem = ecs.registerSystem<PhysicsSystem>();
+	this->physicsSystem = ecs.RegisterSystem<PhysicsSystem>();
 	{
 		Signature signature;
-		signature.set(ecs.getComponentType<Transform>());
-		signature.set(ecs.getComponentType<RigidBody>());
-		ecs.setSystemSignature<PhysicsSystem>(signature);
+		signature.set(ecs.GetComponentType<Transform>());
+		signature.set(ecs.GetComponentType<RigidBody>());
+		ecs.SetSystemSignature<PhysicsSystem>(signature);
 	}
 
-	this->renderSystem = ecs.registerSystem<RenderSystem>();
+	this->renderSystem = ecs.RegisterSystem<RenderSystem>();
 	{
 		Signature signature;
-		signature.set(ecs.getComponentType<Transform>());
-		signature.set(ecs.getComponentType<Drawable>());
-		ecs.setSystemSignature<RenderSystem>(signature);
+		signature.set(ecs.GetComponentType<Transform>());
+		signature.set(ecs.GetComponentType<Drawable>());
+		ecs.SetSystemSignature<RenderSystem>(signature);
 	}
 
-	this->renderSystem->init(&this->ecs);
+	this->renderSystem->Init(&this->ecs);
 
 	ModelHandler& mh = ModelHandler::get();
 	Model& sponza = mh.loadModel(std::string(ANK_MODEL_PATH).append("SponzaPBR/"), "sponza.obj", "sponza");
@@ -81,7 +82,7 @@ bool MainScene::init()
 	{
 		for (unsigned j = 0; j < sphereCount; j++)
 		{
-			Entity entity = ecs.createEntity();
+			Entity entity = ecs.CreateEntity();
 			this->entities[index] = entity;
 			Model& newSphere = mh.duplicateModel(sphere, "redSphere");
 			MaterialID newMatID = mh.createMaterial(Vector4(1.0f, 0.0f, 0.0f, 1.0f), 1.0f - (float)(j * (1.0f / sphereCount)), (float)(i * (1.0f / sphereCount)));
@@ -90,14 +91,14 @@ bool MainScene::init()
 			Vec3 startPos = { 0.0f, offset, offset * sphereCount * 0.5f };
 			startPos += { 0.f, j * offset, i * -offset};
 
-			ecs.addComponent<Transform>(entity,
+			ecs.AddComponent<Transform>(entity,
 				Transform{
 					startPos,
 					{0.f, 0.f, 0.f},
 					{ scale, scale, scale }
 				});
 
-			ecs.addComponent<Drawable>(entity,
+			ecs.AddComponent<Drawable>(entity,
 				Drawable{
 					newSphere.getModelID()
 				});
@@ -125,28 +126,28 @@ bool MainScene::init()
 		ANKModelID materials[3] = { sphere.getModelID(), redSphere.getModelID(), blueSphere.getModelID() };
 		unsigned index = 0;
 		for (auto& entity : entities) {
-			entity = ecs.createEntity();
+			entity = ecs.CreateEntity();
 
-			ecs.addComponent<Gravity>(entity,
+			ecs.AddComponent<Gravity>(entity,
 				Gravity{
 					{0.f, -2.8f, 0.f}
 				});
 
-			ecs.addComponent<RigidBody>(entity,
+			ecs.AddComponent<RigidBody>(entity,
 				RigidBody{
 					{0.f, 0.f, 0.f},
 					{0.f, 0.f, 0.f}
 				});
 
 			float scale = randScale(generator);
-			ecs.addComponent<Transform>(entity,
+			ecs.AddComponent<Transform>(entity,
 				Transform{
 					{randPos(generator), 15.f, randPos(generator)},
 					{0.f, 0.f, 0.f},
 					{scale, scale, scale}
 				});
 
-			ecs.addComponent<Drawable>(entity,
+			ecs.AddComponent<Drawable>(entity,
 				Drawable{
 					materials[index % 3]
 				});
@@ -156,16 +157,16 @@ bool MainScene::init()
 	}*/
 
 	// Sponza scene
-	Entity entity = ecs.createEntity();
+	Entity entity = ecs.CreateEntity();
 
-	ecs.addComponent<Transform>(entity,
+	ecs.AddComponent<Transform>(entity,
 		Transform{
 			{0.f, 0.f, 0.f},
 			{0.f, 0.f, 0.f},
 			{0.1f, 0.1f, 0.1f}
 		});
 
-	ecs.addComponent<Drawable>(entity,
+	ecs.AddComponent<Drawable>(entity,
 		Drawable{
 			sponza.getModelID()
 		});
@@ -190,7 +191,7 @@ bool MainScene::render()
 	this->renderSystem->update(this->renderer);
 
 	this->renderer.finishFrame();
-	
+
 	return true;
 }
 

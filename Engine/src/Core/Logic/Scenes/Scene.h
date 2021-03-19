@@ -15,7 +15,7 @@ public:
 	Scene() = default;
 	virtual ~Scene() = default;
 
-	virtual bool init() = 0;
+	virtual bool Init() = 0;
 	virtual bool update(float dt) = 0;
 	virtual bool render() = 0;
 	virtual void shutdown() = 0;

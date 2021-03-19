@@ -13,7 +13,7 @@ DXBuffer::~DXBuffer()
 	//	this->buffer->Release();
 }
 
-bool DXBuffer::init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t bufferType, uint32_t accessFlag)
+bool DXBuffer::Init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t bufferType, uint32_t accessFlag)
 {
 	if (!initilized)
 	{

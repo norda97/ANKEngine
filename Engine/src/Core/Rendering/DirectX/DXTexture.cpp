@@ -24,7 +24,7 @@ bool DXTexture::isInitilized() const
 	return this->initialized;
 }
 
-bool DXTexture::init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& tdesc)
+bool DXTexture::Init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& tdesc)
 {
 	HRESULT hr = DXDeviceInstance::get().getDev()->CreateTexture2D(&tdesc, pData, this->texture.ReleaseAndGetAddressOf());
 

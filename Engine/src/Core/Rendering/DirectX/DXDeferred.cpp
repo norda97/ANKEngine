@@ -223,7 +223,7 @@ bool DXDeferred::InitShaders()
 		{"INSTANCE_WORLD", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, sizeof(Vector4) * 3, D3D11_INPUT_PER_INSTANCE_DATA, 1}
 	};
 
-	if (!this->shader.init("Deferred/Prerendering_V.hlsl", "Deferred/Prerendering_P.hlsl", ied)) {
+	if (!this->shader.Init("Deferred/Prerendering_V.hlsl", "Deferred/Prerendering_P.hlsl", ied)) {
 		ANK_WARNING("Failed to load deferred prerendering shader!");
 		return false;
 	}
@@ -234,7 +234,7 @@ bool DXDeferred::InitShaders()
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(Vector3) * 1, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
-	if (!this->m_FullscreenShader.init("UtilShaders/FullscreenQuad_V.hlsl", "Deferred/DeferredPBR_IBL_P.hlsl", ied))
+	if (!this->m_FullscreenShader.Init("UtilShaders/FullscreenQuad_V.hlsl", "Deferred/DeferredPBR_IBL_P.hlsl", ied))
 		return false;
 
 	return true;
@@ -250,5 +250,5 @@ void DXDeferred::InitFullscreenTri()
 		3.f, -1.f, 0.f,		2.f, 0.f
 	};
 
-	this->m_FullscreenTri.init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
+	this->m_FullscreenTri.Init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
 }

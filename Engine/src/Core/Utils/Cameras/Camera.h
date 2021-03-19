@@ -5,7 +5,7 @@ public:
 	Camera();
 	~Camera();
 
-	bool init(float defaultSpeed, float fov, float aspect, Vector3 target, Vector3 position, float nearPlane, float farPlane);
+	bool Init(float defaultSpeed, float fov, float aspect, Vector3 target, Vector3 position, float nearPlane, float farPlane);
 
 	void update(float dt);
 

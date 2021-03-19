@@ -55,7 +55,7 @@ public:
 		this->data[this->entityToIndex[entity]] = transform;
 	}
 
-	std::vector<T>& getData()
+	std::vector<T>& GetData()
 	{
 		return this->data;
 	}
@@ -70,7 +70,7 @@ private:
 class RenderSystem : public System
 {
 public:
-	void init(ECS* ecs);
+	void Init(ECS* ecs);
 
 	void update(DXRenderer& renderer);
 

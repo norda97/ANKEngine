@@ -17,7 +17,7 @@ DXCubemap::~DXCubemap()
 {
 }
 
-bool DXCubemap::init(unsigned width, unsigned height, unsigned mipLevels)
+bool DXCubemap::Init(unsigned width, unsigned height, unsigned mipLevels)
 {
 	if (!initialized) {
 		auto& devcon = DXDeviceInstance::get().getDevCon();

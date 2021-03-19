@@ -12,7 +12,7 @@ public:
 
 	static DXDeviceInstance& get();
 
-	void init(HWND hWnd);
+	void Init(HWND hWnd);
 
 	void setViewport(unsigned x, unsigned y, unsigned width, unsigned height);
 

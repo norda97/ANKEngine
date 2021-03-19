@@ -46,6 +46,9 @@
     <Filter Include="Core\Utils\InterfaceGfxDbg">
       <UniqueIdentifier>{C0CF3AE7-ACDF-E6B7-1599-4BD601C8D550}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Utils\ThreadPool">
+      <UniqueIdentifier>{6F0A3C31-DB76-F72B-A46A-8F8910961994}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\ECS\ComponentArray.h">
@@ -174,8 +177,8 @@
     <ClInclude Include="src\Core\Rendering\General\Buffer.h">
       <Filter>Core\Rendering\General</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Rendering\General\Renderer.h">
-      <Filter>Core\Rendering\General</Filter>
+    <ClInclude Include="src\Core\Utils\ANKWindowHandler.h">
+      <Filter>Core\Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Utils\Cameras\Camera.h">
       <Filter>Core\Utils\Cameras</Filter>
@@ -183,12 +186,10 @@
     <ClInclude Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterface.h">
       <Filter>Core\Utils\InterfaceGfxDbg</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterfaceInclude.h">
-      <Filter>Core\Utils\InterfaceGfxDbg</Filter>
+    <ClInclude Include="src\Core\Utils\ThreadPool\ANKThreadPool.h">
+      <Filter>Core\Utils\ThreadPool</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Utils\ANKWindowHandler.h" />
-    <ClInclude Include="src\Core\Utils\ThreadPool\ANKThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\ECS\EntityManager.cpp">
@@ -257,8 +258,8 @@
     <ClCompile Include="src\Core\Rendering\General\Buffer.cpp">
       <Filter>Core\Rendering\General</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Rendering\General\Renderer.cpp">
-      <Filter>Core\Rendering\General</Filter>
+    <ClCompile Include="src\Core\Utils\ANKWindowHandler.cpp">
+      <Filter>Core\Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Utils\Cameras\Camera.cpp">
       <Filter>Core\Utils\Cameras</Filter>
@@ -266,8 +267,9 @@
     <ClCompile Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterface.cpp">
       <Filter>Core\Utils\InterfaceGfxDbg</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Utils\ThreadPool\ANKThreadPool.cpp">
+      <Filter>Core\Utils\ThreadPool</Filter>
+    </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Core\Utils\ANKWindowHandler.cpp" />
-    <ClCompile Include="src\Core\Utils\ThreadPool\ANKThreadPool.cpp" />
   </ItemGroup>
 </Project>

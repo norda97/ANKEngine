@@ -13,7 +13,7 @@ DXSampler::~DXSampler()
 	//	this->samplerState->Release();
 }
 
-bool DXSampler::init(D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE addressMode)
+bool DXSampler::Init(D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE addressMode)
 {
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = filter; //D3D11_FILTER_MIN_MAG_MIP_LINEAR;

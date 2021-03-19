@@ -45,7 +45,12 @@ public:
 		this->size--;
 	};
 
-	T& getData(Entity entity)
+	bool HasData(Entity entity)
+	{
+		return this->entityToIndexMap.find(entity) != this->entityToIndexMap.end();
+	}
+
+	T& GetData(Entity entity)
 	{
 		ANK_ASSERT(this->entityToIndexMap.find(entity) != this->entityToIndexMap.end(), "Component is not attached to Entity!");
 

@@ -19,9 +19,12 @@
 //#include "Core/Logic/Entity.h"
 #include "Core/Utils/Cameras/Camera.h"
 
+
 #include "stbi/stb_image.h"
 
 #if ANK_USE_IMGUI
+	#include "Core/Utils/InterfaceGfxDbg/ANKDebugInterface.h"
+
 	#include "imgui.h"
 	#include "examples/imgui_impl_win32.h"
 	#include "examples/imgui_impl_dx11.h"
@@ -42,7 +45,7 @@ DXRenderer::~DXRenderer()
 #endif
 }
 
-bool DXRenderer::init()
+bool DXRenderer::Init()
 {
 	if (!initStates())
 		return false;
@@ -52,8 +55,8 @@ bool DXRenderer::init()
 		return false;
 
 	// temp
-	this->samplerLinear.init(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP);
-	this->samplerPoint.init(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_CLAMP);
+	this->samplerLinear.Init(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP);
+	this->samplerPoint.Init(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_CLAMP);
 
 	int width, height, nrComponents;
 	stbi_set_flip_vertically_on_load(true);
@@ -91,7 +94,7 @@ bool DXRenderer::init()
 		srd.SysMemPitch = width * 16;
 		srd.SysMemSlicePitch = 0;
 
-		this->equiTexture.init(&srd, texDesc);
+		this->equiTexture.Init(&srd, texDesc);
 
 		stbi_image_free(data);
 		delete[] rgba32;
@@ -99,9 +102,9 @@ bool DXRenderer::init()
 
 	renderBRDFLutTex();
 
-	environmentMap.init(512, 512, 1);
-	irradianceMap.init(32, 32, 1);
-	radianceMap.init(128, 128, 5);
+	environmentMap.Init(512, 512, 1);
+	irradianceMap.Init(32, 32, 1);
+	radianceMap.Init(128, 128, 5);
 
 	setupImgui();
 	
@@ -266,23 +269,23 @@ bool DXRenderer::InitShaders()
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
-	if (!this->equirectangularShader.init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/EquirectangularSampler_P.hlsl", ied))
+	if (!this->equirectangularShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/EquirectangularSampler_P.hlsl", ied))
 		return false;
 	
-	if (!this->irradianceShader.init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/CubemapConvolution_P.hlsl", ied))
+	if (!this->irradianceShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/CubemapConvolution_P.hlsl", ied))
 		return false;
 
-	if (!this->radianceShader.init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/RadiancePreFilter_P.hlsl", ied))
+	if (!this->radianceShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/RadiancePreFilter_P.hlsl", ied))
 		return false;
 
-	if (!this->skyboxShader.init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/Skybox_P.hlsl", ied))
+	if (!this->skyboxShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/Skybox_P.hlsl", ied))
 		return false;
 	ied =
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(Vector3), D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
-	if (!this->BRDFLutShader.init("UtilShaders/FullscreenQuad_V.hlsl", "UtilShaders/PreComputeBRDF_P.hlsl", ied))
+	if (!this->BRDFLutShader.Init("UtilShaders/FullscreenQuad_V.hlsl", "UtilShaders/PreComputeBRDF_P.hlsl", ied))
 		return false;
 
 	return true;
@@ -291,20 +294,20 @@ bool DXRenderer::InitShaders()
 bool DXRenderer::initBuffers()
 {
 	// Init constant buffer with scene variables
-	if (!this->sceneBuffer.init(NULL, sizeof(SceneVariables), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
+	if (!this->sceneBuffer.Init(NULL, sizeof(SceneVariables), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
 		return false;
 
-	if (!this->scenePBRBuffer.init(NULL, sizeof(Vector4), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
+	if (!this->scenePBRBuffer.Init(NULL, sizeof(Vector4), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
 		return false;
 
-	if (!this->materialProperties.init(NULL, sizeof(MaterialProperties), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
+	if (!this->materialProperties.Init(NULL, sizeof(MaterialProperties), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
 		return false;
 
 	Light light;
 	light.position = Vector3(5.f, 2.f, -20.f);
 	light.intensity = 1000.0f;
 
-	if (!this->lightBuffer.init(&light, sizeof(Light), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, 0))
+	if (!this->lightBuffer.Init(&light, sizeof(Light), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, 0))
 		return false;
 
 	return true;
@@ -445,7 +448,7 @@ void DXRenderer::createCubemapMip(DXCubemap& m_Cubemap, DXShader& shader, const 
 	auto& dev = DXDeviceInstance::get().getDev();
 
 	DXBuffer roughnessBuffer;
-	if (!roughnessBuffer.init(NULL, sizeof(float), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
+	if (!roughnessBuffer.Init(NULL, sizeof(float), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
 		return;
 
 	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
@@ -507,7 +510,7 @@ void DXRenderer::renderBRDFLutTex()
 		3.f, -1.f, 0.f,		2.f, 0.f
 	};
 
-	m_FullscreenTri.init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
+	m_FullscreenTri.Init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
 
 	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
@@ -524,7 +527,7 @@ void DXRenderer::renderBRDFLutTex()
 	texDesc.CPUAccessFlags = 0;
 	texDesc.MiscFlags = 0;
 
-	this->BRDFLutTexture.init(NULL, texDesc);
+	this->BRDFLutTexture.Init(NULL, texDesc);
 
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> rtv;
 

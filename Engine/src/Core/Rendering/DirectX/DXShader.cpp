@@ -13,7 +13,7 @@ DXShader::~DXShader()
 {
 }
 
-bool DXShader::init(const std::string& vFilename, const std::string& pFilename, std::vector<D3D11_INPUT_ELEMENT_DESC>& ied)
+bool DXShader::Init(const std::string& vFilename, const std::string& pFilename, std::vector<D3D11_INPUT_ELEMENT_DESC>& ied)
 {
 
 #if LOAD_PRECOMPILED_SHADERS

@@ -427,10 +427,10 @@ bool ModelHandler::processMesh(const aiMesh* aiMesh, Mesh* mesh)
 	ANK_INFO("Added mesh\t [Vertices: %d\t Indices: %d]", static_cast<int>(vertices.size()), (int)indices.size());
 
 	DXBuffer* vertexBuffer = new DXBuffer();
-	vertexBuffer->init(vertices.data(), vertices.size() * sizeof(VertexData), D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
+	vertexBuffer->Init(vertices.data(), vertices.size() * sizeof(VertexData), D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
 
 	DXBuffer* indexBuffer = new DXBuffer();
-	indexBuffer->init(indices.data(), indices.size() * sizeof(unsigned int), D3D11_USAGE_DEFAULT, D3D11_BIND_INDEX_BUFFER, 0);
+	indexBuffer->Init(indices.data(), indices.size() * sizeof(unsigned int), D3D11_USAGE_DEFAULT, D3D11_BIND_INDEX_BUFFER, 0);
 
 	mesh->setVertexBuffer(static_cast<Buffer*>(vertexBuffer));
 	mesh->setIndexBuffer(static_cast<Buffer*>(indexBuffer));

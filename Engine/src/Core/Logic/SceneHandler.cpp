@@ -19,7 +19,7 @@ bool SceneHandler::setCurrentScene(Scene* scene)
 
 	if (scene) {
 		this->currentScene = scene;
-		this->currentScene->init();
+		this->currentScene->Init();
 		return true;
 	}
 

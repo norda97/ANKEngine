@@ -7,7 +7,7 @@ class ECS;
 class HoverSystem : public System
 {
 public:
-	void init();
+	void Init();
 
 	void update(ECS& ecs, float dt);
 

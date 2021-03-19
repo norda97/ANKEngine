@@ -15,7 +15,7 @@ public:
 	}
 
 	template <typename T>
-	T* registerSystem()
+	T* RegisterSystem()
 	{
 		const char* typeName = typeid(T).name();
 

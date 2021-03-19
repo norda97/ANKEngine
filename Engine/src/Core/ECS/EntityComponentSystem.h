@@ -9,19 +9,19 @@
 class ECS
 {
 public:
-	void init()
+	void Init()
 	{
 		this->entityManager = std::make_unique<EntityManager>();
 		this->componentManager = std::make_unique<ComponentManager>();
 		this->systemManager = std::make_unique<SystemManager>();
 	}
 
-	Entity createEntity()
+	Entity CreateEntity()
 	{
 		return this->entityManager->addEntity();
 	}
 
-	void destroyEntity(Entity entity)
+	void DestroyEntity(Entity entity)
 	{
 		this->systemManager->entityDestroyed(entity);
 		this->componentManager->entityDestroyed(entity);
@@ -29,55 +29,61 @@ public:
 	}
 
 	template <typename T>
-	void registerComponent()
+	void RegisterComponent()
 	{
-		this->componentManager->registerComponent<T>();
+		this->componentManager->RegisterComponent<T>();
 	}
 	
 	template <typename T>
-	void addComponent(Entity entity, T component)
+	void AddComponent(Entity entity, T component)
 	{
-		this->componentManager->addComponent<T>(entity, component);
+		this->componentManager->AddComponent<T>(entity, component);
 
 		Signature signature = this->entityManager->getSignature(entity);
-		signature.set(this->componentManager->getComponentType<T>(), true);
+		signature.set(this->componentManager->GetComponentType<T>(), true);
 		this->entityManager->setSignature(entity, signature);
 
 		this->systemManager->entitySignatureChanged(entity, signature);
 	}
 
 	template <typename T>
-	void removeComponent(Entity entity)
+	void RemoveComponent(Entity entity)
 	{
-		this->componentManager->removeComponent<T>(entity);
+		this->componentManager->RemoveComponent<T>(entity);
 
 		Signature signature = this->entityManager->getSignature(entity);
-		signature.set(this->componentManager->getComponentType<T>(), false);
+		signature.set(this->componentManager->GetComponentType<T>(), false);
 		this->entityManager->setSignature(entity, signature);
 		
 		this->systemManager->entitySignatureChanged(entity, signature);
 	}
 
 	template <typename T>
-	T& getComponent(Entity entity)
+	bool HasComponent(Entity entity)
 	{
-		return this->componentManager->getComponent<T>(entity);
+		return this->componentManager->HasComponent<T>(entity);
 	}
 
 	template <typename T>
-	ComponentType getComponentType()
+	T& GetComponent(Entity entity)
 	{
-		return this->componentManager->getComponentType<T>();
+		return this->componentManager->GetComponent<T>(entity);
 	}
 
 	template <typename T>
-	T* registerSystem()
+	ComponentType GetComponentType()
 	{
-		return this->systemManager->registerSystem<T>();
+		return this->componentManager->GetComponentType<T>();
 	}
 
 	template <typename T>
-	void setSystemSignature(Signature signature)
+	T* RegisterSystem()
+	{
+		return this->systemManager->RegisterSystem<T>();
+	}
+
+	template <typename T>
+	void SetSystemSignature(Signature signature)
 	{
 		this->systemManager->setSignature<T>(signature);
 	}

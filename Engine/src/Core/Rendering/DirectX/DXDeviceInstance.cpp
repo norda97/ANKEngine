@@ -26,7 +26,7 @@ DXDeviceInstance& DXDeviceInstance::get()
 	return i;
 }
 
-void DXDeviceInstance::init(HWND hWnd)
+void DXDeviceInstance::Init(HWND hWnd)
 {
 	this->hWnd = hWnd;
 

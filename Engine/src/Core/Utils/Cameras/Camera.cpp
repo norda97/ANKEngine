@@ -11,7 +11,7 @@ Camera::~Camera()
 {
 }
 
-bool Camera::init(float defaultSpeed, float fov, float aspect, Vector3 target, Vector3 position, float nearPlane, float farPlane)
+bool Camera::Init(float defaultSpeed, float fov, float aspect, Vector3 target, Vector3 position, float nearPlane, float farPlane)
 {
 	this->defaultSpeed = defaultSpeed;
 

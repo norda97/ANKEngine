@@ -9,7 +9,7 @@
 #include "Core/ECS/Components/Gravity.h"
 #include "Core/ECS/Components/RigidBody.h"
 
-void HoverSystem::init()
+void HoverSystem::Init()
 {
 	this->timer = 0;
 }
@@ -18,8 +18,8 @@ void HoverSystem::update(ECS& ecs, float dt)
 {
 	for (auto const& entity : this->entities)
 	{
-		auto const& transform	= ecs.getComponent<Transform>(entity);
-		auto & rigidBody	= ecs.getComponent<RigidBody>(entity);
+		auto const& transform	= ecs.GetComponent<Transform>(entity);
+		auto & rigidBody	= ecs.GetComponent<RigidBody>(entity);
 		
 		this->timer += dt;
 

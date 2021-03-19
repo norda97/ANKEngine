@@ -7,7 +7,7 @@ public:
 	DXSampler();
 	~DXSampler();
 
-	bool init(D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE addressMode);
+	bool Init(D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE addressMode);
 	const ComPtr<ID3D11SamplerState>& getSampler();
 
 private:
