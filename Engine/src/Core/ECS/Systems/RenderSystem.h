@@ -55,7 +55,7 @@ public:
 		this->data[this->entityToIndex[entity]] = transform;
 	}
 
-	std::vector<T>& getData()
+	std::vector<T>& GetData()
 	{
 		return this->data;
 	}

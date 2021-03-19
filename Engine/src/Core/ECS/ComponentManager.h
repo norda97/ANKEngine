@@ -15,7 +15,7 @@ public:
 	}
 
 	template <typename T>
-	void registerComponent()
+	void RegisterComponent()
 	{
 		const char* typeName = typeid(T).name();
 
@@ -27,7 +27,7 @@ public:
 	}
 
 	template <typename T>
-	ComponentType getComponentType()
+	ComponentType GetComponentType()
 	{
 		const char* typeName = typeid(T).name();
 
@@ -37,21 +37,27 @@ public:
 	}
 
 	template <typename T>
-	void addComponent(Entity entity, T component)
+	void AddComponent(Entity entity, T component)
 	{
 		getComponentArray<T>()->insertData(entity, component);
 	}
 
 	template <typename T>
-	void removeComponent(Entity entity)
+	void RemoveComponent(Entity entity)
 	{
 		getComponentArray<T>()->removeData(entity);
 	}
 
 	template <typename T>
-	T& getComponent(Entity entity)
+	bool HasComponent(Entity entity)
 	{
-		return getComponentArray<T>()->getData(entity);
+		return getComponentArray<T>()->HasData(entity);
+	}
+
+	template <typename T>
+	T& GetComponent(Entity entity)
+	{
+		return getComponentArray<T>()->GetData(entity);
 	}
 
 	void entityDestroyed(Entity entity)

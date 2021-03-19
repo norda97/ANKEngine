@@ -29,7 +29,7 @@ public:
 private:
 	static D3D11_MESSAGE*	errorMsg;
 
-	static HWND hWnd;
+	static HWND s_hWnd;
 	static ComPtr<ID3D11Device>					s_Device;
 	static ComPtr<ID3D11DeviceContext>			s_Devcon;
 	static ComPtr<IDXGISwapChain>				s_Swapchain;

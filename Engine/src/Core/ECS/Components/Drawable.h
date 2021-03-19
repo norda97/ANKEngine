@@ -4,6 +4,5 @@
 
 struct Drawable
 {
-	ANK_REG_COMP_INTERFACE(Drawable);
-	ANK_REG_VAR_INTERFACE(ANKModelID, ModelID);
+	ANKModelID ModelID;
 };

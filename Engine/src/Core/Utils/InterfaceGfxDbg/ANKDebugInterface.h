@@ -1,6 +1,7 @@
 #pragma once
 
 #include "imgui.h"
+#define ANK_DEBUG_INTERFACE 1
 
 class ANKDebugInterface
 {
@@ -14,10 +15,6 @@ public:
 	static void Display();
 
 	static void Resize(float width, float height);
-
-
-private:
-
 
 private:
 	static ImVec2 s_Pos;

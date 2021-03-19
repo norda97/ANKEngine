@@ -9,8 +9,11 @@ namespace Logger
 	constexpr const int YELLOW = 14;
 	constexpr const int WHITE = 15;
 
-	void SetConsoleTextColor(int color);
-
+	inline void SetConsoleTextColor(int color) 
+	{
+		if (g_ConsoleHandle != INVALID_HANDLE_VALUE)
+			SetConsoleTextAttribute(g_ConsoleHandle, color);
+	}
 
 #ifdef ANK_DEBUG
 #include <crtdbg.h>

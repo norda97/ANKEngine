@@ -9,6 +9,7 @@
 #include "Core/Rendering/DirectX/DXDeviceInstance.h"
 
 #if ANK_USE_IMGUI
+#include "Core/Utils/InterfaceGfxDbg/ANKDebugInterface.h"
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif
 
@@ -81,7 +82,9 @@ LRESULT ANKWindowHandler::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 
 			HandleResizeCallbacks(width, height);
 
+#if ANK_USE_IMGUI
 			ANKDebugInterface::Resize(width, height);
+#endif
 		}
 		return 0;
 	}

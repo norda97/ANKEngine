@@ -19,9 +19,12 @@
 //#include "Core/Logic/Entity.h"
 #include "Core/Utils/Cameras/Camera.h"
 
+
 #include "stbi/stb_image.h"
 
 #if ANK_USE_IMGUI
+	#include "Core/Utils/InterfaceGfxDbg/ANKDebugInterface.h"
+
 	#include "imgui.h"
 	#include "examples/imgui_impl_win32.h"
 	#include "examples/imgui_impl_dx11.h"

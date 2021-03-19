@@ -18,7 +18,7 @@ ComPtr<ID3D11DepthStencilView>		DXDeviceInstance::s_DepthStencilView;
 ComPtr<ID3D11Texture2D>				DXDeviceInstance::s_DepthStencilBuffer;
 
 D3D11_MESSAGE* DXDeviceInstance::errorMsg;
-HWND DXDeviceInstance::hWnd;
+HWND DXDeviceInstance::s_hWnd;
 
 DXDeviceInstance::~DXDeviceInstance()
 {
@@ -27,7 +27,7 @@ DXDeviceInstance::~DXDeviceInstance()
 
 bool DXDeviceInstance::Init(HWND hWnd)
 {
-	hWnd = hWnd;
+	s_hWnd = hWnd;
 
 	UINT deviceFlags = 0;
 
@@ -232,7 +232,7 @@ void DXDeviceInstance::HandleErrorMessage()
 
 HWND DXDeviceInstance::GetHWND()
 {
-	return hWnd;
+	return s_hWnd;
 }
 
 

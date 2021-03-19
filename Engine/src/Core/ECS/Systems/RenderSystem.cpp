@@ -53,8 +53,8 @@ void RenderSystem::update(DXRenderer& renderer)
 
 	for (auto const& entity : this->entities)
 	{
-		auto & transform = this->m_pEcs->getComponent<Transform>(entity);
-		auto const& drawable = this->m_pEcs->getComponent<Drawable>(entity);
+		auto & transform = this->m_pEcs->GetComponent<Transform>(entity);
+		auto const& drawable = this->m_pEcs->GetComponent<Drawable>(entity);
 
 		const Model& model = modelMap.at(drawable.ModelID);
 		for (auto const& meshInstance : model.getMeshInstances())
@@ -88,7 +88,7 @@ void RenderSystem::update(DXRenderer& renderer)
 		for (auto& meshID : materialID.second)
 		{
 			auto& instanceVector = meshID.second;
-			unsigned instanceCount = instanceVector.getData().size();
+			unsigned instanceCount = instanceVector.GetData().size();
 			//renderer.render(meshID, pair.second.size(), instanceOffset);
 
 			unsigned int strides[1] = { sizeof(VertexData) };
@@ -112,7 +112,7 @@ void RenderSystem::update(DXRenderer& renderer)
 
 void RenderSystem::insertEntityEvent(Entity entity)
 {
-	auto const& drawable = this->m_pEcs->getComponent<Drawable>(entity);
+	auto const& drawable = this->m_pEcs->GetComponent<Drawable>(entity);
 
 	auto const& modelMap = ModelHandler::Get().getModels();
 
@@ -127,7 +127,7 @@ void RenderSystem::insertEntityEvent(Entity entity)
 
 void RenderSystem::eraseEntityEvent(Entity entity)
 {
-	auto const& drawable = this->m_pEcs->getComponent<Drawable>(entity);
+	auto const& drawable = this->m_pEcs->GetComponent<Drawable>(entity);
 
 	auto const& modelMap = ModelHandler::Get().getModels();
 
@@ -154,7 +154,7 @@ void RenderSystem::updateTransformBuffer()
 			for (auto& meshID : materialID.second)
 			{
 				auto& transformContainer = meshID.second;
-				auto& transformVector = transformContainer.getData();
+				auto& transformVector = transformContainer.GetData();
 				size_t instanceCount = transformVector.size();
 				memcpy((char*)mappedResource.pData + (instanceIndex * sizeof(Instance)), (void*)transformVector.data(), sizeof(Instance) * instanceCount);
 				instanceIndex += instanceCount;

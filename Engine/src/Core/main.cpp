@@ -58,9 +58,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		return 1;
 	}
 
-
-	ANKThreadPool::Init();
 	DXDeviceInstance::Get().Init(ANKWindowHandler::s_hWnd);
+
+	/*ANKThreadPool::Init();
 
 	ANKThreadPool::QueueJob([]() {
 		for (size_t i = 0; i < 10; i++)
@@ -81,7 +81,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		{
 			std::cout << "ccccccccccccc" << std::endl;
 		}
-		});
+		});*/
 	
 	Run();
 	Shutdown();

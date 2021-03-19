@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <iostream>
@@ -55,5 +56,3 @@ using Mat4 = Matrix;
 #include "Vec2.h"
 #endif
 
-#define ANK_DEBUG_INTERFACE 1
-#include "Core/Utils/InterfaceGfxDbg/ANKDebugInterfaceInclude.h"
