@@ -37,13 +37,13 @@ using namespace SimpleMath;
 #include "Core/Utils/Logger.h"
 using namespace Logger;
 
-#define ANK_TEXTURE_PATH "../Engine/src/Assets/Textures/"
-#define ANK_SHADER_PATH "../Engine/src/Assets/Shaders/"
-#define ANK_MODEL_PATH "../Engine/src/Assets/Models/"
+#define ANK_TEXTURE_PATH "../Assets/Textures/"
+#define ANK_SHADER_PATH "../Assets/Shaders/"
+#define ANK_MODEL_PATH "../Assets/Models/"
 
-#define ANK_TEXTURE_DEFAULT_BLACK_PATH "../Engine/src/Assets/Textures/defaultBlack.png"
-#define ANK_TEXTURE_DEFAULT_WHITE_PATH "../Engine/src/Assets/Textures/defaultWhite.png"
-#define ANK_TEXTURE_DEFAULT_NORMAL_PATH "../Engine/src/Assets/Textures/defaultNormal.png"
+#define ANK_TEXTURE_DEFAULT_BLACK_PATH "../Assets/Textures/defaultBlack.png"
+#define ANK_TEXTURE_DEFAULT_WHITE_PATH "../Assets/Textures/defaultWhite.png"
+#define ANK_TEXTURE_DEFAULT_NORMAL_PATH "../Assets/Textures/defaultNormal.png"
 
 #ifdef ANK_DX11
 using Vec4 = Vector4;
