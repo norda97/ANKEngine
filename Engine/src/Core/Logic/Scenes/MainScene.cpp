@@ -27,12 +27,11 @@ MainScene::~MainScene()
 
 bool MainScene::Init()
 {
-
-	this->renderer.Init();
-	
 	// Init camera
 	this->camera.Init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f, 8.f, 0.f), Vector3(-30.f, 8.f, 0.0f), 0.1f, 1000.0f);
-	this->renderer.setCamera(&camera);
+
+	this->renderer.setCamera(&camera); // TODO: camera as argument in constructor
+	this->renderer.Init();
 
 	m_Ecs.Init();
 

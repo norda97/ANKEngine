@@ -5,7 +5,6 @@ Texture2D worldTex			: register(t1);
 Texture2D normalTex			: register(t2);
 Texture2D MRAOTex			: register(t3); // Metallic, Roughness and AO
 
-
 TextureCube irradianceTex	: register(t4); // Irradiance Map
 TextureCube prefilterTex	: register(t5); // Prefilter Map
 Texture2D	brdfLUT			: register(t6); // BRDF Look up table

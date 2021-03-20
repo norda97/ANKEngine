@@ -12,12 +12,14 @@ public:
 	bool loadTexture(const std::string& path);
 
 	const ComPtr<ID3D11ShaderResourceView>& getShaderResource() const;
-	const ComPtr<ID3D11Texture2D>& getTexture() const;
+	ComPtr<ID3D11ShaderResourceView>& getShaderResource();
+	const ComPtr<ID3D11Texture2D>& Get() const;
+	ComPtr<ID3D11Texture2D>& Get();
 
 private:
 	bool initialized;
 
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ResourceView;
+	ComPtr<ID3D11Texture2D> m_Texture2D;
+	ComPtr<ID3D11ShaderResourceView> m_ResourceView;
 };
 

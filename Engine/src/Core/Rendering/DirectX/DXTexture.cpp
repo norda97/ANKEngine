@@ -26,7 +26,7 @@ bool DXTexture::isInitilized() const
 
 bool DXTexture::Init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& tdesc)
 {
-	HRESULT hr = DXDeviceInstance::GetDev()->CreateTexture2D(&tdesc, pData, this->texture.ReleaseAndGetAddressOf());
+	HRESULT hr = DXDeviceInstance::GetDev()->CreateTexture2D(&tdesc, pData, this->m_Texture2D.ReleaseAndGetAddressOf());
 
 	if (FAILED(hr)) {
 		LOG_ERROR("Failed to create texture2D");
@@ -44,7 +44,7 @@ bool DXTexture::Init(D3D11_SUBRESOURCE_DATA* pData, const D3D11_TEXTURE2D_DESC& 
 	srDesc.Texture2D.MostDetailedMip = 0;
 	srDesc.Texture2D.MipLevels = 1;
 
-	hr = DXDeviceInstance::GetDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, m_ResourceView.ReleaseAndGetAddressOf());
+	hr = DXDeviceInstance::GetDev()->CreateShaderResourceView(this->m_Texture2D.Get(), &srDesc, m_ResourceView.ReleaseAndGetAddressOf());
 	if (FAILED(hr)) {
 		LOG_ERROR("Failed to create shader resource view");
 		return false;
@@ -90,7 +90,7 @@ bool DXTexture::loadTexture(const std::string& path)
 	srd.SysMemPitch = width * 4;
 	srd.SysMemSlicePitch = 0;
 
-	HRESULT hr = DXDeviceInstance::GetDev()->CreateTexture2D(&tdesc, &srd, this->texture.ReleaseAndGetAddressOf());
+	HRESULT hr = DXDeviceInstance::GetDev()->CreateTexture2D(&tdesc, &srd, this->m_Texture2D.ReleaseAndGetAddressOf());
 
 	stbi_image_free(image);
 
@@ -106,7 +106,7 @@ bool DXTexture::loadTexture(const std::string& path)
 	srDesc.Texture2D.MostDetailedMip = 0;
 	srDesc.Texture2D.MipLevels = 1;
 
-	hr = DXDeviceInstance::GetDev()->CreateShaderResourceView(this->texture.Get(), &srDesc, m_ResourceView.ReleaseAndGetAddressOf());
+	hr = DXDeviceInstance::GetDev()->CreateShaderResourceView(this->m_Texture2D.Get(), &srDesc, m_ResourceView.ReleaseAndGetAddressOf());
 	if(FAILED(hr)) {
 		LOG_ERROR("Failed to create shader resource view");
 		return false;
@@ -122,8 +122,18 @@ const ComPtr<ID3D11ShaderResourceView>& DXTexture::getShaderResource() const
 	return this->m_ResourceView;
 }
 
-const ComPtr<ID3D11Texture2D>& DXTexture::getTexture() const
+ComPtr<ID3D11ShaderResourceView>& DXTexture::getShaderResource()
 {
-	return this->texture;
+	return this->m_ResourceView;
+}
+
+const ComPtr<ID3D11Texture2D>& DXTexture::Get() const
+{
+	return this->m_Texture2D;
+}
+
+ComPtr<ID3D11Texture2D>& DXTexture::Get()
+{
+	return m_Texture2D;
 }
 

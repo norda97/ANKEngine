@@ -120,10 +120,10 @@ void DXDeferred::ResizeGBuffers(uint32_t width, uint32_t height)
 	srvDesc.Texture2D.MipLevels = 1;
 
 	DXGI_FORMAT gbufferFormats[] = {
-		DXGI_FORMAT_R16G16B16A16_FLOAT,
-		DXGI_FORMAT_R16G16B16A16_FLOAT,
-		DXGI_FORMAT_R16G16B16A16_SNORM,
-		DXGI_FORMAT_R8G8B8A8_UNORM
+		DXGI_FORMAT_R16G16B16A16_FLOAT, // Albedo
+		DXGI_FORMAT_R16G16B16A16_FLOAT, // Position
+		DXGI_FORMAT_R16G16B16A16_SNORM, // Normal
+		DXGI_FORMAT_R8G8B8A8_UNORM,		// Metallic, Roughness and AO
 	};
 
 	for (unsigned i = 0; i < this->GBUFFER_COUNT; i++)
@@ -228,8 +228,8 @@ void DXDeferred::RenderGeometryBuffer(ID3D11RenderTargetView* const* renderTarge
 		devcon->Draw(3, 0);
 
 		// Unbind shader resources 
-		ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
-		devcon->PSSetShaderResources(0, 1, nullSRV);
+		ID3D11ShaderResourceView* nullSRV[4] = { nullptr, nullptr, nullptr, nullptr };
+		devcon->PSSetShaderResources(0, 4, nullSRV);
 	}
 	else
 	{

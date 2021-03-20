@@ -106,6 +106,8 @@ bool DXRenderer::Init()
 
 	renderBRDFLutTex();
 
+	GenerateSSAOUtils(64);
+
 	environmentMap.Init(512, 512, 1);
 	irradianceMap.Init(32, 32, 1);
 	radianceMap.Init(128, 128, 5);
@@ -128,7 +130,7 @@ bool DXRenderer::Init()
 			const char* combo_label = items[m_DisplayRTIndex];
 			if (ImGui::BeginCombo("RT Textures", combo_label))
 			{
-				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				for (int n = 0; n < 4; n++)
 				{
 					const bool is_selected = (m_DisplayRTIndex == n);
 					if (ImGui::Selectable(items[n], is_selected))
@@ -202,35 +204,43 @@ void DXRenderer::finishFrame()
 	devcon->OMSetDepthStencilState(this->noDepthStencilState.Get(), 0);
 	devcon->RSSetState(this->rsBackCull.Get());
 
-	if (m_DisplayRTIndex == 0)
-	{
-		ID3D11Buffer* cBuffers[2] = { this->scenePBRBuffer.GetBuffer().Get(), this->lightBuffer.GetBuffer().Get() };
-		devcon->PSSetConstantBuffers(0, 2, cBuffers);
-		// Set irrandiance map
-		devcon->PSSetShaderResources(4, 1, this->irradianceMap.getResourceView().GetAddressOf());
-		devcon->PSSetShaderResources(5, 1, this->radianceMap.getResourceView().GetAddressOf());
-		devcon->PSSetShaderResources(6, 1, this->BRDFLutTexture.getShaderResource().GetAddressOf());
+	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
+	ID3D11Buffer* cBuffers[1] = { m_SSAOBuffer.GetBuffer().Get() };
+	devcon->PSSetConstantBuffers(0, 1, cBuffers);
 
-		// Used to sample BRDF Lut
-		devcon->PSSetSamplers(1, 1, this->samplerPoint.getSampler().GetAddressOf());
+	devcon->OMSetRenderTargets(1, DXDeviceInstance::GetBackbuffer().GetAddressOf(), NULL);
+	RenderSSAO();
 
-		m_DeferredRenderer.RenderComplete(DXDeviceInstance::GetBackbuffer().GetAddressOf());
 
-		// Render skybox last to cull fragments and avoid shading
-		// Update camera for skybox
-		SceneVariables sv = { this->camera->getRotation() * this->camera->getProjection() };
-		this->sceneBuffer.Update(static_cast<void*>(&sv), sizeof(sv), 0);
+	//if (m_DisplayRTIndex == 0)
+	//{
+	//	ID3D11Buffer* cBuffers[2] = { this->scenePBRBuffer.GetBuffer().Get(), this->lightBuffer.GetBuffer().Get() };
+	//	devcon->PSSetConstantBuffers(0, 2, cBuffers);
+	//	// Set irrandiance map
+	//	devcon->PSSetShaderResources(4, 1, this->irradianceMap.getResourceView().GetAddressOf());
+	//	devcon->PSSetShaderResources(5, 1, this->radianceMap.getResourceView().GetAddressOf());
+	//	devcon->PSSetShaderResources(6, 1, this->BRDFLutTexture.getShaderResource().GetAddressOf());
 
-		devcon->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
-		devcon->OMSetRenderTargets(1, DXDeviceInstance::GetBackbuffer().GetAddressOf(), DXDeviceInstance::GetDepthStencilView().Get());
-		devcon->RSSetState(this->rsFrontCull.Get());
+	//	// Used to sample BRDF Lut
+	//	devcon->PSSetSamplers(1, 1, this->samplerPoint.getSampler().GetAddressOf());
 
-		renderEnvironmentMap(this->skyboxShader, this->environmentMap.getResourceView());
-	}
-	else
-	{
-		m_DeferredRenderer.RenderGeometryBuffer(DXDeviceInstance::GetBackbuffer().GetAddressOf(), m_DisplayRTIndex - 1);
-	}
+	//	m_DeferredRenderer.RenderComplete(DXDeviceInstance::GetBackbuffer().GetAddressOf());
+
+	//	// Render skybox last to cull fragments and avoid shading
+	//	// Update camera for skybox
+	//	SceneVariables sv = { this->camera->getRotation() * this->camera->getProjection() };
+	//	this->sceneBuffer.Update(static_cast<void*>(&sv), sizeof(sv), 0);
+
+	//	devcon->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
+	//	devcon->OMSetRenderTargets(1, DXDeviceInstance::GetBackbuffer().GetAddressOf(), DXDeviceInstance::GetDepthStencilView().Get());
+	//	devcon->RSSetState(this->rsFrontCull.Get());
+
+	//	renderEnvironmentMap(this->skyboxShader, this->environmentMap.getResourceView());
+	//}
+	//else
+	//{
+	//	m_DeferredRenderer.RenderGeometryBuffer(DXDeviceInstance::GetBackbuffer().GetAddressOf(), m_DisplayRTIndex - 1);
+	//}
 
 	
 #if ANK_USE_IMGUI
@@ -308,23 +318,26 @@ bool DXRenderer::InitShaders()
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
-	if (!this->equirectangularShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/EquirectangularSampler_P.hlsl", ied))
+	if (!equirectangularShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/EquirectangularSampler_P.hlsl", ied))
 		return false;
 	
-	if (!this->irradianceShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/CubemapConvolution_P.hlsl", ied))
+	if (!irradianceShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/CubemapConvolution_P.hlsl", ied))
 		return false;
 
-	if (!this->radianceShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/RadiancePreFilter_P.hlsl", ied))
+	if (!radianceShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/RadiancePreFilter_P.hlsl", ied))
 		return false;
 
-	if (!this->skyboxShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/Skybox_P.hlsl", ied))
+	if (!skyboxShader.Init("UtilShaders/WorldPosition_V.hlsl", "UtilShaders/Skybox_P.hlsl", ied))
 		return false;
 	ied =
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(Vector3), D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
-	if (!this->BRDFLutShader.Init("UtilShaders/FullscreenQuad_V.hlsl", "UtilShaders/PreComputeBRDF_P.hlsl", ied))
+	if (!BRDFLutShader.Init("UtilShaders/FullscreenQuad_V.hlsl", "UtilShaders/PreComputeBRDF_P.hlsl", ied))
+		return false;
+
+	if (!m_SSAOShader.Init("UtilShaders/FullscreenQuad_V.hlsl", "SSAO/SSAO_P.hlsl", ied))
 		return false;
 
 	return true;
@@ -337,6 +350,9 @@ bool DXRenderer::initBuffers()
 		return false;
 
 	if (!this->scenePBRBuffer.Init(NULL, sizeof(Vector4), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
+		return false;
+
+	if (!this->m_SSAOBuffer.Init(NULL, sizeof(SSAOConstants), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
 		return false;
 
 	if (!this->materialProperties.Init(NULL, sizeof(MaterialProperties), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
@@ -410,6 +426,145 @@ void DXRenderer::updateSceneConstants(float dt)
 	// Update campos for deferred
 	Vector3 camPos = this->camera->getPosition();
 	this->scenePBRBuffer.Update(&camPos, sizeof(Vector3), 0);
+}
+
+void DXRenderer::GenerateSSAOUtils(unsigned sampleCount)
+{
+	// Hemisphere sample points
+	std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between [0.0, 1.0]
+	std::default_random_engine generator;
+	std::vector<Vector4> ssaoKernel;
+	for (unsigned int i = 0; i < sampleCount; ++i)
+	{
+		Vector4 sample(
+			randomFloats(generator) * 2.0 - 1.0,
+			randomFloats(generator) * 2.0 - 1.0,
+			randomFloats(generator),
+			0.f
+		);
+		sample.Normalize();
+		sample *= randomFloats(generator);
+
+		float scale = (float)i / sampleCount;
+		scale = 0.1f + scale * scale * (1.0f - 0.1f); // lerp
+		sample *= scale;
+
+		ssaoKernel.push_back(sample);
+	}
+
+	// Tiled noise for hemisphere sampling
+	std::vector<Vector3> ssaoNoise;
+	for (unsigned int i = 0; i < 16; i++)
+	{
+		Vector3 noise(
+			randomFloats(generator) * 2.0 - 1.0,
+			randomFloats(generator) * 2.0 - 1.0,
+			0.0f);
+		ssaoNoise.push_back(noise);
+	}
+
+	// Create SSAO Noise Texture
+	D3D11_TEXTURE2D_DESC texDesc;
+	ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
+	texDesc.Width = 4;
+	texDesc.Height = 4;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA srd = { 0 };
+	srd.pSysMem = (void*)ssaoNoise.data();
+	srd.SysMemPitch = texDesc.Width * 16;
+	srd.SysMemSlicePitch = 0;
+
+	m_SSAONoiseTexture.Init(&srd, texDesc);
+
+	// SSAO Render Target
+	auto& devcon = DXDeviceInstance::GetDevCon();
+	auto& dev = DXDeviceInstance::GetDev();
+
+	texDesc = { 0 };
+	texDesc.Width = ANKWindowHandler::s_WindowWidth;
+	texDesc.Height = ANKWindowHandler::s_WindowHeight;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+
+	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
+	rtvDesc.Format = texDesc.Format;
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Texture2D.MipSlice = 0;
+
+	DXGI_FORMAT format = DXGI_FORMAT_R16_FLOAT;
+
+	texDesc.Format = rtvDesc.Format = format;
+
+	// Create textures
+	HRESULT hr = dev->CreateTexture2D(&texDesc, NULL, m_SSAOTexture.Get().GetAddressOf());
+	if (FAILED(hr)) {
+		LOG_ERROR("Failed to create geometry buffer");
+	}
+
+	// Create render target
+	hr = dev->CreateRenderTargetView(m_SSAOTexture.Get().Get(), &rtvDesc, m_pSSAORenderTarget.ReleaseAndGetAddressOf());
+	if (FAILED(hr)) {
+		LOG_ERROR("Failed to create render target view");
+	}
+
+	SSAOConstants ssaoConstants;
+	ssaoConstants.Projection = camera->getProjection();
+	memcpy(ssaoConstants.samples, ssaoKernel.data(), sizeof(Vector4) * ssaoKernel.size());
+	ssaoConstants.screenWidth = ANKWindowHandler::s_WindowWidth;
+	ssaoConstants.screenHeight = ANKWindowHandler::s_WindowHeight;
+
+	m_SSAOBuffer.Update(&ssaoConstants, sizeof(SSAOConstants), 0);
+}
+
+void DXRenderer::RenderSSAO()
+{
+	auto devcon = DXDeviceInstance::GetDevCon();
+
+	m_SSAOShader.prepare();
+
+	devcon->RSSetState(this->rsBackCull.Get());
+	devcon->OMSetDepthStencilState(this->noDepthStencilState.Get(), 0);
+	FLOAT clearColor[2] = { 1.f, 0.f };
+	devcon->ClearRenderTargetView(m_pSSAORenderTarget.Get(), clearColor);
+	//devcon->OMSetRenderTargets(1, m_pSSAORenderTarget.GetAddressOf(), NULL);
+
+	unsigned int strides[1] = { sizeof(float) * 5 };
+	unsigned int offsets[1] = { 0 };
+
+	auto& gBuffers = m_DeferredRenderer.GetResourceViews();
+
+	ID3D11ShaderResourceView* shaderResources[] = {
+		gBuffers[1],
+		gBuffers[2],
+		m_SSAONoiseTexture.getShaderResource().Get()
+	};
+
+	devcon->PSSetShaderResources(0, 3, shaderResources);
+
+	devcon->IASetVertexBuffers(0, 1, m_FullscreenTri.GetBuffer().GetAddressOf(), strides, offsets);
+	devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	devcon->Draw(3, 0);
+
+	ID3D11ShaderResourceView* nullSRV[3] = { nullptr, nullptr, nullptr };
+	devcon->PSSetShaderResources(0, 3, nullSRV);
 }
 
 void DXRenderer::renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap)
@@ -539,8 +694,6 @@ void DXRenderer::createCubemapMip(DXCubemap& m_Cubemap, DXShader& shader, const 
 
 void DXRenderer::renderBRDFLutTex()
 {
-	DXBuffer m_FullscreenTri;
-
 	float vertices[]
 	{
 		// Pos				// Uv
@@ -575,7 +728,7 @@ void DXRenderer::renderBRDFLutTex()
 	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Texture2D.MipSlice = 0;
 
-	ANK_ASSERT(SUCCEEDED(DXDeviceInstance::GetDev()->CreateRenderTargetView(this->BRDFLutTexture.getTexture().Get(), &rtvDesc, rtv.ReleaseAndGetAddressOf())),
+	ANK_ASSERT(SUCCEEDED(DXDeviceInstance::GetDev()->CreateRenderTargetView(this->BRDFLutTexture.Get().Get(), &rtvDesc, rtv.ReleaseAndGetAddressOf())),
 		"Failed to create render target view for BRDF LUT");
 
 	auto& devcon = DXDeviceInstance::GetDevCon();

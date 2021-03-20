@@ -3,7 +3,7 @@
 
 #include "Core/Rendering/DirectX/DXDeviceInstance.h"
 
-DXBuffer::DXBuffer() : buffer(NULL), initilized(false)
+DXBuffer::DXBuffer() : m_pBuffer(NULL), initilized(false)
 {
 }
 
@@ -36,10 +36,10 @@ bool DXBuffer::Init(const void* data, uint32_t size, D3D11_USAGE usage, uint32_t
 		if (data) {
 			D3D11_SUBRESOURCE_DATA bufferData = { 0 };
 			bufferData.pSysMem = data;
-			hr = DXDeviceInstance::GetDev()->CreateBuffer(&this->desc, &bufferData, this->buffer.ReleaseAndGetAddressOf());
+			hr = DXDeviceInstance::GetDev()->CreateBuffer(&this->desc, &bufferData, this->m_pBuffer.ReleaseAndGetAddressOf());
 		}
 		else
-			hr = DXDeviceInstance::GetDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
+			hr = DXDeviceInstance::GetDev()->CreateBuffer(&this->desc, NULL, this->m_pBuffer.ReleaseAndGetAddressOf());
 
 		if (FAILED(hr))
 			return false;
@@ -54,14 +54,19 @@ void DXBuffer::Update(void* data, uint32_t size, uint32_t offset, D3D11_MAP mapT
 {
 	D3D11_MAPPED_SUBRESOURCE ms = { 0 };
 	const D3D11_BOX sDstBox = { offset, 0U, 0U, offset+size, 1U, 1U };
-	DXDeviceInstance::GetDevCon()->Map(this->buffer.Get(), NULL, mapType, NULL, &ms);
+	DXDeviceInstance::GetDevCon()->Map(this->m_pBuffer.Get(), NULL, mapType, NULL, &ms);
 	memcpy((char*)ms.pData + offset, data, size);
-	DXDeviceInstance::GetDevCon()->Unmap(this->buffer.Get(), NULL);
+	DXDeviceInstance::GetDevCon()->Unmap(this->m_pBuffer.Get(), NULL);
 }
 
 const ComPtr<ID3D11Buffer>& DXBuffer::GetBuffer() const
 {
-	return this->buffer;
+	return m_pBuffer;
+}
+
+ComPtr<ID3D11Buffer>& DXBuffer::GetBuffer()
+{
+	return m_pBuffer;
 }
 
 const uint32_t DXBuffer::GetSize() const
@@ -78,7 +83,7 @@ void DXBuffer::resize(uint32_t size)
 
 	// Vertex buffer
 	HRESULT hr;
-	hr = DXDeviceInstance::GetDev()->CreateBuffer(&this->desc, NULL, this->buffer.ReleaseAndGetAddressOf());
+	hr = DXDeviceInstance::GetDev()->CreateBuffer(&this->desc, NULL, this->m_pBuffer.ReleaseAndGetAddressOf());
 
 	ANK_ASSERT(FAILED(hr), "Failed to resize DXBuffer");
 }

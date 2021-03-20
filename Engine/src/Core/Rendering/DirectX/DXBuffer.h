@@ -17,6 +17,7 @@ public:
 	void resize(uint32_t size);
 
 	const ComPtr<ID3D11Buffer>& GetBuffer() const;
+	ComPtr<ID3D11Buffer>& GetBuffer();
 
 	const uint32_t GetSize() const;
 
@@ -24,7 +25,7 @@ private:
 	bool initilized;
 	uint32_t size;
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
+	ComPtr<ID3D11Buffer> m_pBuffer;
 	D3D11_BUFFER_DESC desc;
 };
 

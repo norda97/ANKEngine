@@ -21,6 +21,17 @@ struct Light
 	float intensity;
 };
 
+struct alignas(16) SSAOConstants
+{
+	Matrix Projection;
+	unsigned screenWidth;
+	unsigned screenHeight;
+	unsigned padding0;
+	unsigned padding1;
+	Vector4 samples[64];
+};
+
+
 class DXRenderer
 {
 public:
@@ -46,11 +57,15 @@ private:
 
 	void updateSceneConstants(float dt);
 
+	// SSAO pass
+	void GenerateSSAOUtils(unsigned sampleCount);
+	void RenderSSAO();
+
+	// Environment pass
 	void renderEnvironmentMap(DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
 	void createCubemap(DXCubemap& m_Cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
 	void createCubemapMip(DXCubemap& m_Cubemap, DXShader& shader, const ComPtr<ID3D11ShaderResourceView>& envMap);
 	void renderBRDFLutTex();
-	//void renderModel(DXModel& model, unsigned m_InstanceCount, unsigned instanceOffset);
 	
 	const unsigned m_MaxPointLights;
 	unsigned m_PointLightCount;
@@ -62,13 +77,23 @@ private:
 	// Deferred rendering
 	DXDeferred m_DeferredRenderer;
 	
-	// Other
+	// SSAO Shaders
+	DXShader m_SSAOShader;
+
+	// SSAO Textures
+	DXTexture							m_SSAOTexture;
+	ComPtr<ID3D11RenderTargetView>		m_pSSAORenderTarget = nullptr;
+
+	DXTexture m_SSAONoiseTexture;
+
+	// PBR & Environment Shaders
 	DXShader equirectangularShader;
 	DXShader irradianceShader;
 	DXShader radianceShader;
 	DXShader skyboxShader;
 	DXShader BRDFLutShader;
 
+	// PBR & Environment Texture/Cubemaps
 	DXTexture equiTexture;
 	DXTexture BRDFLutTexture;
 	DXCubemap environmentMap;
@@ -80,6 +105,10 @@ private:
 	DXBuffer lightBuffer;
 	DXBuffer sceneBuffer;
 	DXBuffer scenePBRBuffer;
+	DXBuffer m_SSAOBuffer;
+
+	DXBuffer m_FullscreenTri;
+
 	//DXBuffer instanceBuffer;
 
 	DXSampler samplerLinear;
