@@ -14,10 +14,14 @@ public:
 
 	static void Display();
 
+	static void RegisterInterfaceCallback(std::function<void()> callbackFunc);
+
 	static void Resize(float width, float height);
 
 private:
 	static ImVec2 s_Pos;
 	static ImVec2 s_Size;
 	static ImVec2 s_CoverFactor;
+
+	static std::vector<std::function<void()>> s_InterfaceCallbacks;
 };

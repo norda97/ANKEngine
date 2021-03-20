@@ -52,8 +52,10 @@ private:
 	void renderBRDFLutTex();
 	//void renderModel(DXModel& model, unsigned m_InstanceCount, unsigned instanceOffset);
 	
-	const unsigned maxPointLights;
-	unsigned pointLightCount;
+	const unsigned m_MaxPointLights;
+	unsigned m_PointLightCount;
+
+	unsigned m_DisplayRTIndex;
 
 	Camera* camera;
 

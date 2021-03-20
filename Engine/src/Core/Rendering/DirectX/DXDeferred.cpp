@@ -65,14 +65,14 @@ DXDeferred::DXDeferred()
 		if (FAILED(hr)) {
 			LOG_ERROR("Failed to create render target view");
 		}
-		this->m_pRenderTargets[i] = this->m_RenderTargets[i].Get();
+		m_pRenderTargets[i] = this->m_RenderTargets[i].Get();
 
 		// Create resource view
 		hr = dev->CreateShaderResourceView(this->m_GeomBuffers[i].Get(), &srvDesc, this->m_ResourceView[i].GetAddressOf());
 		if (FAILED(hr)) {
 			LOG_ERROR("Failed to create resource view");
 		}
-		this->m_pResourceViews[i] = this->m_ResourceView[i].Get();
+		m_pResourceViews[i] = this->m_ResourceView[i].Get();
 	}
 
 	InitShaders();
@@ -149,7 +149,7 @@ void DXDeferred::ResizeGBuffers(uint32_t width, uint32_t height)
 		if (FAILED(hr)) {
 			LOG_ERROR("Failed to create resource view");
 		}
-		this->m_pResourceViews[i] = this->m_ResourceView[i].Get();
+		m_pResourceViews[i] = this->m_ResourceView[i].Get();
 	}
 }
 
@@ -181,19 +181,19 @@ void DXDeferred::bindShaders()
 
 const std::array<ID3D11ShaderResourceView*, 4>& DXDeferred::GetResourceViews() const
 {
-	return this->m_pResourceViews;
+	return m_pResourceViews;
 }
 
 void DXDeferred::RenderComplete(ID3D11RenderTargetView* const* renderTarget)
 {
 	auto& devcon = DXDeviceInstance::GetDevCon();
 
-	this->m_FullscreenShader.prepare();
+	m_DeferredPBRShader.prepare();
 
 	// Render fullscreen tri to backbuffer
 	DXDeviceInstance::SetViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowHeight);
 	devcon->OMSetRenderTargets(1, renderTarget, NULL);
-	devcon->PSSetShaderResources(0, this->GBUFFER_COUNT, this->m_pResourceViews.data());
+	devcon->PSSetShaderResources(0, this->GBUFFER_COUNT, m_pResourceViews.data());
 
 	unsigned int strides[1] = { sizeof(float) * 5 };
 	unsigned int offsets[1] = { 0 };
@@ -205,6 +205,36 @@ void DXDeferred::RenderComplete(ID3D11RenderTargetView* const* renderTarget)
 	// Unbind shader resources 
 	ID3D11ShaderResourceView* nullSRV[4] = { nullptr, nullptr, nullptr, nullptr };
 	devcon->PSSetShaderResources(0, 4, nullSRV);
+}
+
+void DXDeferred::RenderGeometryBuffer(ID3D11RenderTargetView* const* renderTarget, unsigned index)
+{
+	if (index < GBUFFER_COUNT)
+	{
+		auto& devcon = DXDeviceInstance::GetDevCon();
+
+		m_FullscreenTextureShader.prepare();
+
+		// Render fullscreen tri to backbuffer
+		DXDeviceInstance::SetViewport(0, 0, ANKWindowHandler::s_WindowWidth, ANKWindowHandler::s_WindowHeight);
+		devcon->OMSetRenderTargets(1, renderTarget, NULL);
+		devcon->PSSetShaderResources(0, 1, &m_pResourceViews[index]);
+
+		unsigned int strides[1] = { sizeof(float) * 5 };
+		unsigned int offsets[1] = { 0 };
+
+		devcon->IASetVertexBuffers(0, 1, m_FullscreenTri.GetBuffer().GetAddressOf(), strides, offsets);
+
+		devcon->Draw(3, 0);
+
+		// Unbind shader resources 
+		ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+		devcon->PSSetShaderResources(0, 1, nullSRV);
+	}
+	else
+	{
+		LOG_WARNING("RenderGeometryBuffer failed to draw RT textures to index out of range!");
+	}
 }
 
 bool DXDeferred::InitShaders()
@@ -234,8 +264,12 @@ bool DXDeferred::InitShaders()
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(Vector3) * 1, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
-	if (!this->m_FullscreenShader.Init("UtilShaders/FullscreenQuad_V.hlsl", "Deferred/DeferredPBR_IBL_P.hlsl", ied))
+	if (!m_DeferredPBRShader.Init("UtilShaders/FullscreenQuad_V.hlsl", "Deferred/DeferredPBR_IBL_P.hlsl", ied))
 		return false;
+
+	if (!m_FullscreenTextureShader.Init("UtilShaders/FullscreenQuad_V.hlsl", "UtilShaders/FullscreenTexture_P.hlsl", ied))
+		return false;
+
 
 	return true;
 }

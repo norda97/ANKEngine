@@ -30,7 +30,11 @@
 	#include "examples/imgui_impl_dx11.h"
 #endif
 
-DXRenderer::DXRenderer() : camera(nullptr), maxPointLights(10), pointLightCount(0)
+DXRenderer::DXRenderer() : 
+	camera(nullptr),
+	m_MaxPointLights(10),
+	m_PointLightCount(0),
+	m_DisplayRTIndex(0)
 {
 
 }
@@ -115,6 +119,30 @@ bool DXRenderer::Init()
 	createCubemapMip(irradianceMap, this->irradianceShader, environmentMap.getResourceView());
 	createCubemapMip(radianceMap, this->radianceShader, environmentMap.getResourceView());
 
+	// Create Interface Callback for swapping PBR texture
+#if ANK_USE_IMGUI
+	ANKDebugInterface::RegisterInterfaceCallback([this]() {
+		if (ImGui::CollapsingHeader("Shading"))
+		{
+			const char* items[] = { "PBR", "Albedo", "World", "Normal" };
+			const char* combo_label = items[m_DisplayRTIndex];
+			if (ImGui::BeginCombo("RT Textures", combo_label))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				{
+					const bool is_selected = (m_DisplayRTIndex == n);
+					if (ImGui::Selectable(items[n], is_selected))
+						m_DisplayRTIndex = n;
+
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+		}
+		});
+#endif
+
 	return true;
 }
 
@@ -170,37 +198,48 @@ void DXRenderer::finishFrame()
 {
 	auto& devcon = DXDeviceInstance::GetDevCon();
 
+	// Disable of depth stencil and turn on backculling
 	devcon->OMSetDepthStencilState(this->noDepthStencilState.Get(), 0);
 	devcon->RSSetState(this->rsBackCull.Get());
 
-	ID3D11Buffer* cBuffers[2] = { this->scenePBRBuffer.GetBuffer().Get(), this->lightBuffer.GetBuffer().Get() };
-	devcon->PSSetConstantBuffers(0, 2, cBuffers);
-	// Set irrandiance map
-	devcon->PSSetShaderResources(4, 1, this->irradianceMap.getResourceView().GetAddressOf());
-	devcon->PSSetShaderResources(5, 1, this->radianceMap.getResourceView().GetAddressOf());
-	devcon->PSSetShaderResources(6, 1, this->BRDFLutTexture.getShaderResource().GetAddressOf());
+	if (m_DisplayRTIndex == 0)
+	{
+		ID3D11Buffer* cBuffers[2] = { this->scenePBRBuffer.GetBuffer().Get(), this->lightBuffer.GetBuffer().Get() };
+		devcon->PSSetConstantBuffers(0, 2, cBuffers);
+		// Set irrandiance map
+		devcon->PSSetShaderResources(4, 1, this->irradianceMap.getResourceView().GetAddressOf());
+		devcon->PSSetShaderResources(5, 1, this->radianceMap.getResourceView().GetAddressOf());
+		devcon->PSSetShaderResources(6, 1, this->BRDFLutTexture.getShaderResource().GetAddressOf());
 
-	// Used to sample BRDF Lut
-	devcon->PSSetSamplers(1, 1, this->samplerPoint.getSampler().GetAddressOf());
+		// Used to sample BRDF Lut
+		devcon->PSSetSamplers(1, 1, this->samplerPoint.getSampler().GetAddressOf());
 
-	m_DeferredRenderer.RenderComplete(DXDeviceInstance::GetBackbuffer().GetAddressOf());
+		m_DeferredRenderer.RenderComplete(DXDeviceInstance::GetBackbuffer().GetAddressOf());
 
-	// Render skybox last to cull fragments and avoid shading
-	// Update camera for skybox
-	SceneVariables sv = { this->camera->getRotation() * this->camera->getProjection() };
-	this->sceneBuffer.Update(static_cast<void*>(&sv), sizeof(sv), 0);
+		// Render skybox last to cull fragments and avoid shading
+		// Update camera for skybox
+		SceneVariables sv = { this->camera->getRotation() * this->camera->getProjection() };
+		this->sceneBuffer.Update(static_cast<void*>(&sv), sizeof(sv), 0);
 
-	devcon->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
-	devcon->OMSetRenderTargets(1, DXDeviceInstance::GetBackbuffer().GetAddressOf(), DXDeviceInstance::GetDepthStencilView().Get());
-	devcon->RSSetState(this->rsFrontCull.Get());
+		devcon->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
+		devcon->OMSetRenderTargets(1, DXDeviceInstance::GetBackbuffer().GetAddressOf(), DXDeviceInstance::GetDepthStencilView().Get());
+		devcon->RSSetState(this->rsFrontCull.Get());
 
-	renderEnvironmentMap(this->skyboxShader, this->environmentMap.getResourceView());
+		renderEnvironmentMap(this->skyboxShader, this->environmentMap.getResourceView());
+	}
+	else
+	{
+		m_DeferredRenderer.RenderGeometryBuffer(DXDeviceInstance::GetBackbuffer().GetAddressOf(), m_DisplayRTIndex - 1);
+	}
 
+	
 #if ANK_USE_IMGUI
+	// Render ImGUI
 	drawImgui();
 	renderImgui();
 #endif
 
+	// Present BackBuffer
 	DXDeviceInstance::GetSwapchain()->Present(0, 0);
 }
 

@@ -22,12 +22,14 @@ public:
 	const std::array<ID3D11ShaderResourceView*, GBUFFER_COUNT>& GetResourceViews() const;
 
 	void RenderComplete(ID3D11RenderTargetView* const* renderTarget);
+	void RenderGeometryBuffer(ID3D11RenderTargetView* const* renderTarget, unsigned index);
 
 private:
 	bool InitShaders();
 	void InitFullscreenTri();
 
-	DXShader m_FullscreenShader;
+	DXShader m_DeferredPBRShader;
+	DXShader m_FullscreenTextureShader;
 	DXBuffer m_FullscreenTri;
 
 	DXShader shader;
