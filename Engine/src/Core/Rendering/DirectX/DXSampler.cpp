@@ -34,7 +34,7 @@ bool DXSampler::Init(D3D11_FILTER filter, D3D11_TEXTURE_ADDRESS_MODE addressMode
 	return true;
 }
 
-const ComPtr<ID3D11SamplerState>& DXSampler::getSampler()
+ComPtr<ID3D11SamplerState>& DXSampler::getSampler()
 {
 	return this->samplerState;
 }

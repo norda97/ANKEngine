@@ -279,10 +279,10 @@ void DXDeferred::InitFullscreenTri()
 	float vertices[]
 	{
 		// Pos				// Uv
-		-1.f, -1.f, 0.f,	0.f, 0.f,
-		-1.f, 3.f, 0.f,		0.f, -2.f,
-		3.f, -1.f, 0.f,		2.f, 0.f
+		-1.f,	1.0f,	0.f,	0.f, 0.f,
+		3.f,	1.f,	0.f,	2.f, 0.f,
+		-1.0f, -3.0f,	0.f,	0.f, 2.f
 	};
 
-	this->m_FullscreenTri.Init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
+	this->m_FullscreenTri.Init(&vertices, sizeof(float) * 16, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
 }

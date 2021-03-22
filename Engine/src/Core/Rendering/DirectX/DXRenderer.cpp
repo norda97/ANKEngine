@@ -59,8 +59,9 @@ bool DXRenderer::Init()
 		return false;
 
 	// temp
-	this->samplerLinear.Init(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP);
-	this->samplerPoint.Init(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_CLAMP);
+	m_SamplerLinearWrap.Init(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP);
+	m_SamplerPointRepeat.Init(D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_WRAP);
+	m_SamplerPointClamp.Init(D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
 
 	int width, height, nrComponents;
 	stbi_set_flip_vertically_on_load(true);
@@ -158,7 +159,7 @@ void DXRenderer::prepare()
 	updateSceneConstants(0.0f);
 
 	// Set linear sampler
-	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
+	devcon->PSSetSamplers(0, 1, m_SamplerLinearWrap.getSampler().GetAddressOf());
 
 	// Clear depth-stencil and m_GeomBuffers
 	devcon->ClearDepthStencilView(DXDeviceInstance::GetDepthStencilView().Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -204,7 +205,13 @@ void DXRenderer::finishFrame()
 	devcon->OMSetDepthStencilState(this->noDepthStencilState.Get(), 0);
 	devcon->RSSetState(this->rsBackCull.Get());
 
-	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
+	// SSAO
+	ID3D11SamplerState* samplers[] = {
+		m_SamplerPointClamp.getSampler().Get(),
+		m_SamplerPointRepeat.getSampler().Get(),
+	};
+
+	devcon->PSSetSamplers(0, 2, samplers);
 	ID3D11Buffer* cBuffers[1] = { m_SSAOBuffer.GetBuffer().Get() };
 	devcon->PSSetConstantBuffers(0, 1, cBuffers);
 
@@ -222,7 +229,7 @@ void DXRenderer::finishFrame()
 	//	devcon->PSSetShaderResources(6, 1, this->BRDFLutTexture.getShaderResource().GetAddressOf());
 
 	//	// Used to sample BRDF Lut
-	//	devcon->PSSetSamplers(1, 1, this->samplerPoint.getSampler().GetAddressOf());
+	//	devcon->PSSetSamplers(1, 1, this->m_SamplerPointRepeat.getSampler().GetAddressOf());
 
 	//	m_DeferredRenderer.RenderComplete(DXDeviceInstance::GetBackbuffer().GetAddressOf());
 
@@ -453,13 +460,15 @@ void DXRenderer::GenerateSSAOUtils(unsigned sampleCount)
 	}
 
 	// Tiled noise for hemisphere sampling
-	std::vector<Vector3> ssaoNoise;
+	std::vector<Vector4> ssaoNoise;
 	for (unsigned int i = 0; i < 16; i++)
 	{
-		Vector3 noise(
+		Vector4 noise(
 			randomFloats(generator) * 2.0 - 1.0,
 			randomFloats(generator) * 2.0 - 1.0,
+			0.0f,
 			0.0f);
+
 		ssaoNoise.push_back(noise);
 	}
 
@@ -470,7 +479,7 @@ void DXRenderer::GenerateSSAOUtils(unsigned sampleCount)
 	texDesc.Height = 4;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
-	texDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	texDesc.CPUAccessFlags = 0;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
@@ -481,7 +490,7 @@ void DXRenderer::GenerateSSAOUtils(unsigned sampleCount)
 
 	D3D11_SUBRESOURCE_DATA srd = { 0 };
 	srd.pSysMem = (void*)ssaoNoise.data();
-	srd.SysMemPitch = texDesc.Width * 16;
+	srd.SysMemPitch = texDesc.Width * sizeof(Vector4);
 	srd.SysMemSlicePitch = 0;
 
 	m_SSAONoiseTexture.Init(&srd, texDesc);
@@ -600,7 +609,7 @@ void DXRenderer::createCubemap(DXCubemap& m_Cubemap, DXShader& shader, const Com
 	auto& devcon = DXDeviceInstance::GetDevCon();
 	auto& dev = DXDeviceInstance::GetDev();
 
-	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
+	devcon->PSSetSamplers(0, 1, this->m_SamplerLinearWrap.getSampler().GetAddressOf());
 
 	Matrix proj = Matrix::CreatePerspectiveFieldOfView(XM_PI * 0.5f, 1.0f, .1f, 10.f);
 
@@ -613,7 +622,7 @@ void DXRenderer::createCubemap(DXCubemap& m_Cubemap, DXShader& shader, const Com
 	mat[5] =  Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, -1.0), Vector3(0.0, 1.0, 0.0));
 
 	// Set Sampler
-	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
+	devcon->PSSetSamplers(0, 1, this->m_SamplerLinearWrap.getSampler().GetAddressOf());
 
 	ID3D11Buffer* cBuffers[1] = { this->sceneBuffer.GetBuffer().Get() };
 	devcon->VSSetConstantBuffers(0, 1, cBuffers);
@@ -645,7 +654,7 @@ void DXRenderer::createCubemapMip(DXCubemap& m_Cubemap, DXShader& shader, const 
 	if (!roughnessBuffer.Init(NULL, sizeof(float), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCESS_WRITE))
 		return;
 
-	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
+	devcon->PSSetSamplers(0, 1, this->m_SamplerLinearWrap.getSampler().GetAddressOf());
 
 	Matrix proj = Matrix::CreatePerspectiveFieldOfView(XM_PI * 0.5f, 1.0f, .1f, 10.f);
 
@@ -658,7 +667,7 @@ void DXRenderer::createCubemapMip(DXCubemap& m_Cubemap, DXShader& shader, const 
 	mat[5] = Matrix::CreateLookAt(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 0.0, -1.0), Vector3(0.0, 1.0, 0.0));
 
 	// Set Sampler
-	devcon->PSSetSamplers(0, 1, this->samplerLinear.getSampler().GetAddressOf());
+	devcon->PSSetSamplers(0, 1, this->m_SamplerLinearWrap.getSampler().GetAddressOf());
 
 	devcon->VSSetConstantBuffers(0, 1, this->sceneBuffer.GetBuffer().GetAddressOf());
 	devcon->PSSetConstantBuffers(0, 1, roughnessBuffer.GetBuffer().GetAddressOf());
@@ -694,15 +703,20 @@ void DXRenderer::createCubemapMip(DXCubemap& m_Cubemap, DXShader& shader, const 
 
 void DXRenderer::renderBRDFLutTex()
 {
+
+	// Pos				// Uv
+	/*-1.f, -1.f, 0.f, 0.f, 0.f,
+		-1.f, 3.f, 0.f, 0.f, 2.f,
+		3.f, -1.f, 0.f, 2.f, 0.f*/
 	float vertices[]
 	{
 		// Pos				// Uv
-		-1.f, -1.f, 0.f,	0.f, 0.f,
-		-1.f, 3.f, 0.f,		0.f, -2.f,
-		3.f, -1.f, 0.f,		2.f, 0.f
+		-1.f,	1.0f,	0.f,	0.f, 0.f,
+		3.f,	1.f,	0.f,	2.f, 0.f,
+		-1.0f, -3.0f,	0.f,	0.f, 2.f
 	};
 
-	m_FullscreenTri.Init(&vertices, sizeof(float) * 18, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
+	m_FullscreenTri.Init(&vertices, sizeof(float) * 16, D3D11_USAGE_DEFAULT, D3D11_BIND_VERTEX_BUFFER, 0);
 
 	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(D3D11_TEXTURE2D_DESC));
