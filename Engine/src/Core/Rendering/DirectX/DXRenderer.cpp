@@ -433,6 +433,12 @@ void DXRenderer::updateSceneConstants(float dt)
 	// Update campos for deferred
 	Vector3 camPos = this->camera->getPosition();
 	this->scenePBRBuffer.Update(&camPos, sizeof(Vector3), 0);
+
+	SSAOConstants ssaoConstants;
+
+	m_SSAOConstants.View = camera->getView();
+
+	m_SSAOBuffer.Update(&m_SSAOConstants, sizeof(SSAOConstants), 0);
 }
 
 void DXRenderer::GenerateSSAOUtils(unsigned sampleCount)
@@ -533,13 +539,13 @@ void DXRenderer::GenerateSSAOUtils(unsigned sampleCount)
 		LOG_ERROR("Failed to create render target view");
 	}
 
-	SSAOConstants ssaoConstants;
-	ssaoConstants.Projection = camera->getProjection();
-	memcpy(ssaoConstants.samples, ssaoKernel.data(), sizeof(Vector4) * ssaoKernel.size());
-	ssaoConstants.screenWidth = ANKWindowHandler::s_WindowWidth;
-	ssaoConstants.screenHeight = ANKWindowHandler::s_WindowHeight;
+	m_SSAOConstants.Projection = camera->getProjection();
+	m_SSAOConstants.View = camera->getView();
+	memcpy(m_SSAOConstants.samples, ssaoKernel.data(), sizeof(Vector4) * ssaoKernel.size());
+	m_SSAOConstants.screenWidth = ANKWindowHandler::s_WindowWidth;
+	m_SSAOConstants.screenHeight = ANKWindowHandler::s_WindowHeight;
 
-	m_SSAOBuffer.Update(&ssaoConstants, sizeof(SSAOConstants), 0);
+	m_SSAOBuffer.Update(&m_SSAOConstants, sizeof(SSAOConstants), 0);
 }
 
 void DXRenderer::RenderSSAO()

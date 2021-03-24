@@ -23,6 +23,7 @@ struct Light
 
 struct alignas(16) SSAOConstants
 {
+	Matrix View;
 	Matrix Projection;
 	unsigned screenWidth;
 	unsigned screenHeight;
@@ -77,6 +78,9 @@ private:
 	// Deferred rendering
 	DXDeferred m_DeferredRenderer;
 	
+	// SSAO Data
+	SSAOConstants m_SSAOConstants;
+
 	// SSAO Shaders
 	DXShader m_SSAOShader;
 

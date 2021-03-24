@@ -8,6 +8,7 @@ SamplerState	samplerPointWrap		: register(s1);
 
 cbuffer SSAOData : register(b0)
 {
+	float4x4    view;
 	float4x4    projection;
 	uint        screenWidth;
 	uint        screenHeight;
@@ -28,7 +29,9 @@ float4 PSMain(VS_Output input) : SV_TARGET
 	const float2 noiseScale = float2(screenWidth/4.0, screenHeight/4.0);
 
 	float3 fragPos = worldTex.Sample(samplerPointClamp, input.texCoord).xyz;
+	fragPos = float4(mul(view, float4(fragPos, 1.0f)).xyz, 1.0f);
 	float3 normal = normalTex.Sample(samplerPointClamp, input.texCoord).xyz;
+	normal = float4(mul(view, float4(normal, 1.0f)).xyz, 1.0f);
 	float3 randomVec = noiseTex.Sample(samplerPointWrap, input.texCoord * noiseScale).xyz;
 	
 	// Calc TBN
@@ -51,11 +54,12 @@ float4 PSMain(VS_Output input) : SV_TARGET
 		offset.xyz /= offset.w;               // perspective divide
 		offset.xyz  = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0 
 
-		float sampleDepth = worldTex.Sample(samplerPointClamp, offset.xy).z;
+		float3 viewPos = worldTex.Sample(samplerPointClamp, float2(offset.x, 1.0f-offset.y)).xyz;
+		float sampleDepth = mul(view, float4(viewPos, 1.0f)).z;
+
 		float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
 		occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;  
 	} 
-
 	occlusion = 1.0 - (occlusion / kernelSize);
 	return float4(float3(occlusion, occlusion, occlusion), 1.0f); // TODO: This should be R16_F tex
 }
