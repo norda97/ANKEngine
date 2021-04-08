@@ -13,114 +13,127 @@ Camera::~Camera()
 
 bool Camera::Init(float defaultSpeed, float fov, float aspect, Vector3 target, Vector3 position, float nearPlane, float farPlane)
 {
-	this->defaultSpeed = defaultSpeed;
+	m_DefaultSpeed = defaultSpeed;
 
-	this->forward = target - position;
-	this->forward.Normalize();
+	m_Forward = target - position;
+	m_Forward.Normalize();
 
-	float omega = atan2(this->forward.x, this->forward.z);
-	this->rotation.y = omega;
+	float omega = atan2(m_Forward.x, m_Forward.z);
+	m_Rotation.y = omega;
 
-	this->right = this->forward.Cross(this->defaultUp);
-	this->right.Normalize();
+	m_Right = m_Forward.Cross(m_DefaultUp);
+	m_Right.Normalize();
 
-	this->position = position;
-	this->up = this->defaultUp;
-	this->view = Matrix::CreateLookAt(position, target, this->defaultUp);
-	this->projection = Matrix::CreatePerspectiveFieldOfView(fov, aspect, nearPlane, farPlane);
+	m_Position = position;
+	m_Up = m_DefaultUp;
+	m_View = Matrix::CreateLookAt(position, target, m_DefaultUp);
+	m_Projection = Matrix::CreatePerspectiveFieldOfView(fov, aspect, nearPlane, farPlane);
+
+	m_Interia = 0.9f;
+	m_RotationLag = Vec3(0.0f);
 
 	return true;
 }
 
 void Camera::update(float dt)
 {
-	float speedFactor = defaultSpeed;
-	float radPerFrame = XM_PI *0.5;
+	float speedFactor = m_DefaultSpeed;
+	float radPerFrame = XM_PI * 0.1f;
 
 	if (Input::Get().keyPressed(KEY_SHIFT)) {
-		speedFactor *= 8.0;
-		radPerFrame *= 4.0;
+		speedFactor *= 8.0f;
+		radPerFrame *= 2.0f;
 	}
 
 	if (Input::Get().keyPressed(KEY_LEFT))
-		this->rotation.y += radPerFrame * dt;
+		m_RotationLag.y += radPerFrame * dt;
 	if (Input::Get().keyPressed(KEY_RIGHT))
-		this->rotation.y -= radPerFrame * dt;
+		m_RotationLag.y -= radPerFrame * dt;
 	if (Input::Get().keyPressed(KEY_UP))
-		this->rotation.x = max(this->rotation.x - radPerFrame * dt, -XM_PI * 0.5);
+		m_RotationLag.x -= radPerFrame * dt;
 	if (Input::Get().keyPressed(KEY_DOWN))
-		this->rotation.x = min(this->rotation.x + radPerFrame * dt, XM_PI * 0.5);
+		m_RotationLag.x += radPerFrame * dt;
+
+	// Add smoothing
+	m_Rotation += m_RotationLag;
+	m_RotationLag *= m_Interia;
+
+	// Constrain X axis
+	if (m_Rotation.x < 0.f)
+		m_Rotation.x = max(m_Rotation.x, -XM_PI * 0.5f);
+	else
+		m_Rotation.x = min(m_Rotation.x, XM_PI * 0.5f);
 
 	//Matrix rotationMatrix;
-	//rotationMatrix.CreateFromYawPitchRoll(this->rotation.x, this->rotation.y, this->rotation.z);
-	Matrix xRotMat = Matrix::CreateRotationX(this->rotation.x);
-	Matrix yRotMat = Matrix::CreateRotationY(this->rotation.y);
-	//Matrix zRotMat = Matrix::CreateRotationZ(this->rotation.z);
+	//rotationMatrix.CreateFromYawPitchRoll(rotation.x, rotation.y, rotation.z);
+	Matrix xRotMat = Matrix::CreateRotationX(m_Rotation.x);
+	Matrix yRotMat = Matrix::CreateRotationY(m_Rotation.y);
+	//Matrix zRotMat = Matrix::CreateRotationZ(rotation.z);
 	Matrix finalRotMat = xRotMat * yRotMat;
-	this->forward = XMVector3TransformCoord(this->defaultForward, finalRotMat);
-	this->right = XMVector3TransformCoord(this->defaultRight, finalRotMat);
-	this->up = this->forward.Cross(this->right);
-	this->up.Normalize();
+	m_Forward = XMVector3TransformCoord(m_DefaultForward, finalRotMat);
+	m_Right = XMVector3TransformCoord(m_DefaultRight, finalRotMat);
+	m_Up = m_Forward.Cross(m_Right);
+	m_Up.Normalize();
 
 	if (Input::Get().keyPressed(KEY_W))
-		this->position += this->forward * speedFactor * dt;
+		m_Position += m_Forward * speedFactor * dt;
 	if (Input::Get().keyPressed(KEY_S))
-		this->position -= this->forward * speedFactor * dt;
+		m_Position -= m_Forward * speedFactor * dt;
 	if (Input::Get().keyPressed(KEY_A))
-		this->position += this->right * speedFactor * dt;
+		m_Position += m_Right * speedFactor * dt;
 	if(Input::Get().keyPressed(KEY_D))
-		this->position -= this->right * speedFactor * dt;
+		m_Position -= m_Right * speedFactor * dt;
 	if (Input::Get().keyPressed(KEY_SPACE))
-		this->position.y += speedFactor * dt;
+		m_Position.y += speedFactor * dt;
 	if (Input::Get().keyPressed(KEY_CTRL))
-		this->position.y -= speedFactor * dt;
+		m_Position.y -= speedFactor * dt;
 
 
-	Vector3 target = this->position + this->forward;
+	Vector3 target = m_Position + m_Forward;
 
-	this->view = Matrix::CreateLookAt(this->position, target, this->up);
+	m_View = Matrix::CreateLookAt(m_Position, target, m_Up);
 }
 
 const Vector3& Camera::getPosition() const
 {
-	return this->position;
+	return m_Position;
 }
 
 void Camera::rotate(Vector3 axis, float rad)
 {
 	if (axis == Vector3(1.0f, 0.0f, 0.0f))
-		this->rotation.x = rad;
+		m_Rotation.x = rad;
 	if (axis == Vector3(0.0f, 1.0f, 0.0f))
-		this->rotation.y = rad;
+		m_Rotation.y = rad;
 	if (axis == Vector3(0.0f, 0.0f, 1.0f))
-		this->rotation.z = rad;
+		m_Rotation.z = rad;
 }
 
 Matrix Camera::getView() const
 {
-	return this->view;
+	return m_View;
 }
 
 Matrix Camera::getProjection() const
 {
-	return this->projection;
+	return m_Projection;
 }
 
 Matrix Camera::getRotation() const
 {
-	Matrix xRotMat = Matrix::CreateRotationX(this->rotation.x);
-	Matrix yRotMat = Matrix::CreateRotationY(this->rotation.y);
-	//Matrix zRotMat = Matrix::CreateRotationZ(this->rotation.z);
+	Matrix xRotMat = Matrix::CreateRotationX(m_Rotation.x);
+	Matrix yRotMat = Matrix::CreateRotationY(m_Rotation.y);
+	//Matrix zRotMat = Matrix::CreateRotationZ(rotation.z);
 	Matrix finalRotMat = xRotMat * yRotMat;
-	Vector3 forward = XMVector3TransformCoord(this->defaultForward, finalRotMat);
-	Vector3 right = XMVector3TransformCoord(this->defaultRight, finalRotMat);
-	Vector3 up = this->forward.Cross(this->right);
+	Vector3 forward = XMVector3TransformCoord(m_DefaultForward, finalRotMat);
+	Vector3 right = XMVector3TransformCoord(m_DefaultRight, finalRotMat);
+	Vector3 up = m_Forward.Cross(m_Right);
 	up.Normalize();
 
-	return Matrix::CreateLookAt(Vector3(0.0f, 0.0f, 0.0f), forward, this->up);
+	return Matrix::CreateLookAt(Vector3(0.0f, 0.0f, 0.0f), forward, m_Up);
 }
 
 Matrix Camera::getViewProjection() const
 {
-	return this->view * this->projection;
+	return m_View * m_Projection;
 }

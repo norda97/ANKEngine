@@ -60,7 +60,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	DXDeviceInstance::Init(ANKWindowHandler::s_hWnd);
 
-	/*ANKThreadPool::Init();
+	/* ########## THREAD POOL TEST ################
+	
+	ANKThreadPool::Init();
 
 	ANKThreadPool::QueueJob([]() {
 		for (size_t i = 0; i < 10; i++)

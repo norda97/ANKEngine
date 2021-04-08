@@ -299,19 +299,19 @@ bool ModelHandler::processMaterial(const std::string& path, const aiMaterial* ai
 {
 	// Diffuse texture
 	if (!processMaterialTexture(aiTextureType_DIFFUSE, path, aiMat, mat)) {
-		LOG_WARNING("\tFailed to find diffuse texture for model, Opting for default diffuse");
+		LOG_INFO("\tFailed to find diffuse texture for model, Opting for default diffuse");
 	}
 
 	if (!processMaterialTexture(aiTextureType_AMBIENT, path, aiMat, mat)) {
-		LOG_WARNING("\tFailed to find metallic texture for model, Opting for default metallic");
+		LOG_INFO("\tFailed to find metallic texture for model, Opting for default metallic");
 	}
 
 	if (!processMaterialTexture(aiTextureType_SHININESS, path, aiMat, mat)) {
-		LOG_WARNING("\tFailed to find roughness texture for model, Opting for default roughness");
+		LOG_INFO("\tFailed to find roughness texture for model, Opting for default roughness");
 	}
 
 	if (!processMaterialTexture(aiTextureType_HEIGHT, path, aiMat, mat)) {
-		LOG_WARNING("\tFailed to find normal texture for model, Opting for default normal");
+		LOG_INFO("\tFailed to find normal texture for model, Opting for default normal");
 	}
 
 	mat->setAmbientOcclusionMap(this->textureMap[ANK_TEXTURE_DEFAULT_WHITE_PATH]);
