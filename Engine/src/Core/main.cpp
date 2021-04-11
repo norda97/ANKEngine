@@ -117,7 +117,7 @@ void Run()
 			if (msg.message == WM_QUIT)
 				break;
 		}
-		else
+
 		{
 
 			// Handle DirectX error output messages
@@ -135,7 +135,8 @@ void Run()
 				elapsedTime = 0;
 				frames = 0;
 			}
-
+			
+			// Updates scene, which in turn updates ECS system of the scene and rendering of MeshInstances
 			sceneHandler.tick(dt);
 		}
 	}

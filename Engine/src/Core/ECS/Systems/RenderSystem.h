@@ -81,7 +81,7 @@ private:
 
 	ECS* m_pEcs;
 
-	std::map <MaterialID, std::unordered_map<MeshID, InstanceDataContainer<Mat4>>>	instanceData;
+	std::map <MaterialID, std::unordered_map<MeshID, InstanceDataContainer<Mat4>>>	m_InstanceData;
 
 	DXBuffer m_TransformBuffer;
 	DXBuffer m_StagingTransformBuffer;

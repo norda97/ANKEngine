@@ -29,7 +29,7 @@ bool Camera::Init(float defaultSpeed, float fov, float aspect, Vector3 target, V
 	m_View = Matrix::CreateLookAt(position, target, m_DefaultUp);
 	m_Projection = Matrix::CreatePerspectiveFieldOfView(fov, aspect, nearPlane, farPlane);
 
-	m_Interia = 0.9f;
+	m_Interia = 0.95f;
 	m_RotationLag = Vec3(0.0f);
 
 	return true;
@@ -38,7 +38,7 @@ bool Camera::Init(float defaultSpeed, float fov, float aspect, Vector3 target, V
 void Camera::update(float dt)
 {
 	float speedFactor = m_DefaultSpeed;
-	float radPerFrame = XM_PI * 0.1f;
+	float radPerFrame = XM_PI * 0.03f;
 
 	if (Input::Get().keyPressed(KEY_SHIFT)) {
 		speedFactor *= 8.0f;

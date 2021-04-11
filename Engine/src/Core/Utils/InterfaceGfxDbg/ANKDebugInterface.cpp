@@ -3,7 +3,7 @@
 
 ImVec2 ANKDebugInterface::s_Pos = ImVec2(0.0f, 0.0f);
 ImVec2 ANKDebugInterface::s_Size = ImVec2(100, 100);
-ImVec2 ANKDebugInterface::s_CoverFactor = ImVec2(0.25f, 1.0f);
+ImVec2 ANKDebugInterface::s_CoverFactor = ImVec2(0.2f, 0.5f);
 
 std::vector<std::function<void()>> ANKDebugInterface::s_InterfaceCallbacks;
 
@@ -12,7 +12,7 @@ void ANKDebugInterface::Display()
 	// SidePanel
 	ImGui::SetNextWindowPos(s_Pos);
 	ImGui::SetNextWindowSize(s_Size);
-	ImGui::Begin("Settings", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_MenuBar);
+	ImGui::Begin("Settings", NULL);
 
 	// Draw Interface callbacks
 	for (auto& callback : s_InterfaceCallbacks)
@@ -37,9 +37,8 @@ void ANKDebugInterface::Display()
 
 	ImGui::End();
 	
-	ImGui::ShowDemoWindow();
 	/*
-	ImGui::ShowUserGuide();
+	ImGui::ShowDemoWindow();
 	*/
 }
 
