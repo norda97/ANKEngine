@@ -218,9 +218,11 @@ void DXDeviceInstance::HandleErrorMessage()
 
 			if (msgSize > 0)
 			{
-				HRESULT hr = s_InfoQueue->GetMessage(i, errorMsg, &msgSize);
+				HRESULT hr = s_InfoQueue->GetMessage(i, errorMsg, &newMsgSize);
 				if (FAILED(hr))
+				{
 					LOG_ERROR("Failed to retrieve message from ID3D11InfoQueue");
+				}
 
 				LOG_INFO(": %.*s", errorMsg->DescriptionByteLength, errorMsg->pDescription);
 			}

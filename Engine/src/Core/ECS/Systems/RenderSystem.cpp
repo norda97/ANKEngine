@@ -63,7 +63,7 @@ void RenderSystem::update(DXRenderer& renderer)
 			matrix *= Matrix::CreateFromYawPitchRoll(transform.Rotation.y, transform.Rotation.x, transform.Rotation.z);
 			matrix *= Matrix::CreateTranslation(transform.Position);
 
-			this->instanceData[meshInstance.materialID][meshInstance.meshID].updateEntity(entity, matrix);
+			this->m_InstanceData[meshInstance.materialID][meshInstance.meshID].updateEntity(entity, matrix);
 		}
 	}
 
@@ -82,7 +82,7 @@ void RenderSystem::update(DXRenderer& renderer)
 	unsigned instanceOffset = 0;
 	devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	for (auto& materialID : this->instanceData)
+	for (auto& materialID : this->m_InstanceData)
 	{
 		renderer.setMaterial(materialID.first);
 		for (auto& meshID : materialID.second)
@@ -119,7 +119,7 @@ void RenderSystem::insertEntityEvent(Entity entity)
 	const Model& model = modelMap.at(drawable.ModelID);
 	for (auto const& meshInstance : model.getMeshInstances())
 	{
-		auto& transformContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
+		auto& transformContainer = m_InstanceData[meshInstance.materialID][meshInstance.meshID];
 
 		transformContainer.addEntity(entity);
 	}
@@ -134,7 +134,7 @@ void RenderSystem::eraseEntityEvent(Entity entity)
 	const Model & model = modelMap.at(drawable.ModelID);
 	for (auto const& meshInstance : model.getMeshInstances())
 	{
-		auto& transformContainer = instanceData[meshInstance.materialID][meshInstance.meshID];
+		auto& transformContainer = m_InstanceData[meshInstance.materialID][meshInstance.meshID];
 
 		transformContainer.removeEntity(entity);
 	}
@@ -149,7 +149,7 @@ void RenderSystem::updateTransformBuffer()
 	if (SUCCEEDED(hr))
 	{ 
 		unsigned instanceIndex = 0;
-		for (auto& materialID : this->instanceData)
+		for (auto& materialID : this->m_InstanceData)
 		{
 			for (auto& meshID : materialID.second)
 			{

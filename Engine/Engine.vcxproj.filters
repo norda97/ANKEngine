@@ -186,6 +186,9 @@
     <ClInclude Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterface.h">
       <Filter>Core\Utils\InterfaceGfxDbg</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\Utils\Logger.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Utils\ThreadPool\ANKThreadPool.h">
       <Filter>Core\Utils\ThreadPool</Filter>
     </ClInclude>
@@ -266,6 +269,9 @@
     </ClCompile>
     <ClCompile Include="src\Core\Utils\InterfaceGfxDbg\ANKDebugInterface.cpp">
       <Filter>Core\Utils\InterfaceGfxDbg</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Utils\Logger.cpp">
+      <Filter>Core\Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Utils\ThreadPool\ANKThreadPool.cpp">
       <Filter>Core\Utils\ThreadPool</Filter>

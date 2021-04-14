@@ -19,20 +19,22 @@ public:
 	Matrix getViewProjection() const;
 
 private:
-	float defaultSpeed;
+	float m_DefaultSpeed;
+	float m_Interia;
 
-	Vector3 position;
-	Vector3 rotation;
+	Vector3 m_Position;
+	Vector3 m_Rotation;
+	Vector3 m_RotationLag;
 
-	Matrix view;
-	Matrix projection;
+	Matrix m_View;
+	Matrix m_Projection;
 
-	Vector3 forward;
-	Vector3 up;
-	Vector3 right;
+	Vector3 m_Forward;
+	Vector3 m_Up;
+	Vector3 m_Right;
 
-	const Vector3 defaultRight		= Vector3(1.0f, 0.0f, 0.0f);
-	const Vector3 defaultUp			= Vector3(0.0f, 1.0f, 0.0f);
-	const Vector3 defaultForward	= Vector3(0.0f, 0.0f, 1.0f);
+	const Vector3 m_DefaultRight		= Vector3(1.0f, 0.0f, 0.0f);
+	const Vector3 m_DefaultUp			= Vector3(0.0f, 1.0f, 0.0f);
+	const Vector3 m_DefaultForward	= Vector3(0.0f, 0.0f, 1.0f);
 };
 

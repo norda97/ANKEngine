@@ -343,8 +343,8 @@ bool DXRenderer::initBuffers()
 		return false;
 
 	Light light;
-	light.position = Vector3(5.f, 2.f, -20.f);
-	light.intensity = 1000.0f;
+	light.position = Vector3(50.f, 25.f, 0.f);
+	light.intensity = 2000.0f;
 
 	if (!this->lightBuffer.Init(&light, sizeof(Light), D3D11_USAGE_DEFAULT, D3D11_BIND_CONSTANT_BUFFER, 0))
 		return false;
