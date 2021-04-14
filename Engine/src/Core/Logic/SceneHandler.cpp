@@ -10,16 +10,16 @@ SceneHandler::SceneHandler()
 
 SceneHandler::~SceneHandler()
 {
-	this->Shutdown();
+	Shutdown();
 }
 
 bool SceneHandler::SetCurrentScene(IScene* pscene)
 {
-	this->ShutdownCurrScene();
+	ShutdownCurrScene();
 
 	if (pscene) {
-		this->m_pCurrentScene = pscene;
-		this->m_pCurrentScene->Init();
+		m_pCurrentScene = pscene;
+		m_pCurrentScene->Init();
 		return true;
 	}
 
@@ -28,11 +28,11 @@ bool SceneHandler::SetCurrentScene(IScene* pscene)
 
 void SceneHandler::Tick(double dt)
 {
-	if (this->m_pCurrentScene) {
+	if (m_pCurrentScene) {
 
-		this->m_pCurrentScene->Update(dt);
+		m_pCurrentScene->Update(dt);
 
-		this->m_pCurrentScene->Render();
+		m_pCurrentScene->Render();
 	}
 	else {
 		LOG_ERROR("No scene set as current in scene handler!");
@@ -49,9 +49,9 @@ void SceneHandler::Shutdown()
 
 void SceneHandler::ShutdownCurrScene()
 {
-	if (this->m_pCurrentScene) {
-		this->m_pCurrentScene->Shutdown();
-		delete this->m_pCurrentScene;
-		this->m_pCurrentScene = nullptr;
+	if (m_pCurrentScene) {
+		m_pCurrentScene->Shutdown();
+		delete m_pCurrentScene;
+		m_pCurrentScene = nullptr;
 	}
 }
