@@ -27,12 +27,11 @@ MainScene::~MainScene()
 
 bool MainScene::Init()
 {
-
-	this->renderer.Init();
+	this->m_Renderer.Init();
 	
 	// Init camera
-	this->camera.Init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f, 8.f, 0.f), Vector3(-30.f, 8.f, 0.0f), 0.1f, 1000.0f);
-	this->renderer.setCamera(&camera);
+	this->m_Camera.Init(10.0f, XM_PI * 0.25f, float(SCREEN_WIDTH) / float(SCREEN_HEIGHT), Vector3(0.0f, 8.f, 0.f), Vector3(-30.f, 8.f, 0.0f), 0.1f, 1000.0f);
+	this->m_Renderer.setCamera(&m_Camera);
 
 	m_Ecs.Init();
 
@@ -41,7 +40,7 @@ bool MainScene::Init()
 	m_Ecs.RegisterComponent<RigidBody>();
 	m_Ecs.RegisterComponent<Gravity>();
 
-	this->hoverSystem = m_Ecs.RegisterSystem<HoverSystem>();
+	this->m_pHoverSystem = m_Ecs.RegisterSystem<HoverSystem>();
 	{
 		Signature signature;
 		signature.set(m_Ecs.GetComponentType<Gravity>());
@@ -50,7 +49,7 @@ bool MainScene::Init()
 		m_Ecs.SetSystemSignature<HoverSystem>(signature);
 	}
 
-	this->physicsSystem = m_Ecs.RegisterSystem<PhysicsSystem>();
+	this->m_pPhysicsSystem = m_Ecs.RegisterSystem<PhysicsSystem>();
 	{
 		Signature signature;
 		signature.set(m_Ecs.GetComponentType<Transform>());
@@ -58,27 +57,23 @@ bool MainScene::Init()
 		m_Ecs.SetSystemSignature<PhysicsSystem>(signature);
 	}
 
-	this->renderSystem = m_Ecs.RegisterSystem<RenderSystem>();
+	this->m_pRenderSystem = m_Ecs.RegisterSystem<RenderSystem>();
 	{
 		Signature signature;
 		signature.set(m_Ecs.GetComponentType<Transform>());
 		signature.set(m_Ecs.GetComponentType<Drawable>());
 		m_Ecs.SetSystemSignature<RenderSystem>(signature);
 	}
-	this->renderSystem->Init(&m_Ecs);
+	this->m_pRenderSystem->Init(&m_Ecs);
 	ModelHandler& mh = ModelHandler::Get();
 	Model& sponza = mh.loadModel(std::string(ANK_MODEL_PATH).append("SponzaPBR/"), "sponza.obj", "sponza");
 	Model& sphere = mh.loadModel(std::string(ANK_MODEL_PATH).append("MatTest/"), "lowpoly_sphere_224tris.obj", "sphere");
 
-	
-
-
-
 	// Material Showcase
 	uint32_t sphereCount = 5;
-	uint32_t currEntityCount = entities.size();
+	uint32_t currEntityCount = m_Entities.size();
 	uint32_t index = currEntityCount;
-	this->entities.resize(currEntityCount + 25);
+	this->m_Entities.resize(currEntityCount + 25);
 	const float scale = 2.0f;
 	const float offset = 4.0f;
 	for (unsigned i = 0; i < sphereCount; i++)
@@ -86,7 +81,7 @@ bool MainScene::Init()
 		for (unsigned j = 0; j < sphereCount; j++)
 		{
 			Entity entity = m_Ecs.CreateEntity();
-			this->entities[index] = entity;
+			this->m_Entities[index] = entity;
 			Model& newSphere = mh.duplicateModel(sphere, "redSphere");
 			MaterialID newMatID = mh.createMaterial(Vector4(1.0f, 0.0f, 0.0f, 1.0f), 1.0f - (float)(j * (1.0f / sphereCount)), (float)(i * (1.0f / sphereCount)));
 			newSphere.changeMeshMaterial(0, newMatID);
@@ -177,28 +172,28 @@ bool MainScene::Init()
 	return true;
 }
 
-bool MainScene::update(float dt)
+bool MainScene::Update(float dt)
 {
-	this->hoverSystem->update(m_Ecs, dt);
-	this->physicsSystem->update(m_Ecs, dt);
+	this->m_pHoverSystem->update(m_Ecs, dt);
+	this->m_pPhysicsSystem->update(m_Ecs, dt);
 
-	camera.update(dt);
+	m_Camera.update(dt);
 
 	return true;
 }
 
-bool MainScene::render()
+bool MainScene::Render()
 {
-	this->renderer.prepare();
+	this->m_Renderer.prepare();
 
-	this->renderSystem->update(this->renderer);
+	this->m_pRenderSystem->update(this->m_Renderer);
 
-	this->renderer.finishFrame();
+	this->m_Renderer.finishFrame();
 
 	return true;
 }
 
-void MainScene::shutdown()
+void MainScene::Shutdown()
 {
 }
 

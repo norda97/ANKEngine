@@ -11,27 +11,26 @@ class RenderSystem;
 class PhysicsSystem;
 class HoverSystem;
 
-class MainScene : public Scene
+class MainScene : public IScene
 {
 public:
 	MainScene();
 	~MainScene();
 
 	bool Init();
-	bool update(float dt);
-	bool render();
-	void shutdown();
-
+	bool Update(float dt);
+	bool Render();
+	void Shutdown();
 
 private:
-	std::vector<Entity> entities;
+	std::vector<Entity> m_Entities;
 
-	RenderSystem* renderSystem;
-	PhysicsSystem* physicsSystem;
-	HoverSystem* hoverSystem;
+	RenderSystem* m_pRenderSystem;
+	PhysicsSystem* m_pPhysicsSystem;
+	HoverSystem* m_pHoverSystem;
 
 	ECS m_Ecs;
 
-	DXRenderer renderer;
-	Camera camera;
+	DXRenderer m_Renderer;
+	Camera m_Camera;
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-class Scene;
+class IScene;
 
 class SceneHandler
 {
@@ -8,17 +8,15 @@ public:
 	SceneHandler();
 	~SceneHandler();
 
-	bool setCurrentScene(Scene* scene);
+	bool SetCurrentScene(IScene* pscene);
 
-	void tick(double dt);
+	void Tick(double dt);
 
 
-	void shutdown();
+	void Shutdown();
 private:
-	void shutdownCurrScene();
+	void ShutdownCurrScene();
 
-
-	Scene* currentScene;
-
+	IScene* m_pCurrentScene;
 };
 

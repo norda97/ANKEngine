@@ -4,35 +4,35 @@
 #include "Core/Model/ModelHandler.h"
 
 SceneHandler::SceneHandler()
-	: currentScene(nullptr)
+	: m_pCurrentScene(nullptr)
 {
 }
 
 SceneHandler::~SceneHandler()
 {
-	this->shutdown();
+	this->Shutdown();
 }
 
-bool SceneHandler::setCurrentScene(Scene* scene)
+bool SceneHandler::SetCurrentScene(IScene* pscene)
 {
-	this->shutdownCurrScene();
+	this->ShutdownCurrScene();
 
-	if (scene) {
-		this->currentScene = scene;
-		this->currentScene->Init();
+	if (pscene) {
+		this->m_pCurrentScene = pscene;
+		this->m_pCurrentScene->Init();
 		return true;
 	}
 
 	return false;
 }
 
-void SceneHandler::tick(double dt)
+void SceneHandler::Tick(double dt)
 {
-	if (this->currentScene) {
+	if (this->m_pCurrentScene) {
 
-		this->currentScene->update(dt);
+		this->m_pCurrentScene->Update(dt);
 
-		this->currentScene->render();
+		this->m_pCurrentScene->Render();
 	}
 	else {
 		LOG_ERROR("No scene set as current in scene handler!");
@@ -40,18 +40,18 @@ void SceneHandler::tick(double dt)
 
 }
 
-void SceneHandler::shutdown()
+void SceneHandler::Shutdown()
 {
-	shutdownCurrScene();
+	ShutdownCurrScene();
 
 	ModelHandler::Get().shutdown();
 }
 
-void SceneHandler::shutdownCurrScene()
+void SceneHandler::ShutdownCurrScene()
 {
-	if (this->currentScene) {
-		this->currentScene->shutdown();
-		delete this->currentScene;
-		this->currentScene = nullptr;
+	if (this->m_pCurrentScene) {
+		this->m_pCurrentScene->Shutdown();
+		delete this->m_pCurrentScene;
+		this->m_pCurrentScene = nullptr;
 	}
 }

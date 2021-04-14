@@ -9,16 +9,16 @@ struct alignas(16) SceneVariables
 	float time;
 };
 
-class Scene
+class IScene
 {
 public:
-	Scene() = default;
-	virtual ~Scene() = default;
+	IScene() = default;
+	virtual ~IScene() = default;
 
 	virtual bool Init() = 0;
-	virtual bool update(float dt) = 0;
-	virtual bool render() = 0;
-	virtual void shutdown() = 0;
+	virtual bool Update(float dt) = 0;
+	virtual bool Render() = 0;
+	virtual void Shutdown() = 0;
 
 protected:
 	//EntityHandler entityHandler;

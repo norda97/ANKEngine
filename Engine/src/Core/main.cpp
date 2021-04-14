@@ -60,7 +60,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	DXDeviceInstance::Init(ANKWindowHandler::s_hWnd);
 
-	/*ANKThreadPool::Init();
+	/* ##### THREADING TEST #######
+	ANKThreadPool::Init();
 
 	ANKThreadPool::QueueJob([]() {
 		for (size_t i = 0; i < 10; i++)
@@ -101,7 +102,7 @@ void Run()
 	ANKThreadPool::Init();
 
 	SceneHandler sceneHandler;
-	sceneHandler.setCurrentScene(new MainScene());
+	sceneHandler.SetCurrentScene(new MainScene());
 
 	MSG msg = { 0 };
 	while (true)
@@ -134,7 +135,7 @@ void Run()
 				frames = 0;
 			}
 
-			sceneHandler.tick(dt);
+			sceneHandler.Tick(dt);
 		}
 	}
 }
