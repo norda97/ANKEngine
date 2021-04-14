@@ -32,7 +32,7 @@ private:
 	DXShader m_FullscreenTextureShader;
 	DXBuffer m_FullscreenTri;
 
-	DXShader shader;
+	DXShader m_PreRenderShader;
 
 	std::vector<ComPtr<ID3D11Texture2D>>					m_GeomBuffers;
 	std::vector<ComPtr<ID3D11RenderTargetView>>				m_RenderTargets;
