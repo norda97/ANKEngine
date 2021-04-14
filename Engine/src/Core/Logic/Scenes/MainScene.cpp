@@ -124,7 +124,7 @@ bool MainScene::Init()
 
 		ANKModelID materials[3] = { sphere.getModelID(), redSphere.getModelID(), blueSphere.getModelID() };
 		unsigned index = 0;
-		for (auto& entity : entities) {
+		for (auto& entity : m_Entities) {
 			const Vec3 offset = { randPos(generator), 15.f, randPos(generator) };
 			entity = m_Ecs.CreateEntity();
 
